@@ -1,12 +1,23 @@
 // import { useState } from "react";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import "./App.scss";
 import Header from "./components/header";
+import Create from "./pages/create";
+import Predict from "./pages/predict";
 
 function App() {
   return (
-    <>
+    <Router>
       <Header />
-    </>
+      {/* header padding */}
+      <div className="pt-12"></div>
+
+      <Routes>
+        <Route path="/create" element={<Create />} />
+        <Route path="/predict" element={<Predict />} />
+        {/* <Route path="/about" element={<About />} /> */}
+      </Routes>
+    </Router>
   );
 }
 

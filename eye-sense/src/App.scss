@@ -1,11 +1,18 @@
 :root {
-  padding: 0;
-  margin: 0;
-  display: block;
+  background-color: rgb(230, 230, 230);
 }
 
-header {
-  a {
-    text-decoration: none;
-  }
+.btn {
+  cursor: pointer;
+  border-radius: calc(infinity * 1px);
+  padding: 5px 10px;
+}
+
+.blue-btn {
+  background-color: rgb(44, 72, 167);
+  color: white;
+}
+
+.grey-btn {
+  background-color: rgb(230, 230, 230);
 }
