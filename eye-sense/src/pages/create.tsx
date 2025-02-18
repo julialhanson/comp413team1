@@ -1,10 +1,19 @@
 import React, { useState } from "react";
 
 const Create = () => {
-  const [surveyName, setSurveyName] = useState("");
-  const [questions, setQuestions] = useState([
-    { text: "", type: "multiple choice", options: ["Option 1", "Option 2"] },
-  ]);
+  type Option = {
+    id: number;
+    text: string;
+  };
+  type Question = {
+    text: string;
+    type: string | "multiple choice" | "checkboxes" | "dropdown";
+    options: Option[];
+  };
+
+  const [surveyName, setSurveyName] = useState<string>("");
+  const [questions, setQuestions] = useState<Question[]>([]);
+  const [optionId, setOptionId] = useState<number>(1);
 
   const addQuestion = () => {
     setQuestions([
@@ -41,11 +50,13 @@ const Create = () => {
       {/* DISPLAY QUESTIONS */}
       {questions.map((question, index) => (
         <div
-          className="question-draft bg-white rounded-xl mb-3 p-3"
+          className="question-draft bg-white rounded-xl mb-3 p-4"
           key={index}
         >
           <div className="flex items-start justify-between">
+            <h1 className="font-bold">{index + 1}</h1>
             <input
+              className="w-full mx-3"
               type="text"
               value={question.text}
               placeholder="Write your question..."
@@ -58,7 +69,7 @@ const Create = () => {
 
             {/* SELECT QUESTION TYPE */}
             <select
-              className="border p-2 rounded-full"
+              className="border p-2 rounded-full cursor-pointer"
               value={question.type}
               onChange={(e) => {
                 const newQuestions = [...questions];
@@ -75,26 +86,43 @@ const Create = () => {
           {/* DISPLAY QUESTION OPTIONS */}
           <div className="flex flex-col">
             {question.options.map((option, optionIdx) => (
-              <label key={optionIdx} className="pb-2">
-                <input
-                  name={"question-" + index}
-                  type={getOptionType(question.type)}
-                  value={option}
-                  disabled
-                  // checked={selectedValue === option}
-                  // onChange={onChange}
-                />
-                <input
-                  className="mx-2"
-                  type="text"
-                  placeholder={"Option " + (optionIdx + 1)}
-                  onChange={(e) => {
+              <div key={option.id} className="mb-2">
+                <button
+                  className="text-red-600 mr-2"
+                  onClick={() => {
                     const newQuestions = [...questions];
-                    newQuestions[index].options[optionIdx] = e.target.value;
+                    const newOptions = question.options.filter(
+                      (_checkOption, checkOptionIdx) =>
+                        checkOptionIdx !== optionIdx
+                    );
+                    newQuestions[index].options = newOptions;
                     setQuestions(newQuestions);
                   }}
-                />
-              </label>
+                >
+                  <i className="fa-solid fa-xmark"></i>
+                </button>
+                <label className="pb-2">
+                  <input
+                    name={"question-" + index}
+                    type={getOptionType(question.type)}
+                    value={option.text}
+                    disabled
+                    // checked={selectedValue === option}
+                    // onChange={onChange}
+                  />
+                  <input
+                    className="mx-2"
+                    type="text"
+                    placeholder={"Option " + (optionIdx + 1)}
+                    onChange={(e) => {
+                      const newQuestions = [...questions];
+                      newQuestions[index].options[optionIdx].text =
+                        e.target.value;
+                      setQuestions(newQuestions);
+                    }}
+                  />
+                </label>
+              </div>
             ))}
 
             <div className="flex justify-between mt-2">
@@ -105,9 +133,13 @@ const Create = () => {
                   const newQuestions = [...questions];
                   const optionsLength: number =
                     newQuestions[index].options.length;
+                  setOptionId(optionId + 1);
                   newQuestions[index].options = [
                     ...newQuestions[index].options,
-                    "Option " + (optionsLength + 1),
+                    {
+                      id: optionId,
+                      text: "Option " + (optionsLength + 1),
+                    },
                   ];
                   setQuestions(newQuestions);
                 }}
@@ -117,7 +149,7 @@ const Create = () => {
 
               {/* DELETE QUESTION BUTTON */}
               <button
-                className="btn blue-btn"
+                className="btn text-gray-500"
                 onClick={() =>
                   setQuestions(
                     questions.filter(
@@ -126,7 +158,7 @@ const Create = () => {
                   )
                 }
               >
-                Delete
+                <i className="fa-solid fa-trash"></i>
               </button>
             </div>
           </div>
@@ -135,10 +167,10 @@ const Create = () => {
 
       {/* ADD QUESTION BUTTON */}
       <button
-        className="w-full bg-white rounded-xl text-left p-3"
+        className="w-full bg-white rounded-xl text-left p-3 cursor-pointer text-gray-500"
         onClick={addQuestion}
       >
-        Add question
+        <i className="fa-solid fa-plus px-1"></i> Add question
       </button>
     </div>
   );
