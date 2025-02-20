@@ -19,8 +19,8 @@ const ProfileMenu = ({ isMenuOpen, setIsMenuOpen }: ProfileMenuProps) => {
         id="profile-menu"
         className="absolute right-2 mt-2 w-50 bg-white rounded-xl shadow-lg p-3 flex flex-col"
       >
-        <Link className="hover-underline" to="/account">
-          Account
+        <Link className="hover-underline" to="/profile">
+          Profile
         </Link>
         <Link className="hover-underline" to="/surveys">
           My Surveys
