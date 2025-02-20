@@ -13,10 +13,10 @@ const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
-    <header className="fixed top-0 flex flex-nowrap items-center justify-between w-screen h-12 p-2 bg-white">
-      <Link to="/">
+    <header className="fixed top-0 flex flex-nowrap items-center justify-between w-screen h-12 py-2 px-4 bg-white">
+      <Link className="tracking-wider font-bold" to="/">
         eye-
-        <span className="font-bold">sense</span>
+        <span className="dark-blue">sense</span>
       </Link>
       <nav>
         <Link to="/create" style={getLinkStyle("/create")}>
@@ -29,7 +29,7 @@ const Header = () => {
 
       <div className="h-full">
         <button
-          className="aspect-square h-full"
+          className="aspect-square h-full cursor-pointer"
           onClick={() => setIsMenuOpen(!isMenuOpen)}
         >
           <img

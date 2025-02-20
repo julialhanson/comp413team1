@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 
 const Create = () => {
   type Option = {
@@ -149,7 +149,7 @@ const Create = () => {
 
               {/* DELETE QUESTION BUTTON */}
               <button
-                className="btn text-gray-500"
+                className="btn dark-grey"
                 onClick={() =>
                   setQuestions(
                     questions.filter(

@@ -1,5 +1,31 @@
+$light-grey: rgb(230, 230, 230);
+$light-blue: #c9e7ff;
+$blue: #81bff1;
+$dark-blue: #2e71b8;
+
 :root {
-  background-color: rgb(230, 230, 230);
+  background-color: $light-grey;
+}
+
+// FONT COLORS
+.dark-grey {
+  color: grey;
+}
+
+.light-grey {
+  color: $light-grey;
+}
+
+.light-blue {
+  color: $light-blue;
+}
+
+.blue {
+  color: $blue;
+}
+
+.dark-blue {
+  color: $dark-blue;
 }
 
 .btn {
@@ -14,27 +40,22 @@
 }
 
 .grey-btn {
-  background-color: rgb(230, 230, 230);
-}
-
-.dark-grey {
-  color: grey;
+  background-color: $light-grey;
 }
 
 .hover-underline {
-  width: fit-content;
-  // transition: 0.2s;
-  border-bottom: 1px solid transparent;
+  transition: 0.1s;
+  // border-bottom: 1px solid transparent;
 
   &:hover {
-    border-bottom: 1px solid black;
-    // padding-left: 10px;
+    background-color: $light-grey;
   }
 }
 
 #profile-menu {
-  a:not(:last-child) {
-    margin-bottom: 10px;
+  a {
+    padding: 5px 10px;
+    border-radius: 5px;
   }
 }
 

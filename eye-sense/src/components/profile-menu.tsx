@@ -17,19 +17,35 @@ const ProfileMenu = ({ isMenuOpen, setIsMenuOpen }: ProfileMenuProps) => {
       ></div>
       <div
         id="profile-menu"
-        className="absolute right-2 mt-2 w-50 bg-white rounded-xl shadow-lg p-3 flex flex-col"
+        className="absolute right-2 mt-2 w-50 bg-white rounded-xl shadow-lg p-2 flex flex-col"
       >
-        <Link className="hover-underline" to="/profile">
-          Profile
+        <Link
+          onClick={() => setIsMenuOpen(!isMenuOpen)}
+          className="hover-underline"
+          to="/profile"
+        >
+          <i className="fa-solid fa-user mr-2"></i> Profile
         </Link>
-        <Link className="hover-underline" to="/surveys">
-          My Surveys
+        <Link
+          onClick={() => setIsMenuOpen(!isMenuOpen)}
+          className="hover-underline"
+          to="/surveys"
+        >
+          <i className="fa-solid fa-list-ul mr-2"></i> My Surveys
         </Link>
-        <Link className="hover-underline" to="/survey-history">
-          Survey History
+        <Link
+          onClick={() => setIsMenuOpen(!isMenuOpen)}
+          className="hover-underline"
+          to="/survey-history"
+        >
+          <i className="fa-solid fa-list-check mr-2"></i> Survey History
         </Link>
-        <Link className="hover-underline" to="/settings">
-          Settings
+        <Link
+          onClick={() => setIsMenuOpen(!isMenuOpen)}
+          className="hover-underline"
+          to="/settings"
+        >
+          <i className="fa-solid fa-gear mr-2"></i> Settings
         </Link>
       </div>
     </>
