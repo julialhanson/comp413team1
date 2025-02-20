@@ -20,3 +20,39 @@
 .dark-grey {
   color: grey;
 }
+
+.hover-underline {
+  width: fit-content;
+  // transition: 0.2s;
+  border-bottom: 1px solid transparent;
+
+  &:hover {
+    border-bottom: 1px solid black;
+    // padding-left: 10px;
+  }
+}
+
+#profile-menu {
+  a:not(:last-child) {
+    margin-bottom: 10px;
+  }
+}
+
+// ANIMATIONS
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 100;
+  }
+}
+
+@keyframes fade-out {
+  from {
+    opacity: 100;
+  }
+  to {
+    opacity: 0;
+  }
+}
