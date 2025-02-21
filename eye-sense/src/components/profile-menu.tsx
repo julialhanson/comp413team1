@@ -21,28 +21,28 @@ const ProfileMenu = ({ isMenuOpen, setIsMenuOpen }: ProfileMenuProps) => {
       >
         <Link
           onClick={() => setIsMenuOpen(!isMenuOpen)}
-          className="hover-underline"
+          className="hover-darken"
           to="/profile"
         >
           <i className="fa-solid fa-user mr-2"></i> Profile
         </Link>
         <Link
           onClick={() => setIsMenuOpen(!isMenuOpen)}
-          className="hover-underline"
+          className="hover-darken"
           to="/surveys"
         >
           <i className="fa-solid fa-list-ul mr-2"></i> My Surveys
         </Link>
         <Link
           onClick={() => setIsMenuOpen(!isMenuOpen)}
-          className="hover-underline"
+          className="hover-darken"
           to="/survey-history"
         >
           <i className="fa-solid fa-list-check mr-2"></i> Survey History
         </Link>
         <Link
           onClick={() => setIsMenuOpen(!isMenuOpen)}
-          className="hover-underline"
+          className="hover-darken"
           to="/settings"
         >
           <i className="fa-solid fa-gear mr-2"></i> Settings
