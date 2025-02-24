@@ -27,7 +27,7 @@ const Create = () => {
       case "checkboxes":
         return "checkbox";
       case "dropdown":
-        return "option";
+        return "hidden";
       default:
         return "radio";
     }
@@ -88,7 +88,7 @@ const Create = () => {
             {question.options.map((option, optionIdx) => (
               <div key={option.id} className="mb-2">
                 <button
-                  className="text-red-600 mr-2"
+                  className="text-red-600"
                   onClick={() => {
                     const newQuestions = [...questions];
                     const newOptions = question.options.filter(
@@ -103,6 +103,7 @@ const Create = () => {
                 </button>
                 <label className="pb-2">
                   <input
+                    className="ml-2"
                     name={"question-" + index}
                     type={getOptionType(question.type)}
                     value={option.text}
