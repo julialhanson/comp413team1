@@ -34,7 +34,7 @@ const Create = () => {
   };
 
   return (
-    <div className="max-w-xl ml-auto mr-auto p-5">
+    <div className="max-w-2xl ml-auto mr-auto p-5">
       {/* NAME SURVEY */}
       <div className="flex items-center justify-between mb-3">
         <input
