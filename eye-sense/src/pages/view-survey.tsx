@@ -84,6 +84,8 @@ const ViewSurvey = () => {
           selectOption={selectOption}
         />
       ))}
+
+      <button className="btn blue-btn float-right">Submit</button>
     </div>
   );
 };
