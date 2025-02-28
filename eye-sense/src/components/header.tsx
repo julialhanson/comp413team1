@@ -19,7 +19,7 @@ const Header = () => {
         <span className="dark-blue">sense</span>
       </Link>
       <nav>
-        <Link to="/create" style={getLinkStyle("/create")}>
+        <Link to="/create-survey" style={getLinkStyle("/create-survey")}>
           create
         </Link>
         <Link to="/predict" style={getLinkStyle("/predict")}>

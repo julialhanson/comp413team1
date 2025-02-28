@@ -1,26 +1,10 @@
 import { useState } from "react";
+import { Question } from "../types";
 
-const Create = () => {
-  type Option = {
-    id: number;
-    text: string;
-  };
-  type Question = {
-    text: string;
-    type: string | "multiple choice" | "checkboxes" | "dropdown";
-    options: Option[];
-  };
-
+const CreateSurvey = () => {
   const [surveyName, setSurveyName] = useState<string>("");
   const [questions, setQuestions] = useState<Question[]>([]);
   const [optionId, setOptionId] = useState<number>(1);
-
-  const addQuestion = () => {
-    setQuestions([
-      ...questions,
-      { text: "", type: "multiple choice", options: [] },
-    ]);
-  };
 
   const getOptionType = (type: string) => {
     switch (type) {
@@ -49,10 +33,7 @@ const Create = () => {
 
       {/* DISPLAY QUESTIONS */}
       {questions.map((question, index) => (
-        <div
-          className="question-draft bg-white rounded-xl mb-3 p-4"
-          key={index}
-        >
+        <div className="bg-white rounded-xl mb-3 p-4" key={index}>
           <div className="flex items-start justify-between">
             <h1 className="font-bold">{index + 1}</h1>
             <input
@@ -169,7 +150,12 @@ const Create = () => {
       {/* ADD QUESTION BUTTON */}
       <button
         className="w-full bg-white rounded-xl text-left p-3 cursor-pointer text-gray-500"
-        onClick={addQuestion}
+        onClick={() => {
+          setQuestions([
+            ...questions,
+            { text: "", type: "multiple choice", selected: [], options: [] },
+          ]);
+        }}
       >
         <i className="fa-solid fa-plus px-1"></i> Add question
       </button>
@@ -177,4 +163,4 @@ const Create = () => {
   );
 };
 
-export default Create;
+export default CreateSurvey;
