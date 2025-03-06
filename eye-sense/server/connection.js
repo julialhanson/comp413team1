@@ -1,8 +1,12 @@
 
 import { MongoClient, ServerApiVersion } from 'mongodb';
-// require("dotenv").config({path: "./config.env"})
-const uri = process.env.ATLAS_URI || "";
+import dotenv from 'dotenv';
 
+dotenv.config({ path: 'your_path_here' })
+
+//require("dotenv").config({path: "./config.env"})
+const uri = process.env.ATLAS_URI || "";
+console.log("MONGO 2 URI IS ", process.env.ATLAS_URI);
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
   serverApi: {
