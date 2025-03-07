@@ -1,7 +1,7 @@
 import axios from "axios";
 import { createQueryString } from "../utils/func-utils";
 
-const API_URL = "http://localhost:3000/api/users"; // Adjust for production
+const API_URL = "http://localhost:3000/api/v1/users"; // Adjust for production
 
 export const getAllUsers = async () => {
   try {
