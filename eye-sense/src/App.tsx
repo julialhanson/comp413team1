@@ -16,7 +16,7 @@ function App() {
       <Routes>
         <Route path="/create-survey" element={<CreateSurvey />} />
         <Route path="/predict" element={<Predict />} />
-        <Route path="/view-survey" element={<ViewSurvey />} />
+        <Route path="/view-survey/:id" element={<ViewSurvey />} />
         {/* <Route path="/about" element={<About />} /> */}
       </Routes>
     </Router>
