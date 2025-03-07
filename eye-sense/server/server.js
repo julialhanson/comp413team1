@@ -13,9 +13,9 @@ const app = express();
 
 app.use(cors());
 app.use(express.json());
-app.use("/user", users);
-app.use("/question", questions);
-app.use("/survey", surveys);
+app.use("/api/v1/users", users);
+app.use("/api/v1/questions", questions);
+app.use("/api/v1/surveys", surveys);
 
 app.listen(PORT, () => {
     console.log(`Server listening on port ${PORT}`);
