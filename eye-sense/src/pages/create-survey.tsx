@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Question } from "../types";
+import { createSurvey } from "../controllers/survey-controller";
 
 const CreateSurvey = () => {
   const [surveyName, setSurveyName] = useState<string>("");
@@ -28,7 +29,12 @@ const CreateSurvey = () => {
           onChange={(e) => setSurveyName(e.target.value)}
           placeholder="Input survey name..."
         />
-        <button className="btn blue-btn">Publish</button>
+        <button
+          className="btn blue-btn"
+          onClick={() => createSurvey(questions)}
+        >
+          Publish
+        </button>
       </div>
 
       {/* DISPLAY QUESTIONS */}
