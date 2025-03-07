@@ -52,6 +52,7 @@ router.put("/id", async(req, res) => {
 
 router.post("/", async(req,res) => {
     try {
+        console.log(req.body);
         let newDocument = {
             // Took schema info from the design doc, feel free to change
 
