@@ -6,13 +6,15 @@ import { ObjectId } from "mongodb";
 
 const router = express.Router();
 
+// Get all questions in the database
 router.get("/", async (req, res) => {
     let collection = await db.collection("Questions");
     let results = await collection.find({}).toArray();
-    res.send(results).status(200);
+    return res.send(results).status(200);
 });
 
-router.get("/id", async (req, res) => {
+// Get a specific question in the database
+router.get("/:id", async (req, res) => {
     let collection = await db.collection("Questions");
     let query = { _id: new ObjectId(req.params.id)};
     let result = await collection.findOne(query);
@@ -21,7 +23,8 @@ router.get("/id", async (req, res) => {
     else res.send(result).status(200);
 });
 
-router.put("/id", async(req, res) => {
+// Replace information for a given question
+router.put("/:id", async(req, res) => {
     try {
         const query = {_id: new ObjectId(req.params.id) };
         const updatedDocument = {
@@ -50,11 +53,10 @@ router.put("/id", async(req, res) => {
     }
 });
 
-
+// Create a new question
 router.post("/", async(req,res) => {
     try {
         let newDocument = {
-            // need to figure out request schemas and what we want to place into the database
             question_id: req.body.question_id,
             organization: req.body.organization,
             user_created: req.body.user_created,
@@ -65,37 +67,40 @@ router.post("/", async(req,res) => {
         };
         let collection = await db.collection("Questions");
         let result = await collection.insertOne(newDocument)
-        res.send(result).status(204);
+        return res.send(result).status(204);
     } catch (e) {
         console.error(e);
-        res.status(500).send("Error adding question")
+        return res.status(500).send("Error adding question")
     }
 });
 
+// Modify information in the question
 router.patch("/:id", async (req, res) => {
     try {
-        const query = { _id: new ObjectId(req.params.id)};
-        const updates = {
-            $set: {
-                question_id: req.body.question_id,
-                organization: req.body.organization,
-                user_created: req.body.user_created,
-                time_created: req.body.time_created,
-                last_edited: req.body.last_edited,
-                image: req.body.image,
-                choices: req.body.choices,
-            },
-        };
+        const query = {_id: new ObjectId(req.params.id) };
+        const updates = {};
+        for (const key in req.body) {
+            if (req.body[key] != null) {
+                updates[key] = req.body[key];
+            }
+        }
 
+        if (Object.keys(updates).length == 0) {
+            console.log("length of request body was ", Object.keys(updates).length);
+            return res.status(500).send("ERROR: request body empty");
+        }
+
+        const updatedDocument = { $set: updates };
         let collection = await db.collection("Questions");
-        let result = await collection.updateOne(query, updates);
-        res.send(result).status(200);
+        let result = await collection.updateOne(query, updatedDocument);
+        return res.send(result).status(200);
     } catch (e) {
         console.error(e);
-        res.status(500).send("Error updating question")
+        return res.status(500).send("Error updating question")
     }
 });
 
+// Delete a question
 router.delete("/:id", async(req, res) => {
     try {
         const query = { _id: new ObjectId(req.params.id)};
