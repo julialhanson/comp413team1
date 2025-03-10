@@ -12,7 +12,7 @@ router.get("/", async (req, res) => {
     res.send(results).status(200);
 });
 
-router.get("/id", async (req, res) => {
+router.get("/:id", async (req, res) => {
     let collection = await db.collection("Users");
     let query = { _id: new ObjectId(req.params.id)};
     let result = await collection.findOne(query);
