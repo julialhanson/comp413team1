@@ -35,7 +35,8 @@ router.put("/:id", async(req, res) => {
                 time_created: req.body.time_created,
                 last_edited: req.body.last_edited,
                 image: req.body.image,
-                choices: req.body.choices,
+                choices: req.body.choices.map(q => q.choice_id),
+                selected: req.body.selected,
             },
         };
 
