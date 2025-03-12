@@ -55,7 +55,6 @@ router.put("/:id", async(req, res) => {
         const query = {_id: new ObjectId(req.params.id) };
         const updatedDocument = {
             $set: {
-                survey_id: req.body.survey_id,
                 organization: req.body.organization,
                 user_created: req.body.user_created,
                 time_created: req.body.time_created,
