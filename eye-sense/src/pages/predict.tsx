@@ -13,19 +13,16 @@ const Predict = () => {
 
   return (
     <div className="max-w-2xl ml-auto mr-auto p-5">
-      <div className="bg-white rounded-xl p-3">
+      <div className="bg-white rounded-xl p-4 flex flex-col items-center">
         {/* Conditionally render the selected image if it exists */}
-        {selectedImage && (
-          <div>
+        {selectedImage ? (
+          <>
             {/* Display the selected image */}
-            <img
-              alt=""
-              width={"250px"}
-              src={URL.createObjectURL(selectedImage)}
-            />
-            <br /> <br />
+            <img alt="" src={URL.createObjectURL(selectedImage)} />
+
             {/* Button to remove the selected image */}
             <button
+              className="bg-red-600 btn text-white"
               onClick={() => {
                 handleResetImage();
                 setSelectedImage(null);
@@ -33,16 +30,17 @@ const Predict = () => {
             >
               Remove
             </button>
-          </div>
+          </>
+        ) : (
+          <></>
         )}
-
-        <br />
 
         {/* Input element to select an image file */}
         <input
           type="file"
           ref={inputImage}
           name="predictImage"
+          className="btn lighter-grey-bg"
           // Event handler to capture file selection and update the state
           onChange={(event) => {
             if (event.target.files) {
