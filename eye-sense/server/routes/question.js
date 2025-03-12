@@ -40,7 +40,7 @@ router.put("/:id", async(req, res) => {
         };
 
         let collection = await db.collection("Questions");
-        let result = await collection.replaceOne(query, updatedDocument);
+        let result = await collection.updateOne(query, updatedDocument);
 
         if (result.matchedCount == 0) {
             res.status(404).send("Question not found");

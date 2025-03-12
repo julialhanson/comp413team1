@@ -23,6 +23,17 @@ router.get("/:id", async (req, res) => {
     else res.send(result).status(200);
 });
 
+// Get surveys specified by a field value in the database
+router.get("/items", async (req, res) => {
+    
+    let collection = await db.collection("Surveys");
+    let query = { _id: new ObjectId(req.params.id)};
+    let result = await collection.findOne(query);
+
+    if (!result) res.send("Not found").status(404);
+    else res.send(result).status(200);
+});
+
 // Modify information in a given survey
 router.put("/:id", async(req, res) => {
     try {
@@ -40,7 +51,7 @@ router.put("/:id", async(req, res) => {
         };
 
         let collection = await db.collection("Surveys");
-        let result = await collection.replaceOne(query, updatedDocument);
+        let result = await collection.updateOne(query, updatedDocument);
 
         if (result.matchedCount == 0) {
             return res.status(404).send("Survey not found");

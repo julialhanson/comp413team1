@@ -51,7 +51,7 @@ router.put("/:id", async(req, res) => {
             },
         };
 
-        let result = await collection.replaceOne(query, updatedDocument);
+        let result = await collection.updateOne(query, updatedDocument);
 
         if (result.matchedCount == 0) {
             return res.status(404).send("User not found");
