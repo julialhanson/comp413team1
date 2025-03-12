@@ -25,7 +25,17 @@ export const getSurveyWithId = async (id: string) => {
   }
 };
 
-export const deleteSurveyWithId = async (id: number) => {
+export const getQuestionsFromSurvey = async (id: string) => {
+  try {
+    const response = await axios.get(API_URL + `/${id}/questions`);
+    return response.data;
+  } catch (error) {
+    console.error(`Error fetching questions from survey with id ${id}:`, error);
+    return null;
+  }
+};
+
+export const deleteSurveyWithId = async (id: string) => {
   try {
     const response = await axios.delete(API_URL + `/${id}`);
     return response.data;
