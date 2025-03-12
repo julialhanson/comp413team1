@@ -2,11 +2,12 @@ import axios from "axios";
 import { Question } from "../types";
 import { createQueryString } from "../utils/func-utils";
 
-const API_URL = "http://localhost:3000/api/v1/surveys"; // Adjust for production
+const API_URL = "http://localhost:5050/api/v1/surveys"; // Adjust for production
 
 export const getAllSurveys = async () => {
   try {
     const response = await axios.get(API_URL);
+    console.log(response.data);
     return response.data;
   } catch (error) {
     console.error("Error fetching surveys:", error);
@@ -14,7 +15,7 @@ export const getAllSurveys = async () => {
   }
 };
 
-export const getSurveyWithId = async (id: number) => {
+export const getSurveyWithId = async (id: string) => {
   try {
     const response = await axios.get(API_URL + `/${id}`);
     return response.data;

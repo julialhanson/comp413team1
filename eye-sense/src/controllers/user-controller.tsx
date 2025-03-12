@@ -1,11 +1,12 @@
 import axios from "axios";
 import { createQueryString } from "../utils/func-utils";
 
-const API_URL = "http://localhost:3000/api/v1/users"; // Adjust for production
+const API_URL = "http://localhost:5050/api/v1/users"; // Adjust for production
 
 export const getAllUsers = async () => {
   try {
     const response = await axios.get(API_URL);
+    console.log(response.data);
     return response.data;
   } catch (error) {
     console.error("Error fetching users:", error);

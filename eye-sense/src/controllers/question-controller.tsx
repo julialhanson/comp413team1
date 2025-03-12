@@ -2,7 +2,7 @@ import axios from "axios";
 import { Question } from "../types";
 import { createQueryString } from "../utils/func-utils";
 
-const API_URL = "http://localhost:3000/api/v1/questions"; // Adjust for production
+const API_URL = "http://localhost:5050/api/v1/questions"; // Adjust for production
 
 export const getAllQuestions = async () => {
   try {

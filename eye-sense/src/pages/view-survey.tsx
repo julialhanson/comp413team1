@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Question } from "../types";
 import QuestionDisplay from "../components/question-display";
+import { getAllUsers } from "../controllers/user-controller";
 
 const ViewSurvey = () => {
   const [questions, setQuestions] = useState<Question[]>([
@@ -66,6 +67,8 @@ const ViewSurvey = () => {
     },
   ]);
 
+  useEffect(() => {});
+
   const selectOption = (questionIdx: number, optionIdx: number) => {
     const newQuestions = [...questions];
     const currQuestion = newQuestions[questionIdx];
@@ -88,7 +91,12 @@ const ViewSurvey = () => {
         />
       ))}
 
-      <button className="btn blue-btn float-right">Submit</button>
+      <button
+        className="btn blue-btn float-right"
+        onClick={() => getAllUsers()}
+      >
+        Submit
+      </button>
     </div>
   );
 };
