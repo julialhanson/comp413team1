@@ -1,11 +1,12 @@
-export type Option = {
-  id: number;
+export type Choice = {
+  choice_id: number;
   text: string;
 };
 
 export type Question = {
+  question_id: number;
   text: string;
   type: string | "multiple choice" | "checkboxes" | "dropdown";
-  selected: number[];
-  options: Option[];
+  selected: number[]; // list of choice ids
+  options: Choice[];
 };

@@ -5,58 +5,61 @@ import QuestionDisplay from "../components/question-display";
 const ViewSurvey = () => {
   const [questions, setQuestions] = useState<Question[]>([
     {
+      question_id: 1,
       text: "this is dummy question 1",
       type: "dropdown",
       selected: [],
       options: [
         {
-          id: 1,
+          choice_id: 1,
           text: "option 1",
         },
         {
-          id: 3,
+          choice_id: 3,
           text: "option 3",
         },
         {
-          id: 7,
+          choice_id: 7,
           text: "option 7",
         },
       ],
     },
     {
+      question_id: 2,
       text: "this is dummy question 2",
       type: "checkboxes",
       selected: [],
       options: [
         {
-          id: 2,
+          choice_id: 2,
           text: "option 2",
         },
         {
-          id: 8,
+          choice_id: 8,
           text: "option 8",
         },
         {
-          id: 9,
+          choice_id: 9,
           text: "option 9",
         },
       ],
     },
     {
+      question_id: 3,
       text: "this is dummy question 3",
       type: "multiple choice",
       selected: [],
       options: [
         {
-          id: 10,
+          choice_id: 10,
           text: "option 10",
         },
         {
-          id: 11,
+          choice_id: 11,
           text: "option 11",
         },
         {
-          id: 15,
+          choice_id: 15,
           text: "option 15",
         },
       ],

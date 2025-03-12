@@ -73,7 +73,7 @@ const CreateSurvey = () => {
           {/* DISPLAY QUESTION OPTIONS */}
           <div className="flex flex-col">
             {question.options.map((option, optionIdx) => (
-              <div key={option.id} className="mb-2">
+              <div key={option.choice_id} className="mb-2">
                 <button
                   className="text-red-600"
                   onClick={() => {
@@ -125,7 +125,7 @@ const CreateSurvey = () => {
                   newQuestions[index].options = [
                     ...newQuestions[index].options,
                     {
-                      id: optionId,
+                      choice_id: optionId,
                       text: "Option " + (optionsLength + 1),
                     },
                   ];
@@ -159,7 +159,13 @@ const CreateSurvey = () => {
         onClick={() => {
           setQuestions([
             ...questions,
-            { text: "", type: "multiple choice", selected: [], options: [] },
+            {
+              question_id: questions.length + 1,
+              text: "",
+              type: "multiple choice",
+              selected: [],
+              options: [],
+            },
           ]);
         }}
       >
