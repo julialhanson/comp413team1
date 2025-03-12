@@ -29,7 +29,6 @@ router.put("/:id", async(req, res) => {
         const query = {_id: new ObjectId(req.params.id) };
         const updatedDocument = {
             $set: {
-                question_id: req.body.question_id,
                 organization: req.body.organization,
                 user_created: req.body.user_created,
                 time_created: req.body.time_created,
@@ -65,6 +64,7 @@ router.post("/", async(req,res) => {
             last_edited: req.body.last_edited,
             image: req.body.image,
             choices: req.body.choices,
+            selected: req.body.selected,
         };
         let collection = await db.collection("Questions");
         let result = await collection.insertOne(newDocument)
