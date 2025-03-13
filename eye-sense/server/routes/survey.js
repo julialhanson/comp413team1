@@ -25,24 +25,40 @@ router.get("/:id", async (req, res) => {
 
 // Get the list of questions in specific survey in the database
 router.get("/:id/questions", async (req, res) => {
-  let collection = await db.collection("Surveys");
+  let surveyCollection = db.collection("Surveys");
   let query = { _id: new ObjectId(req.params.id) };
-  let result = await collection.findOne(query);
+  let result = await surveyCollection.findOne(query);
 
-  if (!result) res.send("Not found").status(404);
-  // else res.send(result).status(200);
+  if (!result) {
+    console.error(`Error getting survey with id ${req.params.id}`)
+    res.send("Not found").status(404);
+    return;
+  }
 
   // Extract question IDs from the survey
-  const questionIds = result.questions?.map((_id) => new ObjectId(_id)) || [];
+  const questionIds = result.question_ids?.map((id) => new ObjectId(id)) || [];
 
-  if (questionIds.length === 0) return res.status(404).send([]);
+  if (questionIds.length === 0 || questionIds === null) return res.status(404).send([]);
 
   // Find the questions in the Questions collection
-  const questions = await questionsCollection
+  const questions = await db.collection("Questions")
     .find({ _id: { $in: questionIds } })
     .toArray();
 
-  res.status(200).json(questions);
+  // Fetch choices for each question
+  const questionsWithChoices = await Promise.all(
+    questions.map(async (question) => {
+      console.log(question)
+      const choiceIds = question.choice_ids?.map(id => new ObjectId(id)) || [];
+      const choices = await db.collection("Choices").find({ _id: { $in: choiceIds } }).toArray();
+      console.log(choices)
+      
+      const { choice_ids, ...restOfQuestion } = question;
+      return { ...restOfQuestion, choices };
+    })
+  );
+
+  res.send(questionsWithChoices).status(200);
 });
 
 // // Get surveys specified by a field value in the database
@@ -103,18 +119,54 @@ router.put("/:id", async (req, res) => {
 // Create a new survey
 router.post("/", async (req, res) => {
   try {
+    // Insert choices into database
+    const questions = req.body.questions;
+    const choiceCollection = db.collection("Choices");
+    const surveyCollection = db.collection("Surveys");
+    const questionCollection = db.collection("Questions");
+
+    const questionsToInsert = [];
+
+    for (const question of questions) {
+      const choiceDocs = question.choices.map(choice => ({
+        text: choice.text,
+      }));
+
+      // Insert choices and get their _id values
+      const choiceInsertResult = await choiceCollection.insertMany(choiceDocs);
+      console.log(choiceInsertResult.insertedIds)
+      const choiceIds = Object.values(choiceInsertResult.insertedIds);
+
+      // Replace choices with _id references
+      const questionToInsert = {
+        question: question.question,
+        type: question.type,
+        choice_ids: choiceIds,
+      };
+
+      questionsToInsert.push(questionToInsert);
+    }
+
+    // Insert surveys
+    const questionInsertResult = await questionCollection.insertMany(questionsToInsert);
+
+    const questionIds = Object.values(questionInsertResult.insertedIds);
+
     let newDocument = {
-      survey_id: req.body.survey_id,
+      // survey_id: req.body.survey_id,
+      name: req.body.name,
       organization: req.body.organization,
       user_created: req.body.user_created,
       time_created: req.body.time_created,
       last_edited: req.body.last_edited,
       published: req.body.published,
-      question_ids: req.body.questions.map((q) => q.question_id),
+      question_ids: questionIds//req.body.questions//.map((q) => q.question_id),
     };
-    let collection = await db.collection("Surveys");
-    let result = await collection.insertOne(newDocument);
-    return res.send(result).status(204);
+
+    console.log(questionInsertResult)
+
+    let result = await surveyCollection.insertOne(newDocument);
+    return res.send(result).status(201);
   } catch (e) {
     console.error(e);
     return res.status(500).send("Error adding survey");
@@ -185,6 +237,44 @@ router.delete("/items", async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).send("Internal Server Error");
+  }
+});
+
+// Get all responses to a specific survey
+router.get("/:id/responses", async (req, res) => {
+  try {
+    // Find responses with the given survey_id
+    const responses = await db.collection("Responses")
+      .find({ survey_id: req.params.id })
+      .toArray();
+
+    if (responses.length === 0) {
+      return res.status(404).json([]); // Return empty array if no responses found
+    }
+
+    res.status(200).json(responses);
+  } catch (error) {
+    console.error("Error fetching survey responses:", error);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
+// Submit a new response to a specific survey
+router.post("/:id/responses", async (req, res) => {
+  try {
+    let newDocument = {
+      username: req.body.username,
+      survey_id: req.params.id,
+      time_taken: req.body.time_taken,
+      selected: req.body.selected,
+      heatmaps: req.body.heatmaps
+    };
+    let collection = await db.collection("Responses");
+    let result = await collection.insertOne(newDocument);
+    return res.send(result).status(204);
+  } catch (e) {
+    console.error(e);
+    return res.status(500).send("Error submitting response");
   }
 });
 

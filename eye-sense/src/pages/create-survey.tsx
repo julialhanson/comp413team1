@@ -1,8 +1,10 @@
 import { useState } from "react";
-import { Question } from "../types";
+import { Question, Survey } from "../types";
 import { createSurvey } from "../controllers/survey-controller";
+import { useNavigate } from "react-router-dom";
 
 const CreateSurvey = () => {
+  const navigate = useNavigate();
   const [surveyName, setSurveyName] = useState<string>("");
   const [questions, setQuestions] = useState<Question[]>([]);
   const [optionId, setOptionId] = useState<number>(1);
@@ -18,6 +20,41 @@ const CreateSurvey = () => {
     }
   };
 
+  const addQuestion = () => {
+    setQuestions([
+      ...questions,
+      {
+        id: questions.length + 1,
+        question: "",
+        type: "multiple choice",
+        // selected: [],
+        choices: [],
+      },
+    ]);
+  };
+
+  const deleteQuestion = (question: Question) => {
+    setQuestions(
+      questions.filter((checkQuestion) => checkQuestion !== question)
+    );
+  };
+
+  const publishSurvey = () => {
+    const survey: Survey = {
+      name: surveyName,
+      organization: "", // TODO: CHANGE WHEN WE CAN GET ORGANIZATION / USERNAME
+      user_created: "",
+      time_created: new Date(),
+      last_edited: new Date(),
+      published: true,
+      questions: questions,
+    };
+    createSurvey(survey).then((data) => {
+      const insertedSurveyId = data.insertedId;
+      navigate(`/view-survey/${insertedSurveyId}`);
+    });
+  };
+
   return (
     <div className="max-w-2xl ml-auto mr-auto p-5">
       {/* NAME SURVEY */}
@@ -29,10 +66,7 @@ const CreateSurvey = () => {
           onChange={(e) => setSurveyName(e.target.value)}
           placeholder="Input survey name..."
         />
-        <button
-          className="btn blue-btn"
-          onClick={() => createSurvey(questions)}
-        >
+        <button className="btn blue-btn" onClick={publishSurvey}>
           Publish
         </button>
       </div>
@@ -45,11 +79,11 @@ const CreateSurvey = () => {
             <input
               className="w-full mx-3"
               type="text"
-              value={question.text}
+              value={question.question}
               placeholder="Write your question..."
               onChange={(e) => {
                 const newQuestions = [...questions];
-                newQuestions[index].text = e.target.value;
+                newQuestions[index].question = e.target.value;
                 setQuestions(newQuestions);
               }}
             />
@@ -72,17 +106,17 @@ const CreateSurvey = () => {
 
           {/* DISPLAY QUESTION OPTIONS */}
           <div className="flex flex-col">
-            {question.options.map((option, optionIdx) => (
-              <div key={option.id} className="mb-2">
+            {question.choices.map((option, optionIdx) => (
+              <div key={option._id} className="mb-2">
                 <button
                   className="text-red-600"
                   onClick={() => {
                     const newQuestions = [...questions];
-                    const newOptions = question.options.filter(
+                    const newOptions = question.choices.filter(
                       (_checkOption, checkOptionIdx) =>
                         checkOptionIdx !== optionIdx
                     );
-                    newQuestions[index].options = newOptions;
+                    newQuestions[index].choices = newOptions;
                     setQuestions(newQuestions);
                   }}
                 >
@@ -104,7 +138,7 @@ const CreateSurvey = () => {
                     placeholder={"Option " + (optionIdx + 1)}
                     onChange={(e) => {
                       const newQuestions = [...questions];
-                      newQuestions[index].options[optionIdx].text =
+                      newQuestions[index].choices[optionIdx].text =
                         e.target.value;
                       setQuestions(newQuestions);
                     }}
@@ -120,12 +154,12 @@ const CreateSurvey = () => {
                 onClick={() => {
                   const newQuestions = [...questions];
                   const optionsLength: number =
-                    newQuestions[index].options.length;
+                    newQuestions[index].choices.length;
                   setOptionId(optionId + 1);
-                  newQuestions[index].options = [
-                    ...newQuestions[index].options,
+                  newQuestions[index].choices = [
+                    ...newQuestions[index].choices,
                     {
-                      id: optionId,
+                      _id: "" + optionId,
                       text: "Option " + (optionsLength + 1),
                     },
                   ];
@@ -138,13 +172,7 @@ const CreateSurvey = () => {
               {/* DELETE QUESTION BUTTON */}
               <button
                 className="btn dark-grey"
-                onClick={() =>
-                  setQuestions(
-                    questions.filter(
-                      (checkQuestion) => checkQuestion !== question
-                    )
-                  )
-                }
+                onClick={() => deleteQuestion(question)}
               >
                 <i className="fa-solid fa-trash"></i>
               </button>
@@ -156,18 +184,7 @@ const CreateSurvey = () => {
       {/* ADD QUESTION BUTTON */}
       <button
         className="w-full bg-white rounded-xl text-left p-3 cursor-pointer text-gray-500"
-        onClick={() => {
-          setQuestions([
-            ...questions,
-            {
-              id: questions.length + 1,
-              text: "",
-              type: "multiple choice",
-              selected: [],
-              options: [],
-            },
-          ]);
-        }}
+        onClick={addQuestion}
       >
         <i className="fa-solid fa-plus px-1"></i> Add question
       </button>

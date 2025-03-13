@@ -1,89 +1,59 @@
 import { useEffect, useState } from "react";
-import { Question } from "../types";
+import { Question, SurveyResponse } from "../types";
 import QuestionDisplay from "../components/question-display";
-import { getAllUsers } from "../controllers/user-controller";
-import { getQuestionsFromSurvey } from "../controllers/survey-controller";
+import {
+  getQuestionsFromSurvey,
+  submitResponse,
+} from "../controllers/survey-controller";
+import { useParams } from "react-router-dom";
 
-const ViewSurvey = (id: string) => {
-  // const [questions, setQuestions] = useState<Question[]>([
-  //   {
-  //     question_id: 1,
-  //     text: "this is dummy question 1",
-  //     type: "dropdown",
-  //     selected: [],
-  //     options: [
-  //       {
-  //         choice_id: 1,
-  //         text: "option 1",
-  //       },
-  //       {
-  //         choice_id: 3,
-  //         text: "option 3",
-  //       },
-  //       {
-  //         choice_id: 7,
-  //         text: "option 7",
-  //       },
-  //     ],
-  //   },
-  //   {
-  //     question_id: 2,
-  //     text: "this is dummy question 2",
-  //     type: "checkboxes",
-  //     selected: [],
-  //     options: [
-  //       {
-  //         choice_id: 2,
-  //         text: "option 2",
-  //       },
-  //       {
-  //         choice_id: 8,
-  //         text: "option 8",
-  //       },
-  //       {
-  //         choice_id: 9,
-  //         text: "option 9",
-  //       },
-  //     ],
-  //   },
-  //   {
-  //     question_id: 3,
-  //     text: "this is dummy question 3",
-  //     type: "multiple choice",
-  //     selected: [],
-  //     options: [
-  //       {
-  //         choice_id: 10,
-  //         text: "option 10",
-  //       },
-  //       {
-  //         choice_id: 11,
-  //         text: "option 11",
-  //       },
-  //       {
-  //         choice_id: 15,
-  //         text: "option 15",
-  //       },
-  //     ],
-  //   },
-  // ]);
+const ViewSurvey = () => {
+  const { id } = useParams();
   const [questions, setQuestions] = useState<Question[]>([]);
+  const [response, setResponse] = useState<SurveyResponse>({
+    username: "username", // TODO: CHANGE WHEN WE CAN GET USERNAME
+    survey_id: id,
+    time_taken: new Date(),
+    selected: [],
+    heatmaps: new Map<number, string>(),
+  });
 
   useEffect(() => {
     getQuestionsFromSurvey(id).then((data) => {
       setQuestions(data);
-    });
-  });
 
-  const selectOption = (questionIdx: number, optionIdx: number) => {
-    const newQuestions = [...questions];
-    const currQuestion = newQuestions[questionIdx];
+      // Initialize selected options to be the length of the survey so each index corresponds to the same question
+      const initSelected = new Array(data.length).fill([]);
+      setResponse((prevResponse) => ({
+        ...prevResponse,
+        selected: initSelected,
+      }));
+    });
+  }, []);
+
+  const selectOption = (questionIdx: number, optionId: string) => {
+    const currQuestion = questions[questionIdx];
+    const newSelected = [...response.selected];
     if (currQuestion.type !== "checkboxes") {
-      currQuestion.selected = [optionIdx];
+      newSelected[questionIdx] = [optionId];
     } else {
-      currQuestion.selected.push(optionIdx);
+      newSelected[questionIdx].push(optionId);
     }
-    setQuestions(newQuestions);
+    setResponse((prevResponse) => ({
+      ...prevResponse,
+      selected: newSelected,
+    }));
+  };
+
+  const deselectOption = (questionIdx: number, optionId: string) => {
+    const newSelected = [...response.selected];
+    newSelected[questionIdx] = newSelected[questionIdx].filter(
+      (selected) => selected !== optionId
+    );
+    setResponse((prevResponse) => ({
+      ...prevResponse,
+      selected: newSelected,
+    }));
   };
 
   return (
@@ -94,12 +64,13 @@ const ViewSurvey = (id: string) => {
           question={question}
           index={questionIdx}
           selectOption={selectOption}
+          deselectOption={deselectOption}
         />
       ))}
 
       <button
         className="btn blue-btn float-right"
-        onClick={() => getAllUsers()}
+        onClick={() => submitResponse(id, response)}
       >
         Submit
       </button>

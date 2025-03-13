@@ -17,7 +17,6 @@ export const getAllQuestions = async () => {
 export const createQuestion = async (question: Question) => {
   try {
     const response = await axios.post(API_URL, question);
-    console.log(response.data);
     return response.data;
   } catch (error) {
     console.error("Error creating question:", error);
