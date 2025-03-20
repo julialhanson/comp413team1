@@ -3,13 +3,15 @@ import { Question } from "../types";
 type QuestionDisplayProps = {
   question: Question;
   index: number;
-  selectOption: (questionIdx: number, optionIdx: number) => void;
+  selectOption: (questionIdx: number, optionId: string) => void;
+  deselectOption: (questionIdx: number, optionId: string) => void;
 };
 
 const QuestionDisplay = ({
   question,
   index,
   selectOption,
+  deselectOption,
 }: QuestionDisplayProps) => {
   const getOptionType = (type: string) => {
     switch (type) {
@@ -24,30 +26,41 @@ const QuestionDisplay = ({
     <div className="bg-white rounded-xl mb-3 p-4" key={index}>
       <div className="flex items-start">
         <h1 className="font-bold">{index + 1}</h1>
-        <p className="mx-3 w-full mb-3">{question.text}</p>
+        <p className="mx-3 w-full mb-3">{question.question}</p>
       </div>
 
       {/* DISPLAY QUESTION OPTIONS */}
       <div className="flex flex-col">
         {question.type !== "dropdown" ? (
           <>
-            {question.options.map((option) => (
-              <label key={option.choice_id} className="mb-2">
+            {question.choices.map((choice) => (
+              <label key={choice._id} className="mb-2">
                 <input
                   className="mr-2"
                   name={"question-" + index}
                   type={getOptionType(question.type)}
-                  value={option.text}
-                  onChange={() => selectOption(index, option.choice_id)}
+                  value={choice.text}
+                  onChange={(e) => {
+                    if (e.target.checked) selectOption(index, choice._id);
+                    else deselectOption(index, choice._id);
+                  }}
                 />
-                {option.text}
+                {choice.text}
               </label>
             ))}
           </>
         ) : (
-          <select className="border rounded-md p-2">
-            {question.options.map((option) => (
-              <option key={option.choice_id}>{option.text}</option>
+          <select
+            className="border rounded-md p-2"
+            onChange={(e) => selectOption(index, e.target.value)}
+          >
+            <option value="" selected disabled hidden>
+              Select an option...
+            </option>
+            {question.choices.map((option) => (
+              <option key={option._id} value={option._id}>
+                {option.text}
+              </option>
             ))}
           </select>
         )}

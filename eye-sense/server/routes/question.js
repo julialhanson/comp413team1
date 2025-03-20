@@ -23,6 +23,15 @@ router.get("/:id", async (req, res) => {
     else res.send(result).status(200);
 });
 
+// Get the list of choices for a specific question in the database
+router.get("/:id/choices", async (req, res) => {
+  const questions = await db.collection("Choices")
+    .find({ _id: { $in: questionIds } })
+    .toArray();
+
+  res.send(questions).status(200);
+});
+
 // Replace information for a given question
 router.put("/:id", async(req, res) => {
     try {
@@ -35,7 +44,6 @@ router.put("/:id", async(req, res) => {
                 last_edited: req.body.last_edited,
                 image: req.body.image,
                 choices: req.body.choices.map(q => q.choice_id),
-                selected: req.body.selected,
             },
         };
 
@@ -64,7 +72,6 @@ router.post("/", async(req,res) => {
             last_edited: req.body.last_edited,
             image: req.body.image,
             choices: req.body.choices,
-            selected: req.body.selected,
         };
         let collection = await db.collection("Questions");
         let result = await collection.insertOne(newDocument)
