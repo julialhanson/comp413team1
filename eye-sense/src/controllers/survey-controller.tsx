@@ -1,5 +1,5 @@
 import axios from "axios";
-import { Question, Survey, SurveyResponse } from "../types";
+import { Survey, SurveyResponse } from "../types";
 import { createQueryString } from "../utils/func-utils";
 
 const API_URL = "http://localhost:5050/api/v1/surveys"; // Adjust for production
