@@ -29,7 +29,7 @@ const ViewSurvey = () => {
         selected: initSelected,
       }));
     });
-  }, []);
+  }, [id]);
 
   const selectOption = (questionIdx: number, optionId: string) => {
     const currQuestion = questions[questionIdx];

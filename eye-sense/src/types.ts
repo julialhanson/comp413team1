@@ -23,8 +23,16 @@ export type Survey = {
 
 export type SurveyResponse = {
   username: string;
-	survey_id: string | undefined;
-	time_taken: Date;
-	selected: string[][];
-	heatmaps: Map<number, string>;
-}
+  survey_id: string | undefined;
+  time_taken: Date;
+  selected: string[][];
+  heatmaps: Map<number, string>;
+};
+
+export type User = {
+  username: string;
+  password: string;
+  email: string;
+  displayName: string;
+  role?: string;
+};
