@@ -33,6 +33,7 @@ export type User = {
   username: string;
   password: string;
   email: string;
-  displayName: string;
+  display_name: string;
+  organization: string;
   role?: string;
 };

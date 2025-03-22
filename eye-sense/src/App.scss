@@ -37,7 +37,7 @@ $darker-blue: #0e529b;
 .btn {
   cursor: pointer;
   border-radius: calc(infinity * 1px);
-  padding: 5px 10px;
+  padding: 5px 15px;
   transition: 0.15s;
 }
 
@@ -56,6 +56,12 @@ $darker-blue: #0e529b;
   &:hover {
     background-color: $light-grey;
   }
+}
+
+.auth-input {
+  background-color: $bg-lighter-grey;
+  border-radius: calc(infinity * 1px);
+  width: 100%;
 }
 
 #profile-menu {

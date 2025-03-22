@@ -5,6 +5,7 @@ import Header from "./components/header";
 import CreateSurvey from "./pages/create-survey";
 import Predict from "./pages/predict";
 import ViewSurvey from "./pages/view-survey";
+import Auth from "./pages/auth";
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
       <div className="pt-12"></div>
 
       <Routes>
+        <Route path="/auth" element={<Auth />} />
         <Route path="/create-survey" element={<CreateSurvey />} />
         <Route path="/predict" element={<Predict />} />
         <Route path="/view-survey/:id" element={<ViewSurvey />} />
