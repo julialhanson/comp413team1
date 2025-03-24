@@ -29,9 +29,9 @@ const Auth = () => {
           type="text"
           className="auth-input px-3 py-1 mt-1 mb-3"
           onChange={(e) => {
-            const newUser = { ...userToRegister };
+            const newUser = { ...userToLogin };
             newUser.username = e.target.value;
-            setUserToRegister(newUser);
+            setUserToLogin(newUser);
           }}
         />
 
@@ -40,9 +40,9 @@ const Auth = () => {
           type="password"
           className="auth-input px-3 py-1 mt-1 mb-3"
           onChange={(e) => {
-            const newUser = { ...userToRegister };
+            const newUser = { ...userToLogin };
             newUser.password = e.target.value;
-            setUserToRegister(newUser);
+            setUserToLogin(newUser);
           }}
         />
         <button
@@ -83,17 +83,6 @@ const Auth = () => {
           }}
         />
 
-        <p>Email</p>
-        <input
-          type="email"
-          className="auth-input px-3 py-1 mt-1 mb-3"
-          onChange={(e) => {
-            const newUser = { ...userToRegister };
-            newUser.email = e.target.value;
-            setUserToRegister(newUser);
-          }}
-        />
-
         <p>Display name</p>
         <input
           type="text"
@@ -101,6 +90,17 @@ const Auth = () => {
           onChange={(e) => {
             const newUser = { ...userToRegister };
             newUser.display_name = e.target.value;
+            setUserToRegister(newUser);
+          }}
+        />
+
+        <p>Email</p>
+        <input
+          type="email"
+          className="auth-input px-3 py-1 mt-1 mb-3"
+          onChange={(e) => {
+            const newUser = { ...userToRegister };
+            newUser.email = e.target.value;
             setUserToRegister(newUser);
           }}
         />
