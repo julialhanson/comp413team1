@@ -1,7 +1,7 @@
 $bg-lighter-grey: rgb(231, 231, 231);
 $light-grey: rgb(200, 200, 200);
 $light-blue: #c9e7ff;
-$blue: #81bff1;
+$blue: #acd1f0;
 $dark-blue: #2e71b8;
 $darker-blue: #0e529b;
 
@@ -23,6 +23,10 @@ $darker-blue: #0e529b;
 }
 
 .blue-bg {
+  background-color: $blue;
+}
+
+.dark-blue-bg {
   background-color: $dark-blue;
 }
 
