@@ -1,4 +1,5 @@
 import React, { useRef, useState } from "react";
+import ImageUpload from "../components/image-upload";
 
 const Predict = () => {
   const inputImage = useRef<HTMLInputElement | null>(null);
@@ -14,26 +15,14 @@ const Predict = () => {
   return (
     <div className="max-w-2xl ml-auto mr-auto p-5">
       <div className="bg-white rounded-xl p-4 flex flex-col items-center">
-        {/* Conditionally render the selected image if it exists */}
-        {selectedImage ? (
-          <>
-            {/* Display the selected image */}
-            <img alt="" src={URL.createObjectURL(selectedImage)} />
-
-            {/* Button to remove the selected image */}
-            <button
-              className="bg-red-600 btn text-white"
-              onClick={() => {
-                handleResetImage();
-                setSelectedImage(null);
-              }}
-            >
-              Remove
-            </button>
-          </>
-        ) : (
-          <></>
-        )}
+        <ImageUpload
+          // isDisplayed={selectedImage !== null}
+          resetImage={() => {
+            handleResetImage();
+            setSelectedImage(null);
+          }}
+          imgFile={selectedImage}
+        />
 
         {/* Input element to select an image file */}
         <input
