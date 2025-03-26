@@ -52,7 +52,7 @@ router.get("/:id/questions", async (req, res) => {
       const choiceIds = question.choice_ids?.map(id => new ObjectId(id)) || [];
       const choices = await db.collection("Choices").find({ _id: { $in: choiceIds } }).toArray();
       console.log(choices)
-      
+
       const { choice_ids, ...restOfQuestion } = question;
       return { ...restOfQuestion, choices };
     })
@@ -141,6 +141,11 @@ router.post("/", async (req, res) => {
       const questionToInsert = {
         question: question.question,
         type: question.type,
+        // organization: question.organization,
+        // user_created: question.user_created,
+        // time_created: question.time_created,
+        // last_edited: question.last_edited,
+        image: question.image,
         choice_ids: choiceIds,
       };
 
