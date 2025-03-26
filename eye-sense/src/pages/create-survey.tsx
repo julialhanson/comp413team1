@@ -22,7 +22,7 @@ const CreateSurvey = () => {
 
   const setQuestionImg = (newImg: File | null, index: number) => {
     const newQuestions = [...questions];
-    const newQuestion = { ...newQuestions[index], img: newImg };
+    const newQuestion = { ...newQuestions[index], image: newImg };
     newQuestions[index] = newQuestion;
     setQuestions(newQuestions);
   };
@@ -47,7 +47,7 @@ const CreateSurvey = () => {
       {
         id: questions.length + 1,
         question: "",
-        img: null,
+        image: null,
         type: "multiple choice",
         // selected: [],
         choices: [],
@@ -172,11 +172,11 @@ const CreateSurvey = () => {
             </div>
 
             {/* DISPLAY IMAGE */}
-            {question.img ? (
+            {question.image ? (
               <div className="relative m-2">
                 <img
                   alt=""
-                  src={URL.createObjectURL(question.img)}
+                  src={URL.createObjectURL(question.image)}
                   className="h-44 float-right p-3"
                 />
 

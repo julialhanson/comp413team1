@@ -7,7 +7,7 @@ export type Question = {
   id: number;
   question: string;
   type: string | "multiple choice" | "checkboxes" | "dropdown";
-  img: File | null;
+  image: File | null;
   // selected: number[]; // list of choice ids ("multiple choice" / "dropdown" -> list of length 1)
   choices: Choice[];
 };
