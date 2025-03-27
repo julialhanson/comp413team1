@@ -1,5 +1,5 @@
 export type Choice = {
-  _id: string;
+  id: string;
   text: string;
 };
 
@@ -24,8 +24,8 @@ export type Survey = {
 
 export type SurveyResponse = {
   username: string;
-	survey_id: string | undefined;
-	time_taken: Date;
-	selected: string[][];
-	heatmaps: Map<number, string>;
-}
+  survey_id: string | undefined;
+  time_taken: Date;
+  selected: string[][];
+  heatmaps: Map<number, string>;
+};
