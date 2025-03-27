@@ -1,5 +1,5 @@
 export type Choice = {
-  _id: string;
+  id: string;
   text: string;
 };
 
@@ -7,6 +7,7 @@ export type Question = {
   id: number;
   question: string;
   type: string | "multiple choice" | "checkboxes" | "dropdown";
+  image: File | null;
   // selected: number[]; // list of choice ids ("multiple choice" / "dropdown" -> list of length 1)
   choices: Choice[];
 };
@@ -23,8 +24,8 @@ export type Survey = {
 
 export type SurveyResponse = {
   username: string;
-	survey_id: string | undefined;
-	time_taken: Date;
-	selected: string[][];
-	heatmaps: Map<number, string>;
-}
+  survey_id: string | undefined;
+  time_taken: Date;
+  selected: string[][];
+  heatmaps: Map<number, string>;
+};

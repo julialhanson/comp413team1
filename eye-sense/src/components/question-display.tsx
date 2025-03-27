@@ -34,15 +34,15 @@ const QuestionDisplay = ({
         {question.type !== "dropdown" ? (
           <>
             {question.choices.map((choice) => (
-              <label key={choice._id} className="mb-2">
+              <label key={choice.id} className="mb-2">
                 <input
                   className="mr-2"
                   name={"question-" + index}
                   type={getOptionType(question.type)}
                   value={choice.text}
                   onChange={(e) => {
-                    if (e.target.checked) selectOption(index, choice._id);
-                    else deselectOption(index, choice._id);
+                    if (e.target.checked) selectOption(index, choice.id);
+                    else deselectOption(index, choice.id);
                   }}
                 />
                 {choice.text}
@@ -58,7 +58,7 @@ const QuestionDisplay = ({
               Select an option...
             </option>
             {question.choices.map((option) => (
-              <option key={option._id} value={option._id}>
+              <option key={option.id} value={option.id}>
                 {option.text}
               </option>
             ))}
