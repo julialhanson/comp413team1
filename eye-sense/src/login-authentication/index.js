@@ -30,48 +30,50 @@ const userSchema = new mongoose.Schema(
 
 const User = mongoose.model('User', userSchema)
 
-// app.post('/register', async(req, res)=> {
-// 	try {
-// 		const hashedPassword = await bcrypt.hash(req.body.password, 10)
-// 		const user = new User({
-// 			username: req.body.username,
-// 			password: hashedPassword,
-// 			email: req.body.email,  
-// 			displayName: req.body.displayName,
-// 			role: req.body.role || "user"
-// 		})
-// 		const result = await user.save();
-// 		res.status(201).json({ message: "User registered successfully", user: result });
-// 	} catch (err) {
-// 		res.status(500).json({
-// 			error: err.message
-// 		});
-// 	} 
-// })
+app.post('/register', async(req, res)=> {
+	try {
+		const hashedPassword = await bcrypt.hash(req.body.password, 10)
+		const user = new User({
+			username: req.body.username,
+			password: hashedPassword,
+			email: req.body.email,  
+			displayName: req.body.displayName,
+			role: req.body.role || "user"
+		})
+        // to avoid duplicate usernames or email
+        const result = await user.save(); 
+        // const token = jwt.sign(
+        //     {id: user._id, email: user.email},process.env.JWT_SECRET,
+        //     { expiresIn: '1h' });
+        // user.token = token
+        // user.password = undefined
+		res.status(201).json({ message: "User registered successfully"});
+
+	} catch (err) {
+		res.status(500).json({
+			error: err.message
+		});
+	} 
+})
 
 app.post('/login', async(req, res) => {
-    const user = await User.findOne({username: req.body.username})
-    if (user){
-        const isValidPassword = await bcrypt.compare(req.body.password, user.password)
-        if(isValidPassword) {
-            const token = jwt.sign(
-                {
-                    username: user.username,
-                    role: user.role
-                }, 
-                process.env.JWT_SECRET,
-                { expiresIn: '1h' }, (err, token) => {
-                    if(err) { console.log(err) }    
-                    res.send(token)
-                });
+    try {
+        const {password, username} = req.body
+        if (!(username && password)) {
+            res.status(400).send("Username and password required.")
         }
-        else {
-            res.send('Inncorect Password')
-        }
-    }
-    else {
-        res.send('Incorrect Username')
-    }
-})
+        const user = await User.findOne({username: req.body.username})
+        if (user && await bcrypt.compare(req.body.password, user.password)) {
+                const token = jwt.sign({id: user._id, email: user.email},process.env.JWT_SECRET,{ expiresIn: '1h' });
+                user.token = token
+                user.password = undefined
+                res.status(200).json({token})
+            }
+            else {
+                res.send('Inncorect Username or Password')
+            }
+    } catch (error) {
+        console.log(error);
+}})
 
 app.listen(process.env.PORT, () => {console.log('this is port', process.env.PORT)})
