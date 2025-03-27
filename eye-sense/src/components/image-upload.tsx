@@ -9,7 +9,7 @@ const ImageUpload = ({ resetImage, imgFile }: ImageUploadProps) => {
   return (
     <>
       {imgFile && (
-        <div className="relative m-2">
+        <div className="relative">
           <img alt="" src={URL.createObjectURL(imgFile)} className="p-3" />
 
           <button
