@@ -9,6 +9,7 @@ import { useParams } from "react-router-dom";
 
 const ViewSurvey = () => {
   const { id } = useParams();
+  const [surveyName, setSurveyName] = useState<string>("");
   const [questions, setQuestions] = useState<Question[]>([]);
   const [response, setResponse] = useState<SurveyResponse>({
     username: "username", // TODO: CHANGE WHEN WE CAN GET USERNAME
@@ -20,7 +21,8 @@ const ViewSurvey = () => {
 
   useEffect(() => {
     getQuestionsFromSurvey(id).then((data) => {
-      setQuestions(data);
+      setSurveyName(data.name);
+      setQuestions(data.questions);
 
       // Initialize selected options to be the length of the survey so each index corresponds to the same question
       const initSelected = new Array(data.length).fill([]);
@@ -58,6 +60,9 @@ const ViewSurvey = () => {
 
   return (
     <div className="max-w-2xl ml-auto mr-auto p-5">
+      <h1 className="w-full bg-white rounded-xl p-4 mb-3 font-bold">
+        {surveyName}
+      </h1>
       {questions.map((question, questionIdx) => (
         <QuestionDisplay
           key={questionIdx}
