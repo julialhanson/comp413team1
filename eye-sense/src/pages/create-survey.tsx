@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Question, Survey } from "../types";
 import { createSurvey } from "../controllers/survey-controller";
 import { useNavigate } from "react-router-dom";
+import ImageUpload from "../components/image-upload";
 
 const CreateSurvey = () => {
   const navigate = useNavigate();
@@ -172,27 +173,14 @@ const CreateSurvey = () => {
             </div>
 
             {/* DISPLAY IMAGE */}
-            {question.image ? (
-              <div className="relative m-2">
-                <img
-                  alt=""
-                  src={URL.createObjectURL(question.image)}
-                  className="h-44 float-right p-3"
-                />
-
-                <button
-                  className="btn size-9 grey-btn absolute right-0"
-                  onClick={() => {
-                    // handleResetImage();
-                    setQuestionImg(null, index);
-                  }}
-                >
-                  <i className="fa-solid fa-xmark"></i>
-                </button>
-              </div>
-            ) : (
-              <></>
-            )}
+            <div className="m-2">
+              <ImageUpload
+                resetImage={() => {
+                  setQuestionImg(null, index);
+                }}
+                imgFile={question.image}
+              />
+            </div>
           </div>
           <div className="flex justify-between mt-2">
             {/* ADD OPTION BUTTON */}
