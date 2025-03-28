@@ -1,5 +1,5 @@
 export type Choice = {
-  _id: string;
+  id: string;
   text: string;
 };
 

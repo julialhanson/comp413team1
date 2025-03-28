@@ -1,8 +1,9 @@
 import express from "express";
-
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 import db from "../connection.js";
-
 import { ObjectId } from "mongodb";
+// import User from '../models/User';
 
 const router = express.Router();
 
@@ -41,13 +42,13 @@ router.put("/:id", async (req, res) => {
         .status(500)
         .send("ERROR: an account with this email has already been created");
     }
-
+    const hashedPassword = await bcrypt.hash(req.body.password, 10);
     const query = { _id: new ObjectId(req.params.id) };
     const updatedDocument = {
       $set: {
         username: req.body.username,
         display_name: req.body.display_name,
-        password: req.body.password,
+        password: hashedPassword,
         email: req.body.email,
         organization: req.body.organization,
         role: req.body.role,
@@ -75,22 +76,23 @@ router.post("/", async (req, res) => {
     let collection = await db.collection("Users");
     const curr_user = await collection.findOne({ username: req.body.username });
     const curr_email = await collection.findOne({ email: req.body.email });
-
-    if (curr_user != null) {
-      return res
-        .status(500)
-        .send("ERROR: an account with this username has already been created");
+    console.log(curr_email, curr_user);
+    if (!req.body.username || !req.body.email) {
+      return res.status(400).send("ERROR: need both username and email");
     }
-    if (curr_email != null) {
+    const hashedPassword = await bcrypt.hash(req.body.password, 10);
+    if (curr_user != null || curr_email != null) {
       return res
-        .status(500)
-        .send("ERROR: an account with this email has already been created");
+        .status(400)
+        .send(
+          "ERROR: an account with this username or email has already been created"
+        );
     }
 
     let newDocument = {
       username: req.body.username,
       display_name: req.body.display_name,
-      password: req.body.password,
+      password: hashedPassword,
       email: req.body.email,
       organization: req.body.organization,
       role: req.body.role,
@@ -130,7 +132,7 @@ router.patch("/:id", async (req, res) => {
     let collection = await db.collection("Users");
     const curr_user = await collection.findOne({ username: req.body.username });
     const curr_email = await collection.findOne({ email: req.body.email });
-
+    const hashedPassword = await bcrypt.hash(req.body.password, 10);
     if (curr_user != null) {
       return res
         .status(500)
@@ -146,7 +148,11 @@ router.patch("/:id", async (req, res) => {
     const updates = {};
     for (const key in req.body) {
       if (req.body[key] != null) {
-        updates[key] = req.body[key];
+        if (req.body[key] == password) {
+          updates[key] = hashedPassword;
+        } else {
+          updates[key] = req.body[key];
+        }
       }
     }
 

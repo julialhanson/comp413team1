@@ -31,11 +31,13 @@ const CreateSurvey = () => {
   const addOption = (index: number) => {
     const newQuestions = [...questions];
     const optionsLength: number = newQuestions[index].choices.length;
+
     setOptionId(optionId + 1);
+
     newQuestions[index].choices = [
       ...newQuestions[index].choices,
       {
-        _id: "" + optionId,
+        id: "" + optionId,
         text: "Option " + (optionsLength + 1),
       },
     ];
@@ -43,7 +45,9 @@ const CreateSurvey = () => {
   };
 
   const addQuestion = () => {
-    setQuestions([
+    setOptionId(optionId + 1);
+
+    const newQuestions = [
       ...questions,
       {
         id: questions.length + 1,
@@ -51,9 +55,16 @@ const CreateSurvey = () => {
         image: null,
         type: "multiple choice",
         // selected: [],
-        choices: [],
+        // Initialize question with at least one option
+        choices: [
+          {
+            id: "" + optionId,
+            text: "Option 1",
+          },
+        ],
       },
-    ]);
+    ];
+    setQuestions(newQuestions);
   };
 
   const deleteQuestion = (question: Question) => {
@@ -131,7 +142,7 @@ const CreateSurvey = () => {
           <div className="grid grid-cols-2">
             <div>
               {question.choices.map((option, optionIdx) => (
-                <div key={option._id} className="mb-2 w-fit">
+                <div key={option.id} className="mb-2 w-fit">
                   <button
                     className="text-red-600"
                     onClick={() => {
@@ -173,14 +184,12 @@ const CreateSurvey = () => {
             </div>
 
             {/* DISPLAY IMAGE */}
-            <div className="m-2">
-              <ImageUpload
-                resetImage={() => {
-                  setQuestionImg(null, index);
-                }}
-                imgFile={question.image}
-              />
-            </div>
+            <ImageUpload
+              resetImage={() => {
+                setQuestionImg(null, index);
+              }}
+              imgFile={question.image}
+            />
           </div>
           <div className="flex justify-between mt-2">
             {/* ADD OPTION BUTTON */}
