@@ -117,10 +117,10 @@ router.post("/login", async (req, res) => {
     const curr_user = await collection.findOne({ username: req.body.username });
     const curr_email = await collection.findOne({ email: req.body.email });
     if (curr_user && (await bcrypt.compare(password, curr_user.password))) {
-      const token = jwt.sign({ email: curr_email }, process.env.JWT_SECRET, {
-        expiresIn: "1h",
-      });
-      res.status(200).json({ token });
+        const token = jwt.sign({ email: curr_email }, process.env.JWT_SECRET, {
+          expiresIn: "1h",
+        });
+        res.status(200).json({ token });
     } else {
       res.status(401).send("Incorect Username or Password");
     }
