@@ -29,3 +29,12 @@ export type SurveyResponse = {
   selected: string[][];
   heatmaps: Map<number, string>;
 };
+
+export type User = {
+  username: string;
+  password: string;
+  email: string;
+  display_name: string;
+  organization: string;
+  role?: string;
+};

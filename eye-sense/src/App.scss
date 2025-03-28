@@ -1,7 +1,7 @@
 $bg-lighter-grey: rgb(231, 231, 231);
 $light-grey: rgb(200, 200, 200);
 $light-blue: #c9e7ff;
-$blue: #81bff1;
+$blue: #acd1f0;
 $dark-blue: #2e71b8;
 $darker-blue: #0e529b;
 
@@ -22,6 +22,14 @@ $darker-blue: #0e529b;
   background-color: $bg-lighter-grey;
 }
 
+.blue-bg {
+  background-color: $blue;
+}
+
+.dark-blue-bg {
+  background-color: $dark-blue;
+}
+
 .light-blue {
   color: $light-blue;
 }
@@ -34,10 +42,14 @@ $darker-blue: #0e529b;
   color: $dark-blue;
 }
 
+.darker-blue {
+  color: $darker-blue;
+}
+
 .btn {
   cursor: pointer;
   border-radius: calc(infinity * 1px);
-  padding: 5px 10px;
+  padding: 5px 15px;
   transition: 0.15s;
 }
 
@@ -56,6 +68,22 @@ $darker-blue: #0e529b;
   &:hover {
     background-color: $light-grey;
   }
+}
+
+.auth-input {
+  background-color: $bg-lighter-grey;
+  border-radius: calc(infinity * 1px);
+  width: 100%;
+}
+
+.img-transition-start-left {
+  left: 0;
+  transition: 0.5s;
+}
+
+.img-transition-end-right {
+  left: 100%;
+  transform: translate(-100%, 0);
 }
 
 #profile-menu {
