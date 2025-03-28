@@ -183,13 +183,15 @@ const CreateSurvey = () => {
               ))}
             </div>
 
-            {/* DISPLAY IMAGE */}
-            <ImageUpload
-              resetImage={() => {
-                setQuestionImg(null, index);
-              }}
-              imgFile={question.image}
-            />
+            <div className="m-2">
+              {/* DISPLAY IMAGE */}
+              <ImageUpload
+                resetImage={() => {
+                  setQuestionImg(null, index);
+                }}
+                imgFile={question.image}
+              />
+            </div>
           </div>
           <div className="flex justify-between mt-2">
             {/* ADD OPTION BUTTON */}

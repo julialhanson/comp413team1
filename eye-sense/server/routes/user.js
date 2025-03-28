@@ -73,10 +73,9 @@ router.put("/:id", async (req, res) => {
 router.post("/", async (req, res) => {
   try {
     // Check for duplicate usernames or emails
-    let collection = await db.collection("Users");
+    let collection = db.collection("Users");
     const curr_user = await collection.findOne({ username: req.body.username });
     const curr_email = await collection.findOne({ email: req.body.email });
-    console.log(curr_email, curr_user);
     if (!req.body.username || !req.body.email) {
       return res.status(400).send("ERROR: need both username and email");
     }
@@ -109,6 +108,7 @@ router.post("/", async (req, res) => {
 
 router.post("/login", async (req, res) => {
   try {
+    const { username, password } = req.body;
     let collection = await db.collection("Users");
     const curr_user = await collection.findOne({ username: username });
     // const curr_email = await collection.findOne({ email: req.body.email });

@@ -14,18 +14,18 @@ export const registerUser = async (user: User) => {
   }
 };
 
-export const loginUser = async ({
-  username,
-  password,
-}: {
+export const loginUser = async (user: {
   username: string;
   password: string;
 }) => {
   try {
-    const response = await axios.post(API_URL, { username, password });
+    const response = await axios.post(API_URL + `/login`, user);
     return response.data;
   } catch (error) {
-    console.error("Error fetching users:", error);
+    console.error(
+      `Error logging in user with username: ${user.username}`,
+      error
+    );
     return null;
   }
 };
