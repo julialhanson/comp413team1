@@ -134,26 +134,36 @@ router.patch("/:id", async (req, res) => {
   try {
     // Check for duplicate usernames and emails
     let collection = await db.collection("Users");
-    const curr_user = await collection.findOne({ username: req.body.username });
-    const curr_email = await collection.findOne({ email: req.body.email });
+    const userID = req.params.id;
+
+    console.log("userID is ", userID);
+    if (!ObjectId.isValid(userID)) {
+      return res.status(400).send("ERROR: Invalid User ID format");
+    }
+    
     const hashedPassword = await bcrypt.hash(req.body.password, 10);
-    if (curr_user != null) {
-      return res
-        .status(500)
-        .send("ERROR: an account with this username has already been created");
-    }
-    if (curr_email != null) {
-      return res
-        .status(500)
-        .send("ERROR: an account with this email has already been created");
-    }
 
     const query = { _id: new ObjectId(req.params.id) };
     const updates = {};
     for (const key in req.body) {
       if (req.body[key] != null) {
-        if (req.body[key] == password) {
+        if (key == "password") {
+          console.log("hashed password is ", hashedPassword);
           updates[key] = hashedPassword;
+        } else if (key == "username") {
+          const dupe_user = await collection.findOne({ username: req.body.username });
+          if (dupe_user != null) {
+            return res
+              .status(500)
+              .send("ERROR: an account with this username has already been created");
+          }
+        } else if (key == "email") {
+          const dupe_email = await collection.findOne({ email: req.body.email });
+          if (dupe_email != null) {
+            return res
+              .status(500)
+              .send("ERROR: an account with this username has already been created");
+          }
         } else {
           updates[key] = req.body[key];
         }
