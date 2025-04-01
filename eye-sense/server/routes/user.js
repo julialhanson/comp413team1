@@ -7,7 +7,7 @@ import { ObjectId } from "mongodb";
 
 const router = express.Router();
 
-// Get all users in the database
+// Get all users in the database, or users specified by a specific field value
 router.get("/", async (req, res) => {
   let collection = await db.collection("Users");
   let query = {};
@@ -34,7 +34,6 @@ router.get("/", async (req, res) => {
     return res.send(results).status(200);
   } else {
     try {
-      console.log("in here");
       let users = await collection.find(query).toArray();
       return res.status(200).json(users)
     } catch (error) {

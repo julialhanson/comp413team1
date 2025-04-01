@@ -9,8 +9,37 @@ const router = express.Router();
 // Get all surveys in the database
 router.get("/", async (req, res) => {
   let collection = await db.collection("Surveys");
-  let results = await collection.find({}).toArray();
-  return res.send(results).status(200);
+  let query = {};
+
+  if (req.query.organization) {
+    query.organization = req.query.organization;
+  }
+  if (req.query.published) {
+    query.published = req.query.published;
+  }
+  if (req.query.user_created) {
+    query.user_created = req.query.user_created;
+  }
+  if (req.query.question_ids) {
+    query.question_ids = req.query.question_ids;
+  }
+  if (req.query.time_created) {
+    query.time_created = req.query.time_created;
+  }
+
+  console.log("query length is ", Object.keys(query).length);
+
+  if (Object.keys(query).length == 0) {
+    let results = await collection.find({}).toArray();
+    return res.send(results).status(200);
+  } else {
+    try {
+      let surveys = await collection.find(query).toArray();
+      return res.status(200).json(surveys)
+    } catch (error) {
+      return res.status(400).json({error: "Error fetching users", details: error.message});
+    }
+  }
 });
 
 // Get a specific survey in the database
@@ -66,32 +95,6 @@ router.get("/:id/questions", async (req, res) => {
 
   res.send({ name: result.name, questions: questionsWithChoices }).status(200);
 });
-
-// // Get surveys specified by a field value in the database
-// router.get("/items", async (req, res) => {
-//     try {
-//         let collection = await db.collection("Surveys");
-//         let query = {};
-//         if (req.query.survey_id) query.survey_id = req.query.survey_id;
-//         if (req.query.organization) query.organization = { $regex: new RegExp(`^${req.query.organization}$`, "i") };
-//         if (req.query.user_created) query.user_created = req.query.user_created;
-//         if (req.query.time_created) query.time_created = req.query.time_created;
-//         if (req.query.last_edited) query.last_edited = req.query.last_edited;
-//         if (req.query.published !== undefined) query.published = req.query.published;
-//         if (req.query.questions) query.questions = req.query.questions;
-
-//         let result = await collection.find(query).toArray();
-
-//         if (result.length === 0) {
-//             res.status(404).send("No matching surveys found");
-//         } else {
-//             res.status(200).send(results);
-//         }
-//     } catch (error) {
-//         console.error(error);
-//         res.status(500).send("Internal Server Error");
-//     }
-// });
 
 // Modify information in a given survey
 router.put("/:id", async (req, res) => {
