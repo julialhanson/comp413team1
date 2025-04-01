@@ -24,6 +24,34 @@ router.get("/:id", async (req, res) => {
   else res.send(result).status(200);
 });
 
+// router.get("/", async (req, res) => {
+//   try {
+//     let collection = await db.collection("Users");
+//     let query = {};
+
+//     if (req.query.organization) {
+//       query.organization = req.query.organization;
+//     }
+//     if (req.query.username) {
+//       query.username = req.query.username;
+//     }
+//     if (req.query.email) {
+//       query.email = req.query.email;
+//     }
+//     if (req.query.role) {
+//       query.role = req.query.role;
+//     }
+//     if (req.query.organization_permissions) {
+//       query.organization = req.query.organization_permissions;
+//     }
+
+//     let users = await collection.find(query).toArray();
+//     return res.status(200).json(users);
+//   } catch (error) {
+//     return res.status(400).send("Error fetching users:", error);
+//   }
+// })
+
 // Replace information for a given user
 router.put("/:id", async (req, res) => {
   try {
