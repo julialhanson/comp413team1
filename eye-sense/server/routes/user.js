@@ -168,14 +168,13 @@ router.patch("/:id", async (req, res) => {
     if (!ObjectId.isValid(userID)) {
       return res.status(400).send("ERROR: Invalid User ID format");
     }
-    
-    const hashedPassword = await bcrypt.hash(req.body.password, 10);
 
     const query = { _id: new ObjectId(req.params.id) };
     const updates = {};
     for (const key in req.body) {
       if (req.body[key] != null) {
         if (key == "password") {
+          const hashedPassword = await bcrypt.hash(req.body.password, 10);
           console.log("hashed password is ", hashedPassword);
           updates[key] = hashedPassword;
         } else if (key == "username") {
