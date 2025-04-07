@@ -47,7 +47,7 @@ const Auth = () => {
         />
         <button
           className="btn blue-btn float-right"
-          onClick={() => loginUser()}
+          onClick={() => loginUser(userToLogin)}
         >
           Login
         </button>
@@ -137,7 +137,10 @@ const Auth = () => {
 
         <button
           className="btn blue-btn float-right"
-          onClick={() => registerUser(userToRegister)}
+          onClick={() => {
+            registerUser(userToRegister);
+            setIsRegistering(false);
+          }}
         >
           Register
         </button>

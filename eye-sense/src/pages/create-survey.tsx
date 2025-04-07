@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Question, Survey } from "../types";
 import { createSurvey } from "../controllers/survey-controller";
 import { useNavigate } from "react-router-dom";
+import ImageUpload from "../components/image-upload";
 
 const CreateSurvey = () => {
   const navigate = useNavigate();
@@ -30,11 +31,13 @@ const CreateSurvey = () => {
   const addOption = (index: number) => {
     const newQuestions = [...questions];
     const optionsLength: number = newQuestions[index].choices.length;
+
     setOptionId(optionId + 1);
+
     newQuestions[index].choices = [
       ...newQuestions[index].choices,
       {
-        _id: "" + optionId,
+        id: "" + optionId,
         text: "Option " + (optionsLength + 1),
       },
     ];
@@ -42,7 +45,9 @@ const CreateSurvey = () => {
   };
 
   const addQuestion = () => {
-    setQuestions([
+    setOptionId(optionId + 1);
+
+    const newQuestions = [
       ...questions,
       {
         id: questions.length + 1,
@@ -50,9 +55,16 @@ const CreateSurvey = () => {
         image: null,
         type: "multiple choice",
         // selected: [],
-        choices: [],
+        // Initialize question with at least one option
+        choices: [
+          {
+            id: "" + optionId,
+            text: "Option 1",
+          },
+        ],
       },
-    ]);
+    ];
+    setQuestions(newQuestions);
   };
 
   const deleteQuestion = (question: Question) => {
@@ -130,7 +142,7 @@ const CreateSurvey = () => {
           <div className="grid grid-cols-2">
             <div>
               {question.choices.map((option, optionIdx) => (
-                <div key={option._id} className="mb-2 w-fit">
+                <div key={option.id} className="mb-2 w-fit">
                   <button
                     className="text-red-600"
                     onClick={() => {
@@ -171,28 +183,15 @@ const CreateSurvey = () => {
               ))}
             </div>
 
-            {/* DISPLAY IMAGE */}
-            {question.image ? (
-              <div className="relative m-2">
-                <img
-                  alt=""
-                  src={URL.createObjectURL(question.image)}
-                  className="h-44 float-right p-3"
-                />
-
-                <button
-                  className="btn size-9 grey-btn absolute right-0"
-                  onClick={() => {
-                    // handleResetImage();
-                    setQuestionImg(null, index);
-                  }}
-                >
-                  <i className="fa-solid fa-xmark"></i>
-                </button>
-              </div>
-            ) : (
-              <></>
-            )}
+            <div className="m-2">
+              {/* DISPLAY IMAGE */}
+              <ImageUpload
+                resetImage={() => {
+                  setQuestionImg(null, index);
+                }}
+                imgFile={question.image}
+              />
+            </div>
           </div>
           <div className="flex justify-between mt-2">
             {/* ADD OPTION BUTTON */}

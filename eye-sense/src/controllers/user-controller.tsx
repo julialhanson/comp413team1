@@ -1,12 +1,13 @@
-import axios from "axios";
+// import axios from "axios";
 import { createQueryString } from "../utils/func-utils";
 import { User } from "../types";
+import api from "../utils/axios";
 
-const API_URL = "http://localhost:5050/api/v1/users"; // Adjust for production
+const API_URL = "/users"; // Adjust for production
 
 export const registerUser = async (user: User) => {
   try {
-    const response = await axios.post(API_URL, user);
+    const response = await api.post(API_URL, user);
     return response.data;
   } catch (error) {
     console.error(`Error creating user with username ${user.username}:`, error);
@@ -14,19 +15,25 @@ export const registerUser = async (user: User) => {
   }
 };
 
-export const loginUser = async () => {
+export const loginUser = async (user: {
+  username: string;
+  password: string;
+}) => {
   try {
-    const response = await axios.get(API_URL);
+    const response = await api.post(API_URL + `/login`, user);
     return response.data;
   } catch (error) {
-    console.error("Error fetching users:", error);
+    console.error(
+      `Error logging in user with username: ${user.username}`,
+      error
+    );
     return null;
   }
 };
 
 export const getAllUsers = async () => {
   try {
-    const response = await axios.get(API_URL);
+    const response = await api.get(API_URL);
     return response.data;
   } catch (error) {
     console.error("Error fetching users:", error);
@@ -36,7 +43,7 @@ export const getAllUsers = async () => {
 
 export const getUserWithUsername = async (username: string) => {
   try {
-    const response = await axios.get(API_URL + `/${username}`);
+    const response = await api.get(API_URL + `/${username}`);
     return response.data;
   } catch (error) {
     console.error(`Error fetching user with username ${username}:`, error);
@@ -46,7 +53,7 @@ export const getUserWithUsername = async (username: string) => {
 
 export const deleteUserWithUsername = async (username: string) => {
   try {
-    const response = await axios.delete(API_URL + `/${username}`);
+    const response = await api.delete(API_URL + `/${username}`);
     return response.data;
   } catch (error) {
     console.error(`Error deleting user with username ${username}:`, error);
@@ -57,7 +64,7 @@ export const deleteUserWithUsername = async (username: string) => {
 // TODO: this one uses julia's endpoint, but official register endpoint is disha's
 export const createUser = async (username: string) => {
   try {
-    const response = await axios.post(API_URL, username);
+    const response = await api.post(API_URL, username);
     return response.data;
   } catch (error) {
     console.error(`Error creating user with username ${username}:`, error);
@@ -67,7 +74,7 @@ export const createUser = async (username: string) => {
 
 // export const updateUserWithUsername = async (userInfo: User) => {
 //   try {
-//     const response = await axios.put(API_URL, userInfo);
+//     const response = await api.put(API_URL, userInfo);
 //     console.log(response.data);
 //     return response.data;
 //   } catch (error) {
@@ -81,7 +88,7 @@ export const getUsersWithQuery = async (
 ) => {
   const queryStr = createQueryString(queries);
   try {
-    const response = await axios.get(API_URL + `?${queryStr}`);
+    const response = await api.get(API_URL + `?${queryStr}`);
     return response.data;
   } catch (error) {
     console.error(`Error fetching users with query ${queryStr}:`, error);

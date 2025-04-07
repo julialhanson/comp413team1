@@ -53,6 +53,12 @@ $darker-blue: #0e529b;
   transition: 0.15s;
 }
 
+.circle-btn {
+  cursor: pointer;
+  border-radius: calc(infinity * 1px);
+  transition: 0.15s;
+}
+
 .blue-btn {
   background-color: $dark-blue;
   color: white;
