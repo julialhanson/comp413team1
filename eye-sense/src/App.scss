@@ -1,42 +1,127 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+$bg-lighter-grey: rgb(231, 231, 231);
+$light-grey: rgb(200, 200, 200);
+$light-blue: #c9e7ff;
+$blue: #acd1f0;
+$dark-blue: #2e71b8;
+$darker-blue: #0e529b;
+
+:root {
+  background-color: $bg-lighter-grey;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+// FONT COLORS
+.dark-grey {
+  color: grey;
 }
 
-@keyframes logo-spin {
+.lighter-grey {
+  color: $bg-lighter-grey;
+}
+
+.lighter-grey-bg {
+  background-color: $bg-lighter-grey;
+}
+
+.blue-bg {
+  background-color: $blue;
+}
+
+.dark-blue-bg {
+  background-color: $dark-blue;
+}
+
+.light-blue {
+  color: $light-blue;
+}
+
+.blue {
+  color: $blue;
+}
+
+.dark-blue {
+  color: $dark-blue;
+}
+
+.darker-blue {
+  color: $darker-blue;
+}
+
+.btn {
+  cursor: pointer;
+  border-radius: calc(infinity * 1px);
+  padding: 5px 15px;
+  transition: 0.15s;
+}
+
+.circle-btn {
+  cursor: pointer;
+  border-radius: calc(infinity * 1px);
+  transition: 0.15s;
+}
+
+.blue-btn {
+  background-color: $dark-blue;
+  color: white;
+
+  &:hover {
+    background-color: $darker-blue;
+  }
+}
+
+.grey-btn {
+  background-color: $bg-lighter-grey;
+
+  &:hover {
+    background-color: $light-grey;
+  }
+}
+
+.auth-input {
+  background-color: $bg-lighter-grey;
+  border-radius: calc(infinity * 1px);
+  width: 100%;
+}
+
+.img-transition-start-left {
+  left: 0;
+  transition: 0.5s;
+}
+
+.img-transition-end-right {
+  left: 100%;
+  transform: translate(-100%, 0);
+}
+
+#profile-menu {
+  a {
+    padding: 5px 10px;
+    border-radius: 5px;
+  }
+}
+
+.hover-darken {
+  transition: 0.15s;
+
+  &:hover {
+    background-color: $bg-lighter-grey;
+  }
+}
+
+// ANIMATIONS
+@keyframes fade-in {
   from {
-    transform: rotate(0deg);
+    opacity: 0;
   }
   to {
-    transform: rotate(360deg);
+    opacity: 100;
   }
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
+@keyframes fade-out {
+  from {
+    opacity: 100;
   }
-}
-
-.card {
-  padding: 2em;
-}
-
-.read-the-docs {
-  color: #888;
+  to {
+    opacity: 0;
+  }
 }
