@@ -9,8 +9,31 @@ const router = express.Router();
 // Get all questions in the database
 router.get("/", async (req, res) => {
     let collection = await db.collection("Questions");
+    let query = {};
+
+    if (req.query.organization) {
+        query.organization = req.query.organization;
+    }
+    if (req.query.user_created) {
+        query.user_created = req.query.user_created;
+    }
+    if (req.query.time_created) {
+        query.time_created = req.query.time_created;
+    }
+
+    console.log("query length is ", Object.keys(query).length);
+
+    if (Object.keys(query).length == 0) {
     let results = await collection.find({}).toArray();
     return res.send(results).status(200);
+    } else {
+    try {
+        let questions = await collection.find(query).toArray();
+        return res.status(200).json(questions)
+    } catch (error) {
+        return res.status(400).json({error: "Error fetching users", details: error.message});
+    }
+    }
 });
 
 // Get a specific question in the database
