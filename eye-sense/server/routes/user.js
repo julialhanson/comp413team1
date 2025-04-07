@@ -116,6 +116,14 @@ router.post("/login", async (req, res) => {
       const token = jwt.sign({ username: username }, process.env.JWT_SECRET, {
         expiresIn: "1h",
       });
+
+      res.cookie("token", token, {
+        httpOnly: true, // Prevents JavaScript access (protects from XSS attacks)
+        secure: true, // Only send over HTTPS (important for production)
+        sameSite: "strict", // Prevents CSRF
+        maxAge: 3600000, // 1 hour
+      });
+
       res.status(200).json({ token });
     } else {
       res.status(401).send("Incorect Username or Password");
