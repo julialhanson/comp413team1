@@ -3,11 +3,12 @@ import express from "express";
 import db from "../connection.js";
 
 import { ObjectId } from "mongodb";
+import { authenticateToken } from "../utils/authenticate.js";
 
 const router = express.Router();
 
 // Get all surveys in the database
-router.get("/", async (req, res) => {
+router.get("/", authenticateToken, async (req, res) => {
   let collection = await db.collection("Surveys");
   let query = {};
 
@@ -28,6 +29,7 @@ router.get("/", async (req, res) => {
   }
 
   console.log("query length is ", Object.keys(query).length);
+  console.log(req.user);
 
   if (Object.keys(query).length == 0) {
     let results = await collection.find({}).toArray();
@@ -35,9 +37,11 @@ router.get("/", async (req, res) => {
   } else {
     try {
       let surveys = await collection.find(query).toArray();
-      return res.status(200).json(surveys)
+      return res.status(200).json(surveys);
     } catch (error) {
-      return res.status(400).json({error: "Error fetching users", details: error.message});
+      return res
+        .status(400)
+        .json({ error: "Error fetching surveys", details: error.message });
     }
   }
 });
@@ -79,14 +83,12 @@ router.get("/:id/questions", async (req, res) => {
   // Fetch choices for each question
   const questionsWithChoices = await Promise.all(
     questions.map(async (question) => {
-      console.log(question);
       const choiceIds =
         question.choice_ids?.map((id) => new ObjectId(id)) || [];
       const choices = await db
         .collection("Choices")
         .find({ _id: { $in: choiceIds } })
         .toArray();
-      console.log(choices);
 
       const { choice_ids, ...restOfQuestion } = question;
       return { ...restOfQuestion, choices };
@@ -143,7 +145,6 @@ router.post("/", async (req, res) => {
 
       // Insert choices and get their _id values
       const choiceInsertResult = await choiceCollection.insertMany(choiceDocs);
-      console.log(choiceInsertResult.insertedIds);
       const choiceIds = Object.values(choiceInsertResult.insertedIds);
 
       // Replace choices with _id references
@@ -178,8 +179,6 @@ router.post("/", async (req, res) => {
       published: req.body.published,
       question_ids: questionIds, //req.body.questions//.map((q) => q.question_id),
     };
-
-    console.log(questionInsertResult);
 
     let result = await surveyCollection.insertOne(newDocument);
     return res.send(result).status(201);

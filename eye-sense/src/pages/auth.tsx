@@ -2,8 +2,11 @@ import React, { useState } from "react";
 import loginGraphic from "../assets/Login-amico.png";
 import { User } from "../types";
 import { loginUser, registerUser } from "../controllers/user-controller";
+import { useNavigate } from "react-router-dom";
 
 const Auth = () => {
+  const navigate = useNavigate();
+
   const [userToRegister, setUserToRegister] = useState<User>({
     username: "",
     password: "",
@@ -47,7 +50,10 @@ const Auth = () => {
         />
         <button
           className="btn blue-btn float-right"
-          onClick={() => loginUser(userToLogin)}
+          onClick={() => {
+            loginUser(userToLogin);
+            navigate(`/create-survey`);
+          }}
         >
           Login
         </button>

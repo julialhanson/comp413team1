@@ -1,12 +1,12 @@
-import axios from "axios";
 import { Survey, SurveyResponse } from "../types";
+import api from "../utils/axios";
 import { createQueryString } from "../utils/func-utils";
 
-const API_URL = "http://localhost:5050/api/v1/surveys"; // Adjust for production
+const API_URL = "/surveys"; // Adjust for production
 
 export const getAllSurveys = async () => {
   try {
-    const response = await axios.get(API_URL);
+    const response = await api.get(API_URL);
     return response.data;
   } catch (error) {
     console.error("Error fetching surveys:", error);
@@ -16,7 +16,7 @@ export const getAllSurveys = async () => {
 
 export const getSurveyWithId = async (id: string) => {
   try {
-    const response = await axios.get(API_URL + `/${id}`);
+    const response = await api.get(API_URL + `/${id}`);
     return response.data;
   } catch (error) {
     console.error(`Error fetching survey with id ${id}:`, error);
@@ -30,7 +30,7 @@ export const getQuestionsFromSurvey = async (id: string | undefined) => {
     return null;
   }
   try {
-    const response = await axios.get(API_URL + `/${id}/questions`);
+    const response = await api.get(API_URL + `/${id}/questions`);
     return response.data;
   } catch (error) {
     console.error(`Error fetching questions from survey with id ${id}:`, error);
@@ -40,7 +40,7 @@ export const getQuestionsFromSurvey = async (id: string | undefined) => {
 
 export const deleteSurveyWithId = async (id: string) => {
   try {
-    const response = await axios.delete(API_URL + `/${id}`);
+    const response = await api.delete(API_URL + `/${id}`);
     return response.data;
   } catch (error) {
     console.error(`Error deleting survey with id ${id}:`, error);
@@ -50,7 +50,7 @@ export const deleteSurveyWithId = async (id: string) => {
 
 export const createSurvey = async (survey: Survey) => {
   try {
-    const response = await axios.post(API_URL, survey);
+    const response = await api.post(API_URL, survey);
     return response.data;
   } catch (error) {
     console.error("Error creating survey:", error);
@@ -63,7 +63,7 @@ export const getSurveysWithQuery = async (
 ) => {
   const queryStr = createQueryString(queries);
   try {
-    const response = await axios.get(API_URL + `?${queryStr}`);
+    const response = await api.get(API_URL + `?${queryStr}`);
     return response.data;
   } catch (error) {
     console.error(`Error fetching surveys with query ${queryStr}:`, error);
@@ -76,7 +76,7 @@ export const deleteSurveysWithQuery = async (
 ) => {
   const queryStr = createQueryString(queries);
   try {
-    const response = await axios.delete(API_URL + `?${queryStr}`);
+    const response = await api.delete(API_URL + `?${queryStr}`);
     return response.data;
   } catch (error) {
     console.error(`Error fetching surveys with query ${queryStr}:`, error);
@@ -93,7 +93,7 @@ export const submitResponse = async (
     return null;
   }
   try {
-    const response = await axios.post(
+    const response = await api.post(
       API_URL + `/${id}/responses`,
       surveyResponse
     );

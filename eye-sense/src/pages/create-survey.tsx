@@ -3,6 +3,7 @@ import { Question, Survey } from "../types";
 import { createSurvey } from "../controllers/survey-controller";
 import { useNavigate } from "react-router-dom";
 import ImageUpload from "../components/image-upload";
+import { getCurrentUser } from "../controllers/user-controller";
 
 const CreateSurvey = () => {
   const navigate = useNavigate();
@@ -74,19 +75,25 @@ const CreateSurvey = () => {
   };
 
   const publishSurvey = () => {
-    const survey: Survey = {
-      name: surveyName,
-      organization: "", // TODO: CHANGE WHEN WE CAN GET ORGANIZATION / USERNAME
-      user_created: "",
-      time_created: new Date(),
-      last_edited: new Date(),
-      published: true,
-      questions: questions,
-    };
-    createSurvey(survey).then((data) => {
-      const insertedSurveyId = data.insertedId;
-      navigate(`/view-survey/${insertedSurveyId}`);
-    });
+    getCurrentUser()
+      .then((user) => {
+        const survey: Survey = {
+          name: surveyName,
+          organization: "", // TODO: CHANGE WHEN WE CAN GET ORGANIZATION
+          user_created: user.username,
+          time_created: new Date(),
+          last_edited: new Date(),
+          published: true,
+          questions: questions,
+        };
+        createSurvey(survey).then((data) => {
+          const insertedSurveyId = data.insertedId;
+          navigate(`/view-survey/${insertedSurveyId}`);
+        });
+      })
+      .catch(() => {
+        console.log("Please log in and try again.");
+      });
   };
 
   return (

@@ -1,4 +1,6 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { getCurrentUser, logoutUser } from "../controllers/user-controller";
 
 type ProfileMenuProps = {
   isMenuOpen: boolean;
@@ -6,6 +8,12 @@ type ProfileMenuProps = {
 };
 
 const ProfileMenu = ({ isMenuOpen, setIsMenuOpen }: ProfileMenuProps) => {
+  const [username, setUsername] = useState<string>();
+
+  useEffect(() => {
+    getCurrentUser().then((user) => setUsername(user.username));
+  }, []);
+
   return (
     <>
       <div
@@ -28,7 +36,7 @@ const ProfileMenu = ({ isMenuOpen, setIsMenuOpen }: ProfileMenuProps) => {
         <Link
           onClick={() => setIsMenuOpen(!isMenuOpen)}
           className="hover-darken"
-          to="/surveys"
+          to={`/profile/${username}/surveys`}
         >
           <i className="fa-solid fa-list-ul mr-2"></i> My Surveys
         </Link>
@@ -45,6 +53,17 @@ const ProfileMenu = ({ isMenuOpen, setIsMenuOpen }: ProfileMenuProps) => {
           to="/settings"
         >
           <i className="fa-solid fa-gear mr-2"></i> Settings
+        </Link>
+
+        <Link
+          onClick={() => {
+            logoutUser();
+            setIsMenuOpen(!isMenuOpen);
+          }}
+          className="hover-darken"
+          to="/auth"
+        >
+          <i className="fa-solid fa-right-from-bracket mr-2"></i> Logout
         </Link>
       </div>
     </>

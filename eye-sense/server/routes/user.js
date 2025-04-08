@@ -3,9 +3,20 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import db from "../connection.js";
 import { ObjectId } from "mongodb";
+import { authenticateToken } from "../utils/authenticate.js";
 // import User from '../models/User';
 
 const router = express.Router();
+
+// Get profile for user that is already logged in
+router.get("/profile", authenticateToken, async (req, res) => {
+  let collection = await db.collection("Users");
+  let query = { username: req.user.username };
+  let result = await collection.findOne(query);
+
+  if (!result) res.send("Not found").status(404);
+  else res.send(result).status(200);
+});
 
 // Get all users in the database, or users specified by a specific field value
 router.get("/", async (req, res) => {
@@ -35,9 +46,11 @@ router.get("/", async (req, res) => {
   } else {
     try {
       let users = await collection.find(query).toArray();
-      return res.status(200).json(users)
+      return res.status(200).json(users);
     } catch (error) {
-      return res.status(400).json({error: "Error fetching users", details: error.message});
+      return res
+        .status(400)
+        .json({ error: "Error fetching users", details: error.message });
     }
   }
 });
@@ -45,6 +58,7 @@ router.get("/", async (req, res) => {
 // Get a specific user in the database
 router.get("/:id", async (req, res) => {
   let collection = await db.collection("Users");
+  console.log(req.params);
   let query = { _id: new ObjectId(req.params.id) };
   let result = await collection.findOne(query);
 
@@ -141,24 +155,39 @@ router.post("/login", async (req, res) => {
     const curr_user = await collection.findOne({ username: username });
     // const curr_email = await collection.findOne({ email: req.body.email });
     if (curr_user && (await bcrypt.compare(password, curr_user.password))) {
-      const token = jwt.sign({ username: username }, process.env.JWT_SECRET, {
-        expiresIn: "1h",
-      });
+      const token = jwt.sign(
+        { username: username, role: req.body.role },
+        process.env.JWT_SECRET,
+        {
+          expiresIn: "1h",
+        }
+      );
 
       res.cookie("token", token, {
         httpOnly: true, // Prevents JavaScript access (protects from XSS attacks)
-        secure: true, // Only send over HTTPS (important for production)
-        sameSite: "strict", // Prevents CSRF
+        secure: process.env.NODE_ENV === "production", // Only use Secure cookies in production
+        sameSite: "None", // Prevents CSRF
         maxAge: 3600000, // 1 hour
       });
 
-      res.status(200).json({ token });
+      res.status(200).json({ message: "Logged in successfully" });
     } else {
       res.status(401).send("Incorect Username or Password");
     }
   } catch (error) {
     console.log(error);
   }
+});
+
+router.post("/logout", async (req, res) => {
+  // Clear the JWT cookie
+  res.clearCookie("token", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production", // Ensure Secure flag is set in production
+    sameSite: "None",
+  });
+
+  res.json({ message: "Logged out successfully" });
 });
 
 // Modify information for a user
@@ -182,18 +211,26 @@ router.patch("/:id", async (req, res) => {
           console.log("hashed password is ", hashedPassword);
           updates[key] = hashedPassword;
         } else if (key == "username") {
-          const dupe_user = await collection.findOne({ username: req.body.username });
+          const dupe_user = await collection.findOne({
+            username: req.body.username,
+          });
           if (dupe_user != null) {
             return res
               .status(500)
-              .send("ERROR: an account with this username has already been created");
+              .send(
+                "ERROR: an account with this username has already been created"
+              );
           }
         } else if (key == "email") {
-          const dupe_email = await collection.findOne({ email: req.body.email });
+          const dupe_email = await collection.findOne({
+            email: req.body.email,
+          });
           if (dupe_email != null) {
             return res
               .status(500)
-              .send("ERROR: an account with this username has already been created");
+              .send(
+                "ERROR: an account with this username has already been created"
+              );
           }
         } else {
           updates[key] = req.body[key];
