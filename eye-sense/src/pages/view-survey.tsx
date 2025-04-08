@@ -4,7 +4,7 @@ import QuestionDisplay from "../components/question-display";
 import {
   getQuestionsFromSurvey,
   submitResponse,
-} from "../controllers/survey-controller";
+} from "../controllers/survey-controller.ts";
 import { useParams } from "react-router-dom";
 
 const ViewSurvey = () => {

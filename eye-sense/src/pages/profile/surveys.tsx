@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { DbSurvey } from "../../types";
-import { getSurveysWithQuery } from "../../controllers/survey-controller";
+import { getSurveysWithQuery } from "../../controllers/survey-controller.ts";
 import SurveyListItem from "../../components/survey-list-item";
 import { useParams } from "react-router-dom";
 

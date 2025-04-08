@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { Question, Survey } from "../types";
-import { createSurvey } from "../controllers/survey-controller";
+import { createSurvey } from "../controllers/survey-controller.ts";
 import { useNavigate } from "react-router-dom";
 import ImageUpload from "../components/image-upload";
-import { getCurrentUser } from "../controllers/user-controller";
+import { getCurrentUser } from "../controllers/user-controller.ts";
 
 const CreateSurvey = () => {
   const navigate = useNavigate();

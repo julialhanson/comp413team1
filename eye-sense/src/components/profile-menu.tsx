@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { getCurrentUser, logoutUser } from "../controllers/user-controller";
+import { getCurrentUser, logoutUser } from "../controllers/user-controller.ts";
 
 type ProfileMenuProps = {
   isMenuOpen: boolean;

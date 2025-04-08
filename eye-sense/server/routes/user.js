@@ -165,8 +165,8 @@ router.post("/login", async (req, res) => {
 
       res.cookie("token", token, {
         httpOnly: true, // Prevents JavaScript access (protects from XSS attacks)
-        secure: process.env.NODE_ENV === "production", // Only use Secure cookies in production
-        sameSite: "None", // Prevents CSRF
+        secure: false, //process.env.NODE_ENV === "production", // Only use Secure cookies in production
+        sameSite: "Strict", // Prevents CSRF
         maxAge: 3600000, // 1 hour
       });
 
@@ -183,8 +183,8 @@ router.post("/logout", async (req, res) => {
   // Clear the JWT cookie
   res.clearCookie("token", {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production", // Ensure Secure flag is set in production
-    sameSite: "None",
+    secure: false, //process.env.NODE_ENV === "production", // Ensure Secure flag is set in production
+    sameSite: "Strict",
   });
 
   res.json({ message: "Logged out successfully" });
