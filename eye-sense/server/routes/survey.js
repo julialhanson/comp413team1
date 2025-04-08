@@ -229,30 +229,42 @@ router.delete("/:id", async (req, res) => {
   }
 });
 
-router.delete("/items", async (req, res) => {
-  try {
-    let collection = await db.collection("Surveys");
+// Delete surveys based on a specific field value
+router.delete("/", async (req, res) => {
+  let query = {};
+  if (req.query.survey_id) {
+    query.survey_id = req.query.survey_id;
+  } 
+  if (req.query.organization) {
+    query.organization = req.query.organization;
+  }
+  if (req.query.user_created) {
+    query.user_created = req.query.user_created;
+  } 
+  if (req.query.time_created) {
+    query.time_created = req.query.time_created;
+  }
+  if (req.query.last_edited) {
+    query.last_edited = req.query.last_edited;
+  }
+  if (req.query.questions) {
+    query.questions = req.query.questions;
+  }
 
-    // Build the query dynamically based on request body
-    let query = {};
-    if (req.body.survey_id) query.survey_id = req.body.survey_id;
-    if (req.body.organization) query.organization = req.body.organization;
-    if (req.body.user_created) query.user_created = req.body.user_created;
-    if (req.body.time_created) query.time_created = req.body.time_created;
-    if (req.body.last_edited) query.last_edited = req.body.last_edited;
-    if (req.body.published !== undefined) query.published = req.body.published;
-    if (req.body.questions) query.questions = req.body.questions;
-
-    let result = await collection.deleteMany(query);
-
-    if (result.deletedCount === 0) {
-      res.status(404).send("No matching surveys found to delete");
-    } else {
-      res.send(result).status(200);
+  console.log("Query Length is ", Object.keys(query).length);
+  console.log("query is ", query);
+  
+  if (Object.keys(query).length == 0) {
+    return res.status(400).send("ERROR: no parameters included in DELETE query");
+  } else {
+    try {
+      let surveys = await db.collection("Surveys");
+      let result = surveys.deleteMany(query);
+      console.log("Surveys successfully deleted");
+      return res.send(result).status(200);
+    } catch(error) {
+      return res.status(400).json({error: "Error fetching surveys", details: error.message});
     }
-  } catch (error) {
-    console.error(error);
-    res.status(500).send("Internal Server Error");
   }
 });
 
@@ -296,3 +308,10 @@ router.post("/:id/responses", async (req, res) => {
 });
 
 export default router;
+
+// organization: req.body.organization,
+// user_created: req.body.user_created,
+// time_created: req.body.time_created,
+// last_edited: req.body.last_edited,
+// image: req.body.image,
+// choices: req.body.choices.map(q => q.choice_id),

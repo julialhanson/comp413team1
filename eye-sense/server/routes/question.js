@@ -145,4 +145,40 @@ router.delete("/:id", async(req, res) => {
     }
 });
 
+// Delete one or multiple questions based on specified field value
+router.delete("/", async (req, res) => {
+    let query = {};
+    if (req.query.organization) {
+        query.organization = req.query.organization;
+    }
+    if (req.query.user_created) {
+        query.user_created = req.query.user_created;
+    }
+    if (req.query.time_created) {
+        query.time_created = req.query.time_created;
+    }
+    if (req.query.last_edited) {
+        query.last_edited = req.query.last_edited;
+    }
+    if (req.query.image) {
+        query.image = req.query.image;
+    }
+
+    console.log("Query Length is ", Object.keys(query).length);
+    console.log("query is ", query);
+    
+    if (Object.keys(query).length == 0) {
+        return res.status(400).send("ERROR: no parameters included in DELETE query");
+    } else {
+        try {
+        let questions = await db.collection("Questions");
+        let result = questions.deleteMany(query);
+        console.log("Questions successfully deleted");
+        return res.send(result).status(200);
+        } catch(error) {
+        return res.status(400).json({error: "Error fetching questions", details: error.message});
+        }
+    }
+})
+
 export default router;

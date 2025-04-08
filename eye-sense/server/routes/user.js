@@ -226,33 +226,33 @@ router.delete("/:id", async (req, res) => {
   }
 });
 
-// router.delete("/", async (req, res) => {
-//   let collection = await db.collection("Users");
-//   let query = {};
+router.delete("/", async (req, res) => {
+  let query = {};
 
-//   if (req.query.organization) {
-//     query.organization = req.query.organization;
-//   }
-//   if (req.query.username) {
-//     query.username = req.query.username;
-//   }
-//   if (req.query.email) {
-//     query.email = req.query.email;
-//   }
-//   console.log("Query Length is ", Object.keys(query).length);
-//   console.log("query is ", query);
+  if (req.query.organization) {
+    query.organization = req.query.organization;
+  }
+  if (req.query.username) {
+    query.username = req.query.username;
+  }
+  if (req.query.email) {
+    query.email = req.query.email;
+  }
+  console.log("Query Length is ", Object.keys(query).length);
+  console.log("query is ", query);
 
-//   if (Object.keys(query).length == 0) {
-//     return res.status(400).send("ERROR: no parameters included in teh DELETE query request");
-//   } else {
-//     try {
-//       let users = await db.collection("Users");
-//       let result = users.deleteMany(query);
-//       return res.send(result).status(200);
-//     } catch (error) {
-//       return res.status(400).json({error: "Error fetching users", details: error.message});
-//     }
-//   }
-// })
+  if (Object.keys(query).length == 0) {
+    return res.status(400).send("ERROR: no parameters included in the DELETE query request");
+  } else {
+    try {
+      let users = await db.collection("Users");
+      let result = users.deleteMany(query);
+      console.log("Users successfully deleted");
+      return res.send(result).status(200);
+    } catch (error) {
+      return res.status(400).json({error: "Error fetching users", details: error.message});
+    }
+  }
+});
 
 export default router;
