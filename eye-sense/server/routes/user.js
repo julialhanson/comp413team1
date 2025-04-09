@@ -166,7 +166,7 @@ router.post("/login", async (req, res) => {
       res.cookie("token", token, {
         httpOnly: true, // Prevents JavaScript access (protects from XSS attacks)
         secure: false, //process.env.NODE_ENV === "production", // Only use Secure cookies in production
-        sameSite: "Strict", // Prevents CSRF
+        sameSite: "strict", // Prevents CSRF
         maxAge: 3600000, // 1 hour
       });
 
@@ -184,7 +184,7 @@ router.post("/logout", async (req, res) => {
   res.clearCookie("token", {
     httpOnly: true,
     secure: false, //process.env.NODE_ENV === "production", // Ensure Secure flag is set in production
-    sameSite: "Strict",
+    sameSite: "strict",
   });
 
   res.json({ message: "Logged out successfully" });

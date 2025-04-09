@@ -1,5 +1,5 @@
 // import { useState } from "react";
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import { Route, Routes, useLocation } from "react-router-dom";
 import "./App.scss";
 import Header from "./components/header";
 import CreateSurvey from "./pages/create-survey";
@@ -9,9 +9,12 @@ import Auth from "./pages/auth";
 import Surveys from "./pages/profile/surveys";
 
 function App() {
+  const location = useLocation();
+
   return (
-    <Router>
-      <Header />
+    <>
+      {location.pathname !== "/auth" && <Header />}
+
       {/* header padding */}
       <div className="pt-12"></div>
 
@@ -23,7 +26,7 @@ function App() {
         <Route path="/profile/:username/surveys" element={<Surveys />} />
         {/* <Route path="/about" element={<About />} /> */}
       </Routes>
-    </Router>
+    </>
   );
 }
 

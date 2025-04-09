@@ -107,6 +107,17 @@ $darker-blue: #0e529b;
   }
 }
 
+.center-screen {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.transparent-black-bg {
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
 // ANIMATIONS
 @keyframes fade-in {
   from {
