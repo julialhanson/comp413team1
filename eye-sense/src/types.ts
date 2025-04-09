@@ -8,6 +8,7 @@ export type Question = {
   question: string;
   type: string | "multiple choice" | "checkboxes" | "dropdown";
   image: File | null;
+  is_tracking: boolean;
   // selected: number[]; // list of choice ids ("multiple choice" / "dropdown" -> list of length 1)
   choices: Choice[];
 };

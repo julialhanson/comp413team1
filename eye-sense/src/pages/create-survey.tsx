@@ -1,15 +1,32 @@
-import { useState } from "react";
-import { Question, Survey } from "../types";
-import { createSurvey } from "../controllers/survey-controller.ts";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { DbSurvey, Question, Survey } from "../types";
+import {
+  createSurvey,
+  getQuestionsFromSurvey,
+  modifySurvey,
+} from "../controllers/survey-controller.ts";
+import { useNavigate, useParams } from "react-router-dom";
 import ImageUpload from "../components/image-upload";
 import { getCurrentUser } from "../controllers/user-controller.ts";
+import ToggleButton from "../components/toggle-button.tsx";
 
 const CreateSurvey = () => {
   const navigate = useNavigate();
+  const { username, id: surveyId } = useParams();
   const [surveyName, setSurveyName] = useState<string>("");
   const [questions, setQuestions] = useState<Question[]>([]);
   const [optionId, setOptionId] = useState<number>(1);
+
+  useEffect(() => {
+    getCurrentUser().then((user) => {
+      getQuestionsFromSurvey(surveyId).then((data) => {
+        if (user.username === username) {
+          setSurveyName(data.name);
+          setQuestions(data.questions);
+        }
+      });
+    });
+  }, []);
 
   const getOptionType = (type: string) => {
     switch (type) {
@@ -25,6 +42,17 @@ const CreateSurvey = () => {
   const setQuestionImg = (newImg: File | null, index: number) => {
     const newQuestions = [...questions];
     const newQuestion = { ...newQuestions[index], image: newImg };
+    newQuestions[index] = newQuestion;
+    setQuestions(newQuestions);
+  };
+
+  const setQuestionTracking = (index: number) => {
+    const newQuestions = [...questions];
+    const oldQuestion = newQuestions[index];
+    const newQuestion = {
+      ...oldQuestion,
+      is_tracking: !oldQuestion.is_tracking,
+    };
     newQuestions[index] = newQuestion;
     setQuestions(newQuestions);
   };
@@ -55,6 +83,7 @@ const CreateSurvey = () => {
         question: "",
         image: null,
         type: "multiple choice",
+        is_tracking: false,
         // selected: [],
         // Initialize question with at least one option
         choices: [
@@ -74,7 +103,7 @@ const CreateSurvey = () => {
     );
   };
 
-  const publishSurvey = () => {
+  const saveSurvey = (published: boolean) => {
     getCurrentUser()
       .then((user) => {
         const survey: Survey = {
@@ -83,13 +112,28 @@ const CreateSurvey = () => {
           user_created: user.username,
           time_created: new Date(),
           last_edited: new Date(),
-          published: true,
+          published: published,
           questions: questions,
         };
-        createSurvey(survey).then((data) => {
-          const insertedSurveyId = data.insertedId;
-          navigate(`/view-survey/${insertedSurveyId}`);
-        });
+
+        // If we want to publish the survey
+        if (published) {
+          createSurvey(survey).then((data) => {
+            const insertedSurveyId = data.insertedId;
+            navigate(`/view-survey/${insertedSurveyId}`);
+          });
+        }
+        // If we want to just save the survey as a draft
+        else {
+          const editSurvey: DbSurvey = {
+            ...survey,
+            _id: surveyId ? surveyId : "",
+            questions: questions,
+          };
+          modifySurvey(editSurvey).then(() => {
+            navigate(`/profile/${user.username}/surveys`);
+          });
+        }
       })
       .catch(() => {
         console.log("Please log in and try again.");
@@ -107,8 +151,16 @@ const CreateSurvey = () => {
           onChange={(e) => setSurveyName(e.target.value)}
           placeholder="Input survey name..."
         />
-        <button className="btn blue-btn" onClick={publishSurvey}>
+
+        <button className="btn blue-btn mr-2" onClick={() => saveSurvey(true)}>
           Publish
+        </button>
+
+        <button
+          className="btn darker-grey-btn"
+          onClick={() => saveSurvey(false)}
+        >
+          Save
         </button>
       </div>
 
@@ -184,6 +236,7 @@ const CreateSurvey = () => {
                           e.target.value;
                         setQuestions(newQuestions);
                       }}
+                      value={option.text}
                     />
                   </label>
                 </div>
@@ -192,12 +245,12 @@ const CreateSurvey = () => {
 
             <div className="m-2">
               {/* DISPLAY IMAGE */}
-              <ImageUpload
+              {/* <ImageUpload
                 resetImage={() => {
                   setQuestionImg(null, index);
                 }}
                 imgFile={question.image}
-              />
+              /> */}
             </div>
           </div>
           <div className="flex justify-between mt-2">
@@ -209,7 +262,18 @@ const CreateSurvey = () => {
               Add option
             </button>
 
-            <div>
+            <div className="flex justify-center items-center">
+              {/* TOGGLE EYE TRACKING ONLY IF IMAGE EXISTS */}
+              {questions[index].image && (
+                <>
+                  <i className="fa-solid fa-eye dark-grey mr-1"></i>
+                  <ToggleButton
+                    isToggled={questions[index].is_tracking}
+                    toggleFunction={() => setQuestionTracking(index)}
+                  />
+                </>
+              )}
+
               {/* UPLOAD IMAGE TO QUESTION BUTTON */}
               <button className="btn dark-grey">
                 <label htmlFor={"questionImg-" + index}>

@@ -1,4 +1,4 @@
-import { Survey, SurveyResponse } from "../types";
+import { DbSurvey, Survey, SurveyResponse } from "../types";
 import api from "../utils/axios";
 import { createQueryString } from "../utils/func-utils";
 
@@ -57,6 +57,16 @@ export const createSurvey = async (survey: Survey) => {
     return null;
   }
 };
+
+export const modifySurvey = async (survey: DbSurvey) => {
+  try {
+    const response = await api.put(API_URL + `/${survey._id}`, survey);
+    return response.data;
+  } catch (error) {
+    console.error("Error creating survey:", error);
+    return null;
+  }
+}
 
 export const getSurveysWithQuery = async (
   queries: string[][] | Record<string, string> | string | URLSearchParams

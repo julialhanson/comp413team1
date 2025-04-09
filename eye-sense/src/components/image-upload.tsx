@@ -6,6 +6,7 @@ type ImageUploadProps = {
 };
 
 const ImageUpload = ({ resetImage, imgFile }: ImageUploadProps) => {
+  console.log(imgFile);
   return (
     <>
       {imgFile && (

@@ -76,6 +76,14 @@ $darker-blue: #0e529b;
   }
 }
 
+.darker-grey-btn {
+  background-color: $light-grey;
+
+  &:hover {
+    background-color: grey;
+  }
+}
+
 .auth-input {
   background-color: $bg-lighter-grey;
   border-radius: calc(infinity * 1px);
@@ -116,6 +124,41 @@ $darker-blue: #0e529b;
 
 .transparent-black-bg {
   background-color: rgba(0, 0, 0, 0.5);
+}
+
+.toggle-btn {
+  position: relative;
+  border-radius: calc(infinity * 1px);
+  background-color: $light-grey;
+  height: 100%;
+  width: 35px;
+  height: 20px;
+  transition: background-color 0.2s;
+  cursor: pointer;
+
+  .thumb {
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    background-color: white;
+    border-radius: calc(infinity * 1px);
+    left: 3px;
+    top: 50%;
+    transition: left 0.1s;
+    transform: translate(0, -50%);
+  }
+
+  &:hover {
+    background-color: rgb(179, 179, 179);
+  }
+
+  &.toggled {
+    background-color: #49c0a2;
+
+    .thumb {
+      left: calc(35px - 14px - 3px);
+    }
+  }
 }
 
 // ANIMATIONS

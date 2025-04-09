@@ -24,7 +24,7 @@ const ViewSurvey = () => {
       setSurveyName(data.name);
       setQuestions(data.questions);
 
-      // Initialize selected options to be the length of the survey so each index corresponds to the same question
+      // Initialize "selected" array to be the length of the survey so each index corresponds to the same question
       const initSelected = new Array(data.length).fill([]);
       setResponse((prevResponse) => ({
         ...prevResponse,
