@@ -1,14 +1,16 @@
 import { useEffect, useState } from "react";
-import { DbSurvey, Question, Survey } from "../types";
+import { Survey, Question } from "../types";
 import {
   createSurvey,
   getQuestionsFromSurvey,
-  modifySurvey,
+  modifySurveyWithId,
 } from "../controllers/survey-controller.ts";
 import { useNavigate, useParams } from "react-router-dom";
 import ImageUpload from "../components/image-upload";
 import { getCurrentUser } from "../controllers/user-controller.ts";
 import ToggleButton from "../components/toggle-button.tsx";
+import { modifyQuestionWithId } from "../controllers/question-controller.ts";
+import { modifyChoiceWithId } from "../controllers/choice-controller.ts";
 
 const CreateSurvey = () => {
   const navigate = useNavigate();
@@ -26,7 +28,7 @@ const CreateSurvey = () => {
         }
       });
     });
-  }, []);
+  }, [surveyId, username]);
 
   const getOptionType = (type: string) => {
     switch (type) {
@@ -46,7 +48,7 @@ const CreateSurvey = () => {
     setQuestions(newQuestions);
   };
 
-  const setQuestionTracking = (index: number) => {
+  const toggleQuestionTracking = (index: number) => {
     const newQuestions = [...questions];
     const oldQuestion = newQuestions[index];
     const newQuestion = {
@@ -106,18 +108,18 @@ const CreateSurvey = () => {
   const saveSurvey = (published: boolean) => {
     getCurrentUser()
       .then((user) => {
-        const survey: Survey = {
-          name: surveyName,
-          organization: "", // TODO: CHANGE WHEN WE CAN GET ORGANIZATION
-          user_created: user.username,
-          time_created: new Date(),
-          last_edited: new Date(),
-          published: published,
-          questions: questions,
-        };
-
         // If we want to publish the survey
         if (published) {
+          const survey: Survey = {
+            name: surveyName,
+            organization: "", // TODO: CHANGE WHEN WE CAN GET ORGANIZATION
+            user_created: user.username,
+            time_created: new Date(),
+            last_edited: new Date(),
+            published: published,
+            questions: questions,
+          };
+
           createSurvey(survey).then((data) => {
             const insertedSurveyId = data.insertedId;
             navigate(`/view-survey/${insertedSurveyId}`);
@@ -125,14 +127,33 @@ const CreateSurvey = () => {
         }
         // If we want to just save the survey as a draft
         else {
-          const editSurvey: DbSurvey = {
-            ...survey,
-            _id: surveyId ? surveyId : "",
+          const survey = {
+            name: surveyName,
+            organization: "", // TODO: CHANGE WHEN WE CAN GET ORGANIZATION
+            last_edited: new Date(),
+            published: published,
             questions: questions,
           };
-          modifySurvey(editSurvey).then(() => {
-            navigate(`/profile/${user.username}/surveys`);
-          });
+
+          console.log(survey);
+
+          for (const question of questions) {
+            if (question._id) {
+              const { _id, ...newQuestion } = question;
+
+              for (const choice of newQuestion.choices) {
+                if (choice._id) {
+                  const { _id, ...newChoice } = choice;
+                  modifyChoiceWithId(_id, newChoice);
+                }
+              }
+
+              modifyQuestionWithId(_id, newQuestion);
+            }
+          }
+
+          modifySurveyWithId(surveyId, survey);
+          navigate(`/profile/${user.username}/surveys`);
         }
       })
       .catch(() => {
@@ -217,15 +238,15 @@ const CreateSurvey = () => {
                     <i className="fa-solid fa-xmark"></i>
                   </button>
                   <label className="pb-2">
+                    {/* INDICATOR BUTTON */}
                     <input
                       className="ml-2"
                       name={"question-" + index}
                       type={getOptionType(question.type)}
                       value={option.text}
                       disabled
-                      // checked={selectedValue === option}
-                      // onChange={onChange}
                     />
+                    {/* TEXT INPUT */}
                     <input
                       className="mx-2"
                       type="text"
@@ -236,7 +257,8 @@ const CreateSurvey = () => {
                           e.target.value;
                         setQuestions(newQuestions);
                       }}
-                      value={option.text}
+                      // TODO: CHANGE THIS SO IT JUST SHOWS PLACEHOLDER FOR NEW OPTION
+                      value={option.text ? option.text : ""}
                     />
                   </label>
                 </div>
@@ -269,7 +291,7 @@ const CreateSurvey = () => {
                   <i className="fa-solid fa-eye dark-grey mr-1"></i>
                   <ToggleButton
                     isToggled={questions[index].is_tracking}
-                    toggleFunction={() => setQuestionTracking(index)}
+                    toggleFunction={() => toggleQuestionTracking(index)}
                   />
                 </>
               )}

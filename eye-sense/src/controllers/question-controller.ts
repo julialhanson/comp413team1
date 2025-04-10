@@ -24,7 +24,7 @@ export const createQuestion = async (question: Question) => {
   }
 };
 
-export const getQuestionWithId = async (id: number) => {
+export const getQuestionWithId = async (id: string) => {
   try {
     const response = await axios.get(API_URL + `/${id}`);
     return response.data;
@@ -34,7 +34,7 @@ export const getQuestionWithId = async (id: number) => {
   }
 };
 
-export const deleteQuestionWithId = async (id: number) => {
+export const deleteQuestionWithId = async (id: string) => {
   try {
     const response = await axios.delete(API_URL + `/${id}`);
     return response.data;
@@ -44,15 +44,15 @@ export const deleteQuestionWithId = async (id: number) => {
   }
 };
 
-// export const updateQuestionWithId = async (id: number, question: Question) => {
-//   try {
-//     const response = await axios.put(API_URL + `/${id}`, question);
-//     return response.data;
-//   } catch (error) {
-//     console.error(`Error updating question with id ${id}:`, error);
-//     return null;
-//   }
-// };
+export const modifyQuestionWithId = async (id: string, question: Question) => {
+  try {
+    const response = await axios.patch(API_URL + `/${id}`, question);
+    return response.data;
+  } catch (error) {
+    console.error(`Error updating question with id ${id}:`, error);
+    return null;
+  }
+};
 
 export const getQuestionsWithQuery = async (
   queries: string[][] | Record<string, string> | string | URLSearchParams

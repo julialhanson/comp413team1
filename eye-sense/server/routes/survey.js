@@ -204,6 +204,14 @@ router.patch("/:id", async (req, res) => {
       return res.status(500).send("ERROR: request body empty");
     }
 
+    if (updates["questions"]) {
+      const { questions, ...updates } = updates;
+      const questionIds = questions.map((question) => {
+        return question._id;
+      });
+      updates["question_ids"] = questionIds;
+    }
+
     const updatedDocument = { $set: updates };
     let collection = await db.collection("Surveys");
     let result = await collection.updateOne(query, updatedDocument);

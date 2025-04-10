@@ -115,6 +115,10 @@ $darker-blue: #0e529b;
   }
 }
 
+.front {
+  z-index: 1000;
+}
+
 .center-screen {
   position: absolute;
   top: 50%;

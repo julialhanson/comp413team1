@@ -7,9 +7,24 @@ import Predict from "./pages/predict";
 import ViewSurvey from "./pages/view-survey";
 import Auth from "./pages/auth";
 import Surveys from "./pages/profile/surveys";
+import TimeoutModal from "./components/timeout-modal";
+import { useEffect, useState } from "react";
+import { getCurrentUser } from "./controllers/user-controller";
 
 function App() {
   const location = useLocation();
+
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(true);
+
+  useEffect(() => {
+    getCurrentUser().then((response) => {
+      if (response === null) {
+        setIsLoggedIn(false);
+      } else {
+        setIsLoggedIn(true);
+      }
+    });
+  });
 
   return (
     <>
@@ -30,6 +45,8 @@ function App() {
         <Route path="/profile/:username/surveys" element={<Surveys />} />
         {/* <Route path="/about" element={<About />} /> */}
       </Routes>
+
+      {!isLoggedIn && location.pathname !== "/auth" && <TimeoutModal />}
     </>
   );
 }

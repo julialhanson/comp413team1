@@ -81,7 +81,6 @@ export const deleteUserWithUsername = async (username: string) => {
   }
 };
 
-// TODO: this one uses julia's endpoint, but official register endpoint is disha's
 export const createUser = async (username: string) => {
   try {
     const response = await api.post(API_URL, username);

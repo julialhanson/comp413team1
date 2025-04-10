@@ -1,33 +1,28 @@
 import React, { useEffect, useState } from "react";
-import { DbSurvey } from "../../types";
+import { Survey } from "../../types";
 import { getSurveysWithQuery } from "../../controllers/survey-controller.ts";
 import SurveyListItem from "../../components/survey-list-item";
 import { useParams } from "react-router-dom";
-import TimeoutModal from "../../components/timeout-modal.tsx";
 
 const Surveys = () => {
   const { username } = useParams();
 
-  const [publishedSurveys, setPublishedSurveys] = useState<DbSurvey[] | null>(
-    []
-  );
-  const [draftSurveys, setDraftSurveys] = useState<DbSurvey[] | null>([]);
+  const [publishedSurveys, setPublishedSurveys] = useState<Survey[] | null>([]);
+  const [draftSurveys, setDraftSurveys] = useState<Survey[] | null>([]);
 
   useEffect(() => {
     if (username !== undefined) {
-      getSurveysWithQuery({ user_created: username }).then(
-        (data: DbSurvey[]) => {
-          const published = data.filter(
-            (survey: DbSurvey) => survey.published == true
-          );
-          const drafts = data.filter(
-            (survey: DbSurvey) => survey.published != true
-          );
+      getSurveysWithQuery({ user_created: username }).then((data: Survey[]) => {
+        const published = data.filter(
+          (survey: Survey) => survey.published == true
+        );
+        const drafts = data.filter(
+          (survey: Survey) => survey.published != true
+        );
 
-          setPublishedSurveys(published);
-          setDraftSurveys(drafts);
-        }
-      );
+        setPublishedSurveys(published);
+        setDraftSurveys(drafts);
+      });
     }
   }, [username]);
 
@@ -56,8 +51,6 @@ const Surveys = () => {
           )}
         </div>
       </div>
-
-      {!(publishedSurveys || draftSurveys) && <TimeoutModal />}
     </>
   );
 };

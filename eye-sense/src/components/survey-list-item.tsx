@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { DbSurvey } from "../types";
+import { Survey } from "../types";
 import { useNavigate } from "react-router-dom";
 import { getCurrentUser } from "../controllers/user-controller";
 
-const SurveyListItem = ({ survey }: { survey: DbSurvey }) => {
+const SurveyListItem = ({ survey }: { survey: Survey }) => {
   const navigate = useNavigate();
 
   const [username, setUsername] = useState<string>("");
