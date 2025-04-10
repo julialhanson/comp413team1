@@ -156,7 +156,11 @@ router.post("/login", async (req, res) => {
     // const curr_email = await collection.findOne({ email: req.body.email });
     if (curr_user && (await bcrypt.compare(password, curr_user.password))) {
       const token = jwt.sign(
-        { username: username, role: req.body.role },
+        {
+          username: username,
+          role: req.body.role,
+          organization: req.body.organization,
+        },
         process.env.JWT_SECRET,
         {
           expiresIn: "1h",

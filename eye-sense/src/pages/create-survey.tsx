@@ -112,7 +112,7 @@ const CreateSurvey = () => {
         if (published) {
           const survey: Survey = {
             name: surveyName,
-            organization: "", // TODO: CHANGE WHEN WE CAN GET ORGANIZATION
+            organization: user.organization,
             user_created: user.username,
             time_created: new Date(),
             last_edited: new Date(),
@@ -129,7 +129,6 @@ const CreateSurvey = () => {
         else {
           const survey = {
             name: surveyName,
-            organization: "", // TODO: CHANGE WHEN WE CAN GET ORGANIZATION
             last_edited: new Date(),
             published: published,
             questions: questions,
