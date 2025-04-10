@@ -196,15 +196,27 @@ router.patch("/:id", async (req, res) => {
     // Add all new questions
     if (updates["questions"]) {
       const questions = updates["questions"];
-      const newQuestionIds = insertSurveyQuestionsAndChoices(questions); //Object.values(questionInsertResult.insertedIds);
-      const existingQuestionIds = questions.map((question) => question._id);
-      existingQuestionIds.push(newQuestionIds);
+      
+      console.log("questions in survey.js:", questions)
+
+      const newQuestionIds = await insertSurveyQuestionsAndChoices(questions); //Object.values(questionInsertResult.insertedIds);
+      const existingQuestionIds = questions
+        .filter((question) => question._id !== null)
+        .map((question) => question._id);
+
+      console.log("existingQuestionIds:", existingQuestionIds)
+      console.log("newQuestionIds:", newQuestionIds)
+
+      updates["question_ids"] = existingQuestionIds.concat(newQuestionIds);
     }
 
-    const updatedDocument = { $set: updates };
+    const { questions, ...actualUpdates } = updates;
+
+    const updatedDocument = { $set: actualUpdates };
     let surveyCollection = db.collection("Surveys");
     let result = await surveyCollection.updateOne(query, updatedDocument);
-    return res.send(result).status(200);
+    return res.send(result)
+    // return res.send(result).status(200);
   } catch (e) {
     console.error(e);
     return res.status(500).send("Error updating survey");
