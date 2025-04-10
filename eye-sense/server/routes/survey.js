@@ -4,6 +4,7 @@ import db from "../connection.js";
 
 import { ObjectId } from "mongodb";
 import { authenticateToken } from "../utils/authenticate.js";
+import { insertSurveyQuestionsAndChoices } from "../utils/update-survey-questions.js";
 
 const router = express.Router();
 
@@ -132,42 +133,9 @@ router.post("/", async (req, res) => {
   try {
     // Insert choices into database
     const questions = req.body.questions;
-    const choiceCollection = db.collection("Choices");
     const surveyCollection = db.collection("Surveys");
-    const questionCollection = db.collection("Questions");
 
-    const questionsToInsert = [];
-
-    for (const question of questions) {
-      const choiceDocs = question.choices.map((choice) => ({
-        text: choice.text,
-      }));
-
-      // Insert choices and get their _id values
-      const choiceInsertResult = await choiceCollection.insertMany(choiceDocs);
-      const choiceIds = Object.values(choiceInsertResult.insertedIds);
-
-      // Replace choices with _id references
-      const questionToInsert = {
-        question: question.question,
-        type: question.type,
-        // organization: question.organization,
-        // user_created: question.user_created,
-        // time_created: question.time_created,
-        // last_edited: question.last_edited,
-        image: question.image,
-        choice_ids: choiceIds,
-      };
-
-      questionsToInsert.push(questionToInsert);
-    }
-
-    // Insert surveys
-    const questionInsertResult = await questionCollection.insertMany(
-      questionsToInsert
-    );
-
-    const questionIds = Object.values(questionInsertResult.insertedIds);
+    const questionIds = insertSurveyQuestionsAndChoices(questions);
 
     let newDocument = {
       // survey_id: req.body.survey_id,
@@ -204,18 +172,38 @@ router.patch("/:id", async (req, res) => {
       return res.status(500).send("ERROR: request body empty");
     }
 
+    // const questionsToInsert = [];
+
+    // if (updates["questions"]) {
+    //   const { questions, ...newUpdates } = updates;
+    //   const questionIds = [];
+
+    //   for (const question of questions) {
+    //     if (question._id) questionIds.push(question._id);
+    //     else questionsToInsert.push(question);
+    //   }
+
+    //   newUpdates["question_ids"] = questionIds;
+    //   updates = newUpdates;
+    // }
+
+    // let questionCollection = db.collection("Questions");
+    // // Insert new questions
+    // const questionInsertResult = await questionCollection.insertMany(
+    //   questionsToInsert
+    // );
+
+    // Add all new questions
     if (updates["questions"]) {
-      const { questions, ...newUpdates } = updates;
-      const questionIds = questions.map((question) => {
-        return question._id;
-      });
-      newUpdates["question_ids"] = questionIds;
-      updates = newUpdates;
+      const questions = updates["questions"];
+      const newQuestionIds = insertSurveyQuestionsAndChoices(questions); //Object.values(questionInsertResult.insertedIds);
+      const existingQuestionIds = questions.map((question) => question._id);
+      existingQuestionIds.push(newQuestionIds);
     }
 
     const updatedDocument = { $set: updates };
-    let collection = await db.collection("Surveys");
-    let result = await collection.updateOne(query, updatedDocument);
+    let surveyCollection = db.collection("Surveys");
+    let result = await surveyCollection.updateOne(query, updatedDocument);
     return res.send(result).status(200);
   } catch (e) {
     console.error(e);
