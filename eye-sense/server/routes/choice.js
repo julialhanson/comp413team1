@@ -43,6 +43,32 @@ router.put("/:id", async (req, res) => {
   }
 });
 
+// Modify information in the choice
+router.patch("/:id", async (req, res) => {
+  try {
+    const query = { _id: new ObjectId(req.params.id) };
+    const updates = {};
+    for (const key in req.body) {
+      if (req.body[key] != null) {
+        updates[key] = req.body[key];
+      }
+    }
+
+    if (Object.keys(updates).length == 0) {
+      console.log("length of request body was ", Object.keys(updates).length);
+      return res.status(500).send("ERROR: request body empty");
+    }
+
+    const updatedDocument = { $set: updates };
+    let collection = await db.collection("Questions");
+    let result = await collection.updateOne(query, updatedDocument);
+    return res.send(result).status(200);
+  } catch (e) {
+    console.error(e);
+    return res.status(500).send("Error updating question");
+  }
+});
+
 // Delete a choice
 router.delete("/:id", async (req, res) => {
   try {

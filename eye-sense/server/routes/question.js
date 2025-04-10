@@ -118,7 +118,7 @@ router.post("/", async (req, res) => {
 router.patch("/:id", async (req, res) => {
   try {
     const query = { _id: new ObjectId(req.params.id) };
-    const updates = {};
+    let updates = {};
     for (const key in req.body) {
       if (req.body[key] != null) {
         updates[key] = req.body[key];
@@ -131,11 +131,12 @@ router.patch("/:id", async (req, res) => {
     }
 
     if (updates["choices"]) {
-      const { choices, ...updates } = updates;
+      const { choices, ...newUpdates } = updates;
       const choiceIds = choices.map((choice) => {
         return choice._id;
       });
-      updates["choice_ids"] = choiceIds;
+      newUpdates["choice_ids"] = choiceIds;
+      updates = newUpdates;
     }
 
     const updatedDocument = { $set: updates };
