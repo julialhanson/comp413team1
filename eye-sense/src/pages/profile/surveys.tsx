@@ -26,6 +26,20 @@ const Surveys = () => {
     }
   }, [username]);
 
+  const handleDeleteSurvey = (surveyId: string | undefined) => {
+    if (surveyId === undefined) return;
+
+    var newPublished = (publishedSurveys || []).filter(
+      (published) => published._id !== surveyId
+    );
+    var newDrafts = (draftSurveys || []).filter(
+      (draft) => draft._id !== surveyId
+    );
+
+    setPublishedSurveys(newPublished);
+    setDraftSurveys(newDrafts);
+  };
+
   return (
     <>
       <div className="max-w-2xl ml-auto mr-auto p-5">
@@ -33,7 +47,14 @@ const Surveys = () => {
           <h1 className="font-bold tracking-wide text-xl mb-2">Published</h1>
           {publishedSurveys && publishedSurveys.length > 0 ? (
             publishedSurveys.map((survey, index) => {
-              return <SurveyListItem key={index} survey={survey} />;
+              return (
+                <SurveyListItem
+                  key={index}
+                  username={username}
+                  survey={survey}
+                  onDelete={handleDeleteSurvey}
+                />
+              );
             })
           ) : (
             <p className="italic dark-grey">No published surveys found.</p>
@@ -44,7 +65,14 @@ const Surveys = () => {
           <h1 className="font-bold tracking-wide text-xl mb-2">Drafts</h1>
           {draftSurveys && draftSurveys.length > 0 ? (
             draftSurveys.map((survey, index) => {
-              return <SurveyListItem key={index} survey={survey} />;
+              return (
+                <SurveyListItem
+                  key={index}
+                  username={username}
+                  survey={survey}
+                  onDelete={handleDeleteSurvey}
+                />
+              );
             })
           ) : (
             <p className="italic dark-grey">No drafts found.</p>

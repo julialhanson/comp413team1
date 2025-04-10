@@ -43,9 +43,9 @@ const ProfileMenu = ({ isMenuOpen, setIsMenuOpen }: ProfileMenuProps) => {
         <Link
           onClick={() => setIsMenuOpen(!isMenuOpen)}
           className="hover-darken"
-          to="/survey-history"
+          to={`/profile/${username}/response-history`}
         >
-          <i className="fa-solid fa-list-check mr-2"></i> Survey History
+          <i className="fa-solid fa-list-check mr-2"></i> Response History
         </Link>
         <Link
           onClick={() => setIsMenuOpen(!isMenuOpen)}

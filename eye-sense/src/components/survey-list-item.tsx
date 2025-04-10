@@ -1,18 +1,19 @@
 import React, { useEffect, useState } from "react";
-import { Survey } from "../types";
+import { Survey, SurveyResponse } from "../types";
 import { useNavigate } from "react-router-dom";
 import { getCurrentUser } from "../controllers/user-controller";
+import { deleteSurveyWithId } from "../controllers/survey-controller";
 
-const SurveyListItem = ({ survey }: { survey: Survey }) => {
+const SurveyListItem = ({
+  username,
+  survey,
+  onDelete,
+}: {
+  username: string | undefined;
+  survey: Survey;
+  onDelete?: (surveyId: string | undefined) => void;
+}) => {
   const navigate = useNavigate();
-
-  const [username, setUsername] = useState<string>("");
-
-  useEffect(() => {
-    getCurrentUser().then((user) => {
-      setUsername(user.username);
-    });
-  }, []);
 
   return (
     <div
@@ -27,9 +28,26 @@ const SurveyListItem = ({ survey }: { survey: Survey }) => {
     >
       <p>{survey.name ? survey.name : "<No name>"}</p>
 
-      <p className="dark-grey italic">
-        {survey.time_created && new Date(survey.time_created).toLocaleString()}
-      </p>
+      <div className="flex">
+        <p className="dark-grey italic">
+          {survey.time_created &&
+            new Date(survey.time_created).toLocaleString()}
+        </p>
+
+        {/* DELETE SURVEY BUTTON */}
+        {onDelete && (
+          <button
+            className="dark-grey cursor-pointer pr-2 pl-5"
+            onClick={(e) => {
+              e.stopPropagation();
+              deleteSurveyWithId(survey._id);
+              onDelete(survey._id);
+            }}
+          >
+            <i className="fa-solid fa-trash"></i>
+          </button>
+        )}
+      </div>
     </div>
   );
 };

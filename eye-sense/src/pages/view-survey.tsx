@@ -6,13 +6,14 @@ import {
   submitResponse,
 } from "../controllers/survey-controller.ts";
 import { useParams } from "react-router-dom";
+import { getCurrentUser } from "../controllers/user-controller.ts";
 
 const ViewSurvey = () => {
   const { id } = useParams();
   const [surveyName, setSurveyName] = useState<string>("");
   const [questions, setQuestions] = useState<Question[]>([]);
   const [response, setResponse] = useState<SurveyResponse>({
-    username: "username", // TODO: CHANGE WHEN WE CAN GET USERNAME
+    username: "",
     survey_id: id,
     time_taken: new Date(),
     selected: [],
@@ -20,34 +21,52 @@ const ViewSurvey = () => {
   });
 
   useEffect(() => {
-    getQuestionsFromSurvey(id).then((data) => {
-      setSurveyName(data.name);
-      setQuestions(data.questions);
+    getCurrentUser().then((user) => {
+      getQuestionsFromSurvey(id).then((data) => {
+        setSurveyName(data.name);
+        setQuestions(data.questions);
 
-      // Initialize "selected" array to be the length of the survey so each index corresponds to the same question
-      const initSelected = new Array(data.length).fill([]);
-      setResponse((prevResponse) => ({
-        ...prevResponse,
-        selected: initSelected,
-      }));
+        console.log("data.questions:", data.questions);
+
+        // Initialize "selected" array to be the length of the survey so each index corresponds to the same question
+        const initSelected = new Array(data.length).fill([]);
+        setResponse((prevResponse) => ({
+          ...prevResponse,
+          username: user.username,
+          selected: initSelected,
+        }));
+      });
     });
-  }, [id]);
+  }, []);
 
-  const selectOption = (questionIdx: number, optionId: string) => {
+  const selectOption = (questionIdx: number, optionId: string | undefined) => {
+    if (optionId === undefined) {
+      console.error("Option does not exist. Please close out the survey.");
+      return;
+    }
+
     const currQuestion = questions[questionIdx];
     const newSelected = [...response.selected];
+
     if (currQuestion.type !== "checkboxes") {
       newSelected[questionIdx] = [optionId];
     } else {
+      if (!newSelected[questionIdx]) {
+        newSelected[questionIdx] = [];
+      }
       newSelected[questionIdx].push(optionId);
     }
     setResponse((prevResponse) => ({
       ...prevResponse,
       selected: newSelected,
     }));
+    console.log("newSelected after:", newSelected);
   };
 
-  const deselectOption = (questionIdx: number, optionId: string) => {
+  const deselectOption = (
+    questionIdx: number,
+    optionId: string | undefined
+  ) => {
     const newSelected = [...response.selected];
     newSelected[questionIdx] = newSelected[questionIdx].filter(
       (selected) => selected !== optionId
@@ -68,6 +87,7 @@ const ViewSurvey = () => {
           key={questionIdx}
           question={question}
           index={questionIdx}
+          isResponseDisplay={false}
           selectOption={selectOption}
           deselectOption={deselectOption}
         />

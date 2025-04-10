@@ -2,7 +2,6 @@ import db from "../connection.js";
 import { ObjectId } from "mongodb";
 
 export const insertSurveyQuestionsAndChoices = async (questions) => {
-  const surveyCollection = db.collection("Surveys");
   const questionCollection = db.collection("Questions");
   const choiceCollection = db.collection("Choices");
 
@@ -56,9 +55,11 @@ export const insertSurveyQuestionsAndChoices = async (questions) => {
   }
 
   // Modify existing questions
-  const questionUpdateResult = await questionCollection.bulkWrite(
-    questionsToUpdate
-  );
+  if (questionsToUpdate.length) {
+    const questionUpdateResult = await questionCollection.bulkWrite(
+      questionsToUpdate
+    );
+  }
 
   // Insert new questions
   var newQuestionIds = [];

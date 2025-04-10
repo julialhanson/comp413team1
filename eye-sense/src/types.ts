@@ -27,6 +27,7 @@ export type Survey = {
 };
 
 export type SurveyResponse = {
+  _id?: string;
   username: string;
   survey_id: string | undefined;
   time_taken: Date;
@@ -42,3 +43,9 @@ export type User = {
   organization: string;
   role?: string;
 };
+
+export type TokenUser = {
+  username: string;
+  organization?: string;
+  role?: string;
+}

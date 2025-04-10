@@ -6,6 +6,7 @@ import users from "./routes/user.js";
 import questions from "./routes/question.js";
 import surveys from "./routes/survey.js";
 import choices from "./routes/choice.js";
+import responses from "./routes/response.js";
 
 dotenv.config();
 console.log("MONGO URI IS ", process.env.ATLAS_URI);
@@ -25,6 +26,7 @@ app.use("/api/v1/users", users);
 app.use("/api/v1/questions", questions);
 app.use("/api/v1/choices", choices);
 app.use("/api/v1/surveys", surveys);
+app.use("/api/v1/responses", responses);
 
 app.listen(PORT, () => {
   console.log(`Server listening on port ${PORT}`);

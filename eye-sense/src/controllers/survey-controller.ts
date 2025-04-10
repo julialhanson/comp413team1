@@ -14,7 +14,8 @@ export const getAllSurveys = async () => {
   }
 };
 
-export const getSurveyWithId = async (id: string) => {
+export const getSurveyWithId = async (id: string | undefined) => {
+  if (id === undefined) return null;
   try {
     const response = await api.get(API_URL + `/${id}`);
     return response.data;
@@ -37,7 +38,8 @@ export const getQuestionsFromSurvey = async (id: string | undefined) => {
   }
 };
 
-export const deleteSurveyWithId = async (id: string) => {
+export const deleteSurveyWithId = async (id: string | undefined) => {
+  if (id === undefined) return null;
   try {
     const response = await api.delete(API_URL + `/${id}`);
     return response.data;

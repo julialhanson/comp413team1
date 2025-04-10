@@ -105,32 +105,36 @@ const CreateSurvey = () => {
     );
   };
 
-  const saveSurvey = (published: boolean) => {
+  const saveSurvey = (wantToPublish: boolean) => {
     getCurrentUser()
       .then((user) => {
-        // If we want to publish the survey
-        if (published) {
+        // If we want to publish the survey or create a new draft
+        if (wantToPublish || !surveyId) {
           const survey: Survey = {
             name: surveyName,
             organization: user.organization,
             user_created: user.username,
             time_created: new Date(),
             last_edited: new Date(),
-            published: published,
+            published: wantToPublish, // true
             questions: questions,
           };
 
           createSurvey(survey).then((data) => {
             const insertedSurveyId = data.insertedId;
-            navigate(`/view-survey/${insertedSurveyId}`);
+
+            if (wantToPublish) navigate(`/view-survey/${insertedSurveyId}`);
           });
         }
         // If we want to just save the survey as a draft
         else {
           const survey = {
             name: surveyName,
+            organization: user.organization,
+            user_created: user.username,
+            // time_created: new Date(),
             last_edited: new Date(),
-            published: published,
+            published: wantToPublish, // false
             questions: questions,
           };
 
@@ -152,8 +156,9 @@ const CreateSurvey = () => {
           }
 
           modifySurveyWithId(surveyId, survey);
-          navigate(`/profile/${user.username}/surveys`);
         }
+        // Only navigate to "My Surveys" if we have not already navigated to view survey
+        navigate(`/profile/${user.username}/surveys`);
       })
       .catch(() => {
         console.log("Please log in and try again.");

@@ -3,13 +3,15 @@ import { Question } from "../types";
 type QuestionDisplayProps = {
   question: Question;
   index: number;
-  selectOption: (questionIdx: number, optionId: string) => void;
-  deselectOption: (questionIdx: number, optionId: string) => void;
+  isResponseDisplay: boolean;
+  selectOption?: (questionIdx: number, optionId: string | undefined) => void;
+  deselectOption?: (questionIdx: number, optionId: string | undefined) => void;
 };
 
 const QuestionDisplay = ({
   question,
   index,
+  isResponseDisplay,
   selectOption,
   deselectOption,
 }: QuestionDisplayProps) => {
@@ -40,10 +42,14 @@ const QuestionDisplay = ({
                   name={"question-" + index}
                   type={getOptionType(question.type)}
                   value={choice.text}
-                  onChange={(e) => {
-                    if (e.target.checked) selectOption(index, choice.id);
-                    else deselectOption(index, choice.id);
-                  }}
+                  onChange={
+                    isResponseDisplay
+                      ? () => {}
+                      : (e) => {
+                          if (e.target.checked) selectOption(index, choice._id);
+                          else deselectOption(index, choice._id);
+                        }
+                  }
                 />
                 {choice.text}
               </label>
@@ -57,9 +63,9 @@ const QuestionDisplay = ({
             <option value="" selected disabled hidden>
               Select an option...
             </option>
-            {question.choices.map((option) => (
-              <option key={option.id} value={option.id}>
-                {option.text}
+            {question.choices.map((choice) => (
+              <option key={choice._id} value={choice._id}>
+                {choice.text}
               </option>
             ))}
           </select>

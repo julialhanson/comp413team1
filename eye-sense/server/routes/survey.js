@@ -63,6 +63,8 @@ router.get("/:id/questions", async (req, res) => {
   let query = { _id: new ObjectId(req.params.id) };
   let result = await surveyCollection.findOne(query);
 
+  console.log("survey GET result:", result)
+
   if (!result) {
     console.error(`Error getting survey with id ${req.params.id}`);
     res.send("Not found").status(404);
@@ -70,7 +72,7 @@ router.get("/:id/questions", async (req, res) => {
   }
 
   // Extract question IDs from the survey
-  const questionIds = result.question_ids?.map((id) => new ObjectId(id)) || [];
+  const questionIds = result.question_ids.map((id) => new ObjectId(id)) || [];
 
   if (questionIds.length === 0 || questionIds === null)
     return res.status(404).send([]);
@@ -135,7 +137,7 @@ router.post("/", async (req, res) => {
     const questions = req.body.questions;
     const surveyCollection = db.collection("Surveys");
 
-    const questionIds = insertSurveyQuestionsAndChoices(questions);
+    const questionIds = await insertSurveyQuestionsAndChoices(questions);
 
     let newDocument = {
       // survey_id: req.body.survey_id,
@@ -157,9 +159,18 @@ router.post("/", async (req, res) => {
 });
 
 // Modify information for a survey
-router.patch("/:id", async (req, res) => {
+router.patch("/:id", authenticateToken, async (req, res) => {
   try {
     const query = { _id: new ObjectId(req.params.id) };
+    let surveyCollection = db.collection("Surveys");
+
+    const surveyToModify = await surveyCollection.findOne(query);
+    
+    // Check authorization
+    if (surveyToModify.user_created !== req.user.username) {
+      return res.send("Unauthorized").status(401);
+    }
+
     let updates = {};
     for (const key in req.body) {
       if (req.body[key] != null) {
@@ -213,7 +224,6 @@ router.patch("/:id", async (req, res) => {
     const { questions, ...actualUpdates } = updates;
 
     const updatedDocument = { $set: actualUpdates };
-    let surveyCollection = db.collection("Surveys");
     let result = await surveyCollection.updateOne(query, updatedDocument);
     return res.send(result)
     // return res.send(result).status(200);
@@ -223,14 +233,42 @@ router.patch("/:id", async (req, res) => {
   }
 });
 
-// Delete a survey
-router.delete("/:id", async (req, res) => {
+// Delete a survey and all of its questions and choices
+router.delete("/:id", authenticateToken, async (req, res) => {
   try {
     const query = { _id: new ObjectId(req.params.id) };
-    const collection = db.collection("Surveys");
-    let result = await collection.deleteOne(query);
+    const surveyCollection = db.collection("Surveys");
+    const questionCollection = db.collection("Questions");
+    const choiceCollection = db.collection("Choices");
 
-    return res.send(result).status(200);
+    let surveyToDelete = await surveyCollection.findOne(query);
+
+    // Check authorization
+    if (surveyToDelete.user_created !== req.user.username) {
+      return res.send("Unauthorized").status(401);
+    }
+
+    // Get all question objects in survey
+    const questionIds = surveyToDelete.question_ids.map((question_id) => {
+      return new ObjectId(question_id);
+    });
+    let questionsToDelete = await questionCollection.find({ _id: { $in: questionIds } }).toArray();
+
+    // First, delete all choices associated with the questions in the survey
+    for (const question of questionsToDelete) {
+      const choiceIds = question.choice_ids.map((choice_id) => {
+        return new ObjectId(choice_id);
+      });
+      const deleteChoicesResult = await choiceCollection.deleteMany({ _id: { $in: choiceIds } });
+    }
+
+    // After all choices deleted, delete all questions
+    let deleteQuestionsResult = await questionCollection.deleteMany({ _id: { $in: questionIds } })
+
+    // Lastly, delete survey
+    let deleteSurveyResult = await surveyCollection.deleteOne(query);
+
+    return res.send(deleteSurveyResult).status(200);
   } catch (e) {
     console.error(e);
     return res.status(500).send("Error deleting survey");
