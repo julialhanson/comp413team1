@@ -10,9 +10,6 @@ const ResponseListItem = ({
 }) => {
   const navigate = useNavigate();
 
-  console.log("survey:", survey);
-  console.log("response:", response);
-
   return (
     <div
       className="bg-white rounded-xl mb-3 p-4 flex justify-between transition duration-100 cursor-pointer hover:bg-gray-100"

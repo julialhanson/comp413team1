@@ -30,6 +30,7 @@ export type SurveyResponse = {
   _id?: string;
   username: string;
   survey_id: string | undefined;
+  survey?: Survey;
   time_taken: Date;
   selected: string[][];
   heatmaps: Map<number, string>;
@@ -48,4 +49,4 @@ export type TokenUser = {
   username: string;
   organization?: string;
   role?: string;
-}
+};

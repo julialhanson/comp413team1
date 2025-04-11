@@ -46,16 +46,20 @@ const Surveys = () => {
         <div className="mb-10">
           <h1 className="font-bold tracking-wide text-xl mb-2">Published</h1>
           {publishedSurveys && publishedSurveys.length > 0 ? (
-            publishedSurveys.map((survey, index) => {
-              return (
-                <SurveyListItem
-                  key={index}
-                  username={username}
-                  survey={survey}
-                  onDelete={handleDeleteSurvey}
-                />
-              );
-            })
+            publishedSurveys
+              .sort((a, b) => {
+                return +b.time_created - +a.time_created;
+              })
+              .map((survey, index) => {
+                return (
+                  <SurveyListItem
+                    key={index}
+                    username={username}
+                    survey={survey}
+                    onDelete={handleDeleteSurvey}
+                  />
+                );
+              })
           ) : (
             <p className="italic dark-grey">No published surveys found.</p>
           )}

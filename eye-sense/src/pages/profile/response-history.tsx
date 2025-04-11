@@ -15,27 +15,41 @@ const ResponseHistory = () => {
   useEffect(() => {
     if (username !== undefined) {
       // Get all responses made by current user
-      getResponsesWithQuery({ username: username }).then(
-        (data: SurveyResponse[]) => {
-          console.log("responses with query:", data);
-          // For each survey response
-          for (const response of data) {
-            console.log("individual response:", response);
-            // Get the corresponding survey opject
-            getSurveyWithId(response.survey_id).then((survey) => {
-              // Map the survey response to its survey object
-              setMapResponseToSurvey((prevMapResponseToSurvey) => {
-                const newMapResponseToSurvey = new Map(prevMapResponseToSurvey);
-                newMapResponseToSurvey.set(response, survey);
-                return newMapResponseToSurvey;
-              });
-              console.log(mapResponseToSurvey);
-            });
+      getResponsesAndSurveys().then((surveyResponses) => {
+        const numResponses = surveyResponses.length;
+
+        // Map the responses to surveys and update the state in one go
+        setMapResponseToSurvey((prevMapResponseToSurvey) => {
+          const newMapResponseToSurvey = new Map<SurveyResponse, Survey>(
+            JSON.parse(JSON.stringify(Array.from(prevMapResponseToSurvey)))
+          );
+
+          surveyResponses.forEach(({ response, survey }) => {
+            newMapResponseToSurvey.set(response, survey);
+          });
+
+          // Make sure mapResponseToSurvey does not overpopulate with duplicates
+          if (newMapResponseToSurvey.size > numResponses) {
+            return prevMapResponseToSurvey;
           }
-        }
-      );
+
+          return newMapResponseToSurvey;
+        });
+      });
     }
-  }, [username]);
+  }, []);
+
+  const getResponsesAndSurveys = async () => {
+    if (username === undefined) return [];
+
+    const data = await getResponsesWithQuery({ username: username });
+    const surveyPromises = data.map(async (response: SurveyResponse) => {
+      const survey: Survey = await getSurveyWithId(response.survey_id);
+      return { response, survey };
+    });
+
+    return Promise.all(surveyPromises);
+  };
 
   // const getSurveyForResponse = async (
   //   response: SurveyResponse
@@ -46,7 +60,7 @@ const ResponseHistory = () => {
   return (
     <div className="max-w-2xl ml-auto mr-auto p-5">
       <h1 className="font-bold tracking-wide text-xl mb-2">Past Responses</h1>
-      {mapResponseToSurvey && mapResponseToSurvey.size > 0 ? (
+      {mapResponseToSurvey.size > 0 ? (
         Array.from(mapResponseToSurvey)
           .sort((a, b) => {
             return +b[0].time_taken - +a[0].time_taken;
