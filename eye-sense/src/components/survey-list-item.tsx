@@ -1,7 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { Survey, SurveyResponse } from "../types";
+import { Survey } from "../types";
 import { useNavigate } from "react-router-dom";
-import { getCurrentUser } from "../controllers/user-controller";
 import { deleteSurveyWithId } from "../controllers/survey-controller";
 
 const SurveyListItem = ({
@@ -11,7 +9,7 @@ const SurveyListItem = ({
 }: {
   username: string | undefined;
   survey: Survey;
-  onDelete?: (surveyId: string | undefined) => void;
+  onDelete: (surveyId: string | undefined) => void;
 }) => {
   const navigate = useNavigate();
 
@@ -35,18 +33,16 @@ const SurveyListItem = ({
         </p>
 
         {/* DELETE SURVEY BUTTON */}
-        {onDelete && (
-          <button
-            className="dark-grey cursor-pointer pr-2 pl-5"
-            onClick={(e) => {
-              e.stopPropagation();
-              deleteSurveyWithId(survey._id);
-              onDelete(survey._id);
-            }}
-          >
-            <i className="fa-solid fa-trash"></i>
-          </button>
-        )}
+        <button
+          className="dark-grey cursor-pointer pr-2 pl-5"
+          onClick={(e) => {
+            e.stopPropagation();
+            deleteSurveyWithId(survey._id);
+            onDelete(survey._id);
+          }}
+        >
+          <i className="fa-solid fa-trash"></i>
+        </button>
       </div>
     </div>
   );

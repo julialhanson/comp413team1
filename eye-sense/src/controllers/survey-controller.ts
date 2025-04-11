@@ -18,6 +18,7 @@ export const getSurveyWithId = async (id: string | undefined) => {
   if (id === undefined) return null;
   try {
     const response = await api.get(API_URL + `/${id}`);
+    console.log("surveywithId:", response.data);
     return response.data;
   } catch (error) {
     console.error(`Error fetching survey with id ${id}:`, error);

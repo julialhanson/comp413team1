@@ -1,36 +1,48 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { Survey } from "../types";
-import { getSurveyWithId } from "../controllers/survey-controller";
+import { Question, SurveyResponse } from "../types";
+import { getQuestionsFromSurvey } from "../controllers/survey-controller";
 import QuestionDisplay from "../components/question-display";
+import { getResponseWithId } from "../controllers/response-controller";
 
 const ViewResponse = () => {
-  const { id } = useParams();
+  const { id: responseId } = useParams();
 
-  const [survey, setSurvey] = useState<Survey>();
+  const [surveyResponse, setSurveyResponse] = useState<SurveyResponse>();
+  const [surveyName, setSurveyName] = useState<string>();
+  const [surveyQuestions, setSurveyQuestions] = useState<Question[]>([]);
 
   useEffect(() => {
-    getSurveyWithId(id).then((data) => setSurvey(data));
-  });
+    getResponseWithId(responseId).then((response) => {
+      console.log(response);
+      setSurveyResponse(response);
+
+      getQuestionsFromSurvey(response.survey_id).then((data) => {
+        setSurveyName(data.name);
+        setSurveyQuestions(data.questions);
+      });
+    });
+  }, [responseId]);
 
   return (
     <>
-      {survey ? (
+      {surveyName ? (
         <div className="max-w-2xl ml-auto mr-auto p-5">
           <h1 className="w-full bg-white rounded-xl p-4 mb-3 font-bold">
-            {survey.name}
+            {surveyName}
           </h1>
-          {survey.questions.map((question, questionIdx) => (
+          {surveyQuestions.map((question, questionIdx) => (
             <QuestionDisplay
               key={questionIdx}
               question={question}
+              selectedOptionIds={surveyResponse?.selected[questionIdx]}
               index={questionIdx}
-              isResponseDisplay={true}
             />
           ))}
         </div>
       ) : (
-        <p>The survey that you responded to may have been deleted.</p>
+        <></>
+        // <p>The survey that you responded to may have been deleted.</p>
       )}
     </>
   );

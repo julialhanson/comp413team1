@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { Survey, SurveyResponse } from "../../types";
-import { getCurrentUser } from "../../controllers/user-controller";
 import { useParams } from "react-router-dom";
 import { getResponsesWithQuery } from "../../controllers/response-controller";
-import SurveyListItem from "../../components/survey-list-item";
 import { getSurveyWithId } from "../../controllers/survey-controller";
+import ResponseListItem from "../../components/response-list-item";
 
 const ResponseHistory = () => {
   const { username } = useParams();
@@ -44,7 +43,12 @@ const ResponseHistory = () => {
       <h1 className="font-bold tracking-wide text-xl mb-2">Past Responses</h1>
       {mapResponseToSurvey && mapResponseToSurvey.size > 0 ? (
         Array.from(mapResponseToSurvey).map(([response, survey], index) => (
-          <SurveyListItem key={index} username={username} survey={survey} />
+          <ResponseListItem
+            key={index}
+            username={username}
+            survey={survey}
+            response={response}
+          />
         ))
       ) : (
         <p className="italic dark-grey">No response history found.</p>

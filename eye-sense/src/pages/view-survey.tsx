@@ -87,7 +87,6 @@ const ViewSurvey = () => {
           key={questionIdx}
           question={question}
           index={questionIdx}
-          isResponseDisplay={false}
           selectOption={selectOption}
           deselectOption={deselectOption}
         />

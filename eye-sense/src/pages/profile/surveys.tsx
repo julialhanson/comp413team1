@@ -29,10 +29,10 @@ const Surveys = () => {
   const handleDeleteSurvey = (surveyId: string | undefined) => {
     if (surveyId === undefined) return;
 
-    var newPublished = (publishedSurveys || []).filter(
+    const newPublished = (publishedSurveys || []).filter(
       (published) => published._id !== surveyId
     );
-    var newDrafts = (draftSurveys || []).filter(
+    const newDrafts = (draftSurveys || []).filter(
       (draft) => draft._id !== surveyId
     );
 
