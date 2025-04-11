@@ -6,7 +6,7 @@ import {
   modifySurveyWithId,
 } from "../controllers/survey-controller.ts";
 import { useNavigate, useParams } from "react-router-dom";
-import ImageUpload from "../components/image-upload";
+// import ImageUpload from "../components/image-upload";
 import { getCurrentUser } from "../controllers/user-controller.ts";
 import ToggleButton from "../components/toggle-button.tsx";
 import { modifyQuestionWithId } from "../controllers/question-controller.ts";
@@ -128,7 +128,7 @@ const CreateSurvey = () => {
         }
         // If we want to publish or modify an existing draft
         else {
-          let survey = {
+          const survey = {
             name: surveyName,
             organization: user.organization,
             user_created: user.username,
