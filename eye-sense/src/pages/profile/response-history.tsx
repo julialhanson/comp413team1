@@ -17,14 +17,19 @@ const ResponseHistory = () => {
       // Get all responses made by current user
       getResponsesWithQuery({ username: username }).then(
         (data: SurveyResponse[]) => {
+          console.log("responses with query:", data);
           // For each survey response
           for (const response of data) {
+            console.log("individual response:", response);
             // Get the corresponding survey opject
             getSurveyWithId(response.survey_id).then((survey) => {
               // Map the survey response to its survey object
-              const newMapResponseToSurvey = new Map(mapResponseToSurvey);
-              newMapResponseToSurvey.set(response, survey);
-              setMapResponseToSurvey(newMapResponseToSurvey);
+              setMapResponseToSurvey((prevMapResponseToSurvey) => {
+                const newMapResponseToSurvey = new Map(prevMapResponseToSurvey);
+                newMapResponseToSurvey.set(response, survey);
+                return newMapResponseToSurvey;
+              });
+              console.log(mapResponseToSurvey);
             });
           }
         }
@@ -42,9 +47,13 @@ const ResponseHistory = () => {
     <div className="max-w-2xl ml-auto mr-auto p-5">
       <h1 className="font-bold tracking-wide text-xl mb-2">Past Responses</h1>
       {mapResponseToSurvey && mapResponseToSurvey.size > 0 ? (
-        Array.from(mapResponseToSurvey).map(([response, survey], index) => (
-          <ResponseListItem key={index} survey={survey} response={response} />
-        ))
+        Array.from(mapResponseToSurvey)
+          .sort((a, b) => {
+            return +b[0].time_taken - +a[0].time_taken;
+          })
+          .map(([response, survey], index) => (
+            <ResponseListItem key={index} survey={survey} response={response} />
+          ))
       ) : (
         <p className="italic dark-grey">No response history found.</p>
       )}

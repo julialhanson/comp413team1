@@ -5,10 +5,12 @@ import {
   getQuestionsFromSurvey,
   submitResponse,
 } from "../controllers/survey-controller.ts";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { getCurrentUser } from "../controllers/user-controller.ts";
 
 const ViewSurvey = () => {
+  const navigate = useNavigate();
+
   const { id } = useParams();
   const [surveyName, setSurveyName] = useState<string>("");
   const [questions, setQuestions] = useState<Question[]>([]);
@@ -94,7 +96,11 @@ const ViewSurvey = () => {
 
       <button
         className="btn blue-btn float-right"
-        onClick={() => submitResponse(id, response)}
+        onClick={() => {
+          submitResponse(id, response).then((data) => {
+            navigate(`/view-response/${data.insertedId}`);
+          });
+        }}
       >
         Submit
       </button>
