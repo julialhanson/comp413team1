@@ -43,12 +43,7 @@ const ResponseHistory = () => {
       <h1 className="font-bold tracking-wide text-xl mb-2">Past Responses</h1>
       {mapResponseToSurvey && mapResponseToSurvey.size > 0 ? (
         Array.from(mapResponseToSurvey).map(([response, survey], index) => (
-          <ResponseListItem
-            key={index}
-            username={username}
-            survey={survey}
-            response={response}
-          />
+          <ResponseListItem key={index} survey={survey} response={response} />
         ))
       ) : (
         <p className="italic dark-grey">No response history found.</p>

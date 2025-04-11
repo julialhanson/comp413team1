@@ -1,13 +1,10 @@
 import { Survey, SurveyResponse } from "../types";
 import { useNavigate } from "react-router-dom";
-import { deleteSurveyWithId } from "../controllers/survey-controller";
 
 const ResponseListItem = ({
-  username,
   survey,
   response,
 }: {
-  username: string | undefined;
   survey: Survey;
   response: SurveyResponse;
 }) => {
