@@ -12,6 +12,7 @@ import { useEffect, useState } from "react";
 import { getCurrentUser } from "./controllers/user-controller";
 import ResponseHistory from "./pages/profile/response-history";
 import ViewResponse from "./pages/view-response";
+import Organizations from "./pages/organizations";
 
 function App() {
   const location = useLocation();
@@ -37,19 +38,26 @@ function App() {
 
       <Routes>
         <Route path="/auth" element={<Auth />} />
+
+        {/* header routes */}
         <Route path="/create-survey" element={<CreateSurvey />} />
+        <Route path="/predict" element={<Predict />} />
+
+        {/* profile routes */}
         <Route
           path="/profile/:username/drafts/:id"
           element={<CreateSurvey />}
         />
-        <Route path="/predict" element={<Predict />} />
-        <Route path="/view-survey/:id" element={<ViewSurvey />} />
-        <Route path="/view-response/:id" element={<ViewResponse />} />
         <Route path="/profile/:username/surveys" element={<Surveys />} />
         <Route
           path="/profile/:username/response-history"
           element={<ResponseHistory />}
         />
+        <Route path="/organizations" element={<Organizations />} />
+
+        {/* survey routes */}
+        <Route path="/view-survey/:id" element={<ViewSurvey />} />
+        <Route path="/view-response/:id" element={<ViewResponse />} />
         {/* <Route path="/about" element={<About />} /> */}
       </Routes>
 

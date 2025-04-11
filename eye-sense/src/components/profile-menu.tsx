@@ -36,6 +36,13 @@ const ProfileMenu = ({ isMenuOpen, setIsMenuOpen }: ProfileMenuProps) => {
         <Link
           onClick={() => setIsMenuOpen(!isMenuOpen)}
           className="hover-darken"
+          to="/organizations"
+        >
+          <i className="fa-solid fa-users mr-2"></i> Organizations
+        </Link>
+        <Link
+          onClick={() => setIsMenuOpen(!isMenuOpen)}
+          className="hover-darken"
           to={`/profile/${username}/surveys`}
         >
           <i className="fa-solid fa-list-ul mr-2"></i> My Surveys
