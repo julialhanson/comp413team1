@@ -87,7 +87,6 @@ def visualize_heatmap(image, border_points, internal_points):
     plt.imshow(image)  # Background image
     plt.imshow(heatmap_normalized, cmap='jet', alpha=0.4)  # Heatmap overlay
     plt.axis('off')
-    plt.title('Gaze Heatmap Overlay')
     plt.tight_layout()
     # plt.show()
 
