@@ -62,8 +62,38 @@ def visualize_points(image, contour, border_points, internal_points):
     plt.imshow(cv2.cvtColor(vis_image, cv2.COLOR_BGR2RGB))
     plt.title('Simulated Doctor Gaze Points')
     plt.axis('off')
-    plt.show()
+    # plt.show()
 
+def visualize_heatmap(image, border_points, internal_points):
+    img_height, img_width, _ = image.shape
+
+    # --- Create heatmap matrix ---
+    heatmap = np.zeros((img_height, img_width))  # Note: image size is (width, height), but numpy is (rows, cols)
+
+    # Draw each gaze point into heatmap
+    for x, y in border_points + internal_points:
+        if 0 <= x < img_width and 0 <= y < img_height:
+            heatmap[y, x] += 1  # y is row, x is column
+
+    # --- Blur heatmap using Gaussian filter ---
+    from scipy.ndimage import gaussian_filter
+    heatmap_blurred = gaussian_filter(heatmap, sigma=30)
+
+    # --- Normalize to [0, 1] ---
+    heatmap_normalized = heatmap_blurred / np.max(heatmap_blurred)
+
+    # --- Plot the image and overlay the heatmap ---
+    plt.figure(figsize=(10, 8))
+    plt.imshow(image)  # Background image
+    plt.imshow(heatmap_normalized, cmap='jet', alpha=0.4)  # Heatmap overlay
+    plt.axis('off')
+    plt.title('Gaze Heatmap Overlay')
+    plt.tight_layout()
+    # plt.show()
+
+    # --- Optional: Save the overlay ---
+    # plt.savefig('heatmap_overlay.jpg', bbox_inches='tight', pad_inches=0)
+    # plt.close()
 
 def simulate_derm_gaze(filepath, num_border_points=20, num_internal_points=10):
     image, gray = load_image(filepath)
@@ -74,6 +104,8 @@ def simulate_derm_gaze(filepath, num_border_points=20, num_internal_points=10):
     internal_points = sample_internal_points(mask, num_internal_points)
 
     visualize_points(image, contour, border_points, internal_points)
+    visualize_heatmap(image, border_points, internal_points)
+    plt.show()
 
-
-simulate_derm_gaze('ml/lesion.jpg', num_border_points=20, num_internal_points=10)
+# figure out params for 
+simulate_derm_gaze('ml/lesion.jpg', num_border_points=150, num_internal_points=150)
