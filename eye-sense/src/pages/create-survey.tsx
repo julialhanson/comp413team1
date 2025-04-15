@@ -21,9 +21,9 @@ const CreateSurvey = () => {
     }
   };
 
-  const setQuestionImg = (newImg: File | null, index: number) => {
+  const setQuestionImg = (imageUrl: string | null, index: number) => {
     const newQuestions = [...questions];
-    const newQuestion = { ...newQuestions[index], image: newImg };
+    const newQuestion = { ...newQuestions[index], image: imageUrl };
     newQuestions[index] = newQuestion;
     setQuestions(newQuestions);
   };
@@ -164,8 +164,8 @@ const CreateSurvey = () => {
                       type={getOptionType(question.type)}
                       value={option.text}
                       disabled
-                      // checked={selectedValue === option}
-                      // onChange={onChange}
+                    // checked={selectedValue === option}
+                    // onChange={onChange}
                     />
                     <input
                       className="mx-2"
@@ -186,10 +186,9 @@ const CreateSurvey = () => {
             <div className="m-2">
               {/* DISPLAY IMAGE */}
               <ImageUpload
-                resetImage={() => {
-                  setQuestionImg(null, index);
-                }}
-                imgFile={question.image}
+                onImageUploaded={(imageUrl) => setQuestionImg(imageUrl, index)}
+                resetImage={() => setQuestionImg(null, index)}
+                imgFile={question.image ? new File([question.image], 'image') : null}
               />
             </div>
           </div>
@@ -214,7 +213,7 @@ const CreateSurvey = () => {
                   className="hidden"
                   onChange={(e) => {
                     if (e.target.files) {
-                      setQuestionImg(e.target.files[0], index);
+                      setQuestionImg(e.target.files[0].name, index);
                     }
                   }}
                 />

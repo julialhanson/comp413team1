@@ -1,62 +1,88 @@
 import React, { useState } from 'react';
-import { Storage } from '@google-cloud/storage';
+import axios from 'axios';
 
-// Initialize Google Cloud Storage
-const storage = new Storage();
-const bucketName = 'your-bucket-name'; // Replace with your actual bucket name
-
-async function uploadImage(file: File): Promise<string> {
-  const bucket = storage.bucket(bucketName);
-  const blob = bucket.file(file.name);
-
-  const stream = blob.createWriteStream({
-    resumable: false,
-    contentType: file.type,
-  });
-
-  return new Promise((resolve, reject) => {
-    stream.on('error', (err) => {
-      console.error('Upload error:', err);
-      reject(err);
-    });
-
-    stream.on('finish', () => {
-      console.log('Upload complete:', file.name);
-      resolve(`https://storage.googleapis.com/${bucketName}/${file.name}`);
-    });
-
-    stream.end(file); // Assuming file is a Blob or Buffer
-  });
+interface ImageUploadProps {
+  onImageUploaded?: (imageUrl: string) => void;
+  resetImage?: () => void;
+  imgFile?: File | null;
 }
 
-const ImageUpload: React.FC = () => {
-  const [file, setFile] = useState<File | null>(null);
+const ImageUpload: React.FC<ImageUploadProps> = ({ onImageUploaded, resetImage, imgFile }) => {
+  const [isUploading, setIsUploading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = event.target.files?.[0];
-    if (selectedFile) {
-      setFile(selectedFile);
-    }
-  };
+    if (!selectedFile) return;
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    if (file) {
-      try {
-        const imageUrl = await uploadImage(file);
-        console.log('Image uploaded to:', imageUrl);
-        // Handle the image URL (e.g., save it to your database)
-      } catch (error) {
-        console.error('Error uploading image:', error);
+    try {
+      setIsUploading(true);
+      setError(null);
+
+      const formData = new FormData();
+      formData.append('image', selectedFile);
+
+      const response = await axios.post('http://localhost:5050/api/v1/upload', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      if (onImageUploaded) {
+        onImageUploaded(response.data.imageUrl);
       }
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      setError('Failed to upload image. Please try again.');
+    } finally {
+      setIsUploading(false);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <input type="file" onChange={handleFileChange} accept="image/*" required />
-      <button type="submit">Upload Image</button>
-    </form>
+    <div className="w-full">
+      {imgFile ? (
+        <div className="relative">
+          <img
+            src={URL.createObjectURL(imgFile)}
+            alt="Preview"
+            className="max-w-full h-auto rounded-lg"
+          />
+          {resetImage && (
+            <button
+              onClick={resetImage}
+              className="absolute top-2 right-2 bg-red-500 text-white p-2 rounded-full hover:bg-red-600"
+            >
+              <i className="fa-solid fa-times"></i>
+            </button>
+          )}
+        </div>
+      ) : (
+        <div className="w-full">
+          <input
+            type="file"
+            onChange={handleFileChange}
+            accept="image/*"
+            className="hidden"
+            id="image-upload"
+          />
+          <label
+            htmlFor="image-upload"
+            className="cursor-pointer block w-full p-4 border-2 border-dashed border-gray-300 rounded-lg text-center hover:border-blue-500 transition-colors"
+          >
+            {isUploading ? (
+              <span>Uploading...</span>
+            ) : (
+              <>
+                <i className="fa-solid fa-cloud-upload-alt text-2xl mb-2"></i>
+                <span className="block">Click to upload an image</span>
+              </>
+            )}
+          </label>
+          {error && <p className="text-red-500 mt-2">{error}</p>}
+        </div>
+      )}
+    </div>
   );
 };
 
