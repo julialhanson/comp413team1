@@ -14,7 +14,7 @@ const Header = () => {
 
   return (
     <>
-      <header className="fixed top-0 flex flex-nowrap items-center justify-between w-screen h-12 py-2 px-4 bg-white">
+      <header className="fixed top-0 flex flex-nowrap items-center justify-between w-screen h-12 py-2 px-4 bg-white z-50">
         <Link className="tracking-wider font-bold text-lg" to="/auth">
           eye-
           <span className="dark-blue">sense</span>
