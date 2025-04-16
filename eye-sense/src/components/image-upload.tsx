@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useState } from "react";
+import { generateHeatmap } from "../controllers/heatmap-controller";
 
 type ImageUploadProps = {
   resetImage: () => void;
@@ -6,6 +7,12 @@ type ImageUploadProps = {
 };
 
 const ImageUpload = ({ resetImage, imgFile }: ImageUploadProps) => {
+  const [heatmapImg, setHeatmapImg] = useState<string | null>(null);
+
+  const predictHeatmap = (imgFile: File) => {
+    generateHeatmap(imgFile);
+  };
+
   return (
     <>
       {imgFile && (
@@ -20,8 +27,21 @@ const ImageUpload = ({ resetImage, imgFile }: ImageUploadProps) => {
           >
             <i className="fa-solid fa-xmark"></i>
           </button>
+
+          <button
+            className="btn blue-btn float-right"
+            onClick={() =>
+              generateHeatmap(imgFile).then((generatedHeatmap) => {
+                setHeatmapImg(generatedHeatmap);
+              })
+            }
+          >
+            Predict
+          </button>
         </div>
       )}
+
+      {heatmapImg && <img src={heatmapImg} />}
     </>
   );
 };
