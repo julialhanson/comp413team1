@@ -31,6 +31,26 @@ export const loginUser = async (user: {
   }
 };
 
+export const logoutUser = async () => {
+  try {
+    const response = await api.post(API_URL + `/logout`);
+    return response.data;
+  } catch (error) {
+    console.error("Error logging out", error);
+    return null;
+  }
+};
+
+export const getCurrentUser = async () => {
+  try {
+    const response = await api.get(API_URL + `/profile`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching current user:", error);
+    return null;
+  }
+};
+
 export const getAllUsers = async () => {
   try {
     const response = await api.get(API_URL);
@@ -61,7 +81,6 @@ export const deleteUserWithUsername = async (username: string) => {
   }
 };
 
-// TODO: this one uses julia's endpoint, but official register endpoint is disha's
 export const createUser = async (username: string) => {
   try {
     const response = await api.post(API_URL, username);
