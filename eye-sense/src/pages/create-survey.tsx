@@ -6,7 +6,7 @@ import {
   modifySurveyWithId,
 } from "../controllers/survey-controller.ts";
 import { useNavigate, useParams } from "react-router-dom";
-// import ImageUpload from "../components/image-upload";
+import ImageUpload from "../components/image-upload";
 import { getCurrentUser } from "../controllers/user-controller.ts";
 import ToggleButton from "../components/toggle-button.tsx";
 import { modifyQuestionWithId } from "../controllers/question-controller.ts";
@@ -281,14 +281,15 @@ const CreateSurvey = () => {
 
             <div className="m-2">
               {/* DISPLAY IMAGE */}
-              {/* <ImageUpload
+              <ImageUpload
                 resetImage={() => {
                   setQuestionImg(null, index);
                 }}
                 imgFile={question.image}
-              /> */}
+              />
             </div>
           </div>
+
           <div className="flex justify-between mt-2">
             {/* ADD OPTION BUTTON */}
             <button
@@ -301,13 +302,16 @@ const CreateSurvey = () => {
             <div className="flex justify-center items-center">
               {/* TOGGLE EYE TRACKING ONLY IF IMAGE EXISTS */}
               {questions[index].image && (
-                <>
+                <div
+                  className="flex items-center btn"
+                  title="Enable eye tracking"
+                >
                   <i className="fa-solid fa-eye dark-grey mr-1"></i>
                   <ToggleButton
                     isToggled={questions[index].is_tracking}
                     toggleFunction={() => toggleQuestionTracking(index)}
                   />
-                </>
+                </div>
               )}
 
               {/* UPLOAD IMAGE TO QUESTION BUTTON */}
