@@ -119,6 +119,10 @@ $darker-blue: #0e529b;
   }
 }
 
+.inner-line-divider:not(:last-child) {
+  border-bottom: 1px solid $light-grey;
+}
+
 .front {
   z-index: 1000;
 }

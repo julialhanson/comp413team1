@@ -16,6 +16,7 @@ const Organizations = () => {
 
   useEffect(() => {
     getCurrentUser().then((user: User) => {
+      console.log("user:", user);
       if (!searchParams.get("organization")) {
         const orgSearchParams: string[][] = user.organizations.map(
           (organization) => {
@@ -25,29 +26,39 @@ const Organizations = () => {
         setSearchParams(new URLSearchParams(orgSearchParams));
       }
 
-      const organizations: string[] =
+      const searchOrgs: string[] =
         searchParams.getAll("organization") || user.organizations;
 
-      setOrganizations(organizations);
-      console.log(organizations);
-      setSelectedOrg(organizations[0]);
+      setOrganizations(searchOrgs);
+      console.log("organizations:", searchOrgs);
+      setSelectedOrg(searchOrgs[0]);
 
-      const orgSearchParams: string[][] = organizations.map((organization) => {
+      const orgSearchParams: string[][] = searchOrgs.map((organization) => {
         return ["organization", organization];
       });
       getUsersWithQuery(orgSearchParams).then((data) => {
         setUsers(data);
 
-        console.log(data, selectedOrg);
+        console.log("data:", data);
+        console.log("selectedOrg:", searchOrgs[0]);
 
         const newSelectedUsers = data.filter((user: User) =>
-          user.organizations.includes(selectedOrg)
+          user.organizations.includes(searchOrgs[0])
         );
-        console.log(newSelectedUsers);
+        console.log("newSelectedUsers:", newSelectedUsers);
         setSelectedUsers(newSelectedUsers);
       });
     });
-  }, []);
+  }, [searchParams]);
+
+  const changeSelectedOrg = (organization: string) => {
+    setSelectedOrg(organization);
+
+    const newSelectedUsers = users.filter((user) =>
+      user.organizations.includes(organization)
+    );
+    setSelectedUsers(newSelectedUsers);
+  };
 
   return (
     <div className="max-w-2xl ml-auto mr-auto p-5">
@@ -56,10 +67,10 @@ const Organizations = () => {
           return (
             <div
               key={index}
-              className={`bg-white w-fit py-1 px-3 mb-1 mr-1 rounded-xl`}
+              className={`bg-white w-fit py-1 px-3 mb-2 mr-1 rounded-xl`}
             >
               <button
-                onClick={() => setSelectedOrg(organization)}
+                onClick={() => changeSelectedOrg(organization)}
                 className={organization === selectedOrg ? "font-bold" : ""}
               >
                 {organization}
@@ -69,10 +80,13 @@ const Organizations = () => {
         })}
       </div>
 
-      <div className="bg-white rounded-xl p-5">
+      <div className="bg-white rounded-xl p-3">
         {selectedUsers.map((user: User, index) => {
           return (
-            <div key={index} className="flex justify-between">
+            <div
+              key={index}
+              className="flex justify-between p-3 inner-line-divider"
+            >
               <p>
                 {user.display_name} (
                 <span className="italic">{user.username}</span>)

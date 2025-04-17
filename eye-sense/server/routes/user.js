@@ -23,10 +23,10 @@ router.get("/", async (req, res) => {
   let collection = await db.collection("Users");
   let query = {};
 
-  console.log(req.query)
+  console.log(req.query);
 
   if (req.query.organization) {
-    query.organizations = req.query.organization;
+    query.organizations = { $in: req.query.organization };
   }
   if (req.query.username) {
     query.username = req.query.username;
@@ -94,7 +94,7 @@ router.put("/:id", async (req, res) => {
         display_name: req.body.display_name,
         password: hashedPassword,
         email: req.body.email,
-        organization: req.body.organization,
+        organizations: req.body.organizations,
         role: req.body.role,
         organization_permissions: req.body.organization_permissions,
       },
@@ -137,7 +137,7 @@ router.post("/", async (req, res) => {
       display_name: req.body.display_name,
       password: hashedPassword,
       email: req.body.email,
-      organization: req.body.organization,
+      organizations: req.body.organizations,
       role: req.body.role,
       organization_permissions: req.body.organization_permissions,
     };
@@ -161,7 +161,7 @@ router.post("/login", async (req, res) => {
         {
           username: username,
           role: req.body.role,
-          organization: req.body.organization,
+          organizations: req.body.organizations,
         },
         process.env.JWT_SECRET,
         {
