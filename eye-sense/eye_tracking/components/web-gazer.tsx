@@ -1,18 +1,18 @@
-import React from "react";
 import "../eye-tracker.scss";
-import Container from "../../src/components/container";
 
 const WebGazer = () => {
   return (
-    <Container>
-      <iframe
-        src="/web-gazer.html"
-        title="WebGazer Heatmap"
-        width="100%"
-        height="700px"
-        style={{ border: "none" }}
-      />
-    </Container>
+    <div className="max-w-4xl ml-auto mr-auto p-5">
+      <div className="m-5 rounded-2xl bg-white p-5">
+        <iframe
+          src="/web-gazer.html"
+          title="WebGazer Heatmap"
+          width="100%"
+          height="700px"
+          style={{ border: "none" }}
+        />
+      </div>
+    </div>
   );
 };
 
