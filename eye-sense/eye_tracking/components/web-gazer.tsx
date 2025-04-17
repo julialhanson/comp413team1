@@ -1,5 +1,3 @@
-import "../eye-tracker.scss";
-
 const WebGazer = () => {
   return (
     <div className="max-w-4xl ml-auto mr-auto p-5">
