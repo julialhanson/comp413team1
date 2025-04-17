@@ -6,8 +6,6 @@ type ImageUploadProps = {
 };
 
 const ImageUpload = ({ resetImage, imgFile }: ImageUploadProps) => {
-  const [heatmapImg, setHeatmapImg] = useState<string | null>(null);
-
   return (
     <>
       {imgFile && (
@@ -26,8 +24,6 @@ const ImageUpload = ({ resetImage, imgFile }: ImageUploadProps) => {
           <button className="btn blue-btn float-right">Predict</button>
         </div>
       )}
-
-      {heatmapImg && <img src={heatmapImg} />}
     </>
   );
 };
