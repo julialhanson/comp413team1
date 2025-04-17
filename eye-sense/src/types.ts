@@ -41,7 +41,7 @@ export type User = {
   password: string;
   email: string;
   display_name: string;
-  organization: string;
+  organizations: Set<string>;
   role?: string;
 };
 

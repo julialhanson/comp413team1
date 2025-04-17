@@ -13,7 +13,7 @@ const Auth = () => {
     password: "",
     email: "",
     display_name: "",
-    organization: "",
+    organizations: "",
     role: "",
   });
   const [userToLogin, setUserToLogin] = useState({
