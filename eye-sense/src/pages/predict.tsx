@@ -1,5 +1,6 @@
 import React, { useRef, useState } from "react";
 import ImageUpload from "../components/image-upload";
+import Container from "../components/container";
 
 const Predict = () => {
   const inputImage = useRef<HTMLInputElement | null>(null);
@@ -13,7 +14,7 @@ const Predict = () => {
   };
 
   return (
-    <div className="max-w-2xl ml-auto mr-auto p-5">
+    <Container>
       <div className="bg-white rounded-xl p-6 flex flex-col items-center">
         <div className="mb-2 text-center">
           <h1 className="font-bold text-xl">Generate a heatmap</h1>
@@ -54,7 +55,7 @@ const Predict = () => {
           </label>
         )}
       </div>
-    </div>
+    </Container>
   );
 };
 

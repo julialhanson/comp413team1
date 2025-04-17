@@ -3,6 +3,7 @@ import { Question, Survey } from "../types";
 import { createSurvey } from "../controllers/survey-controller";
 import { useNavigate } from "react-router-dom";
 import ImageUpload from "../components/image-upload";
+import Container from "../components/container";
 
 const CreateSurvey = () => {
   const navigate = useNavigate();
@@ -90,7 +91,7 @@ const CreateSurvey = () => {
   };
 
   return (
-    <div className="max-w-2xl ml-auto mr-auto p-5">
+    <Container>
       {/* NAME SURVEY */}
       <div className="flex items-center justify-between mb-3">
         <input
@@ -239,7 +240,7 @@ const CreateSurvey = () => {
       >
         <i className="fa-solid fa-plus px-1"></i> Add question
       </button>
-    </div>
+    </Container>
   );
 };
 

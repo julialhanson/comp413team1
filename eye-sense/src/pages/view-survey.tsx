@@ -6,6 +6,7 @@ import {
   submitResponse,
 } from "../controllers/survey-controller";
 import { useParams } from "react-router-dom";
+import Container from "../components/container";
 
 const ViewSurvey = () => {
   const { id } = useParams();
@@ -59,7 +60,7 @@ const ViewSurvey = () => {
   };
 
   return (
-    <div className="max-w-2xl ml-auto mr-auto p-5">
+    <Container>
       <h1 className="w-full bg-white rounded-xl p-4 mb-3 font-bold">
         {surveyName}
       </h1>
@@ -79,7 +80,7 @@ const ViewSurvey = () => {
       >
         Submit
       </button>
-    </div>
+    </Container>
   );
 };
 
