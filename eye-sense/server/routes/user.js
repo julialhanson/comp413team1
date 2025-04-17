@@ -23,8 +23,10 @@ router.get("/", async (req, res) => {
   let collection = await db.collection("Users");
   let query = {};
 
+  console.log(req.query)
+
   if (req.query.organization) {
-    query.organization = req.query.organization;
+    query.organizations = req.query.organization;
   }
   if (req.query.username) {
     query.username = req.query.username;
@@ -35,10 +37,10 @@ router.get("/", async (req, res) => {
   if (req.query.role) {
     query.role = req.query.role;
   }
-  if (req.query.organization_permissions) {
-    query.organization = req.query.organization_permissions;
-  }
-  console.log("query length is ", Object.keys(query).length);
+  // if (req.query.organization_permissions) {
+  //   query.organization = req.query.organization_permissions;
+  // }
+  console.log("query is ", query);
 
   if (Object.keys(query).length == 0) {
     let results = await collection.find({}).toArray();
