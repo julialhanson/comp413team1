@@ -12,14 +12,16 @@ const Organizations = () => {
   const [organizations, setOrganizations] = useState<string[]>([]);
   const [selectedOrg, setSelectedOrg] = useState<string>("");
   const [users, setUsers] = useState<User[]>([]);
+  const [selectedUsers, setSelectedUsers] = useState<User[]>([]);
 
   useEffect(() => {
     getCurrentUser().then((user: User) => {
       if (!searchParams.get("organization")) {
-        const orgSearchParams: string[][] = [];
-        user.organizations.forEach((organization) => {
-          orgSearchParams.push(["organization", organization]);
-        });
+        const orgSearchParams: string[][] = user.organizations.map(
+          (organization) => {
+            return ["organization", organization];
+          }
+        );
         setSearchParams(new URLSearchParams(orgSearchParams));
       }
 
@@ -27,12 +29,22 @@ const Organizations = () => {
         searchParams.getAll("organization") || user.organizations;
 
       setOrganizations(organizations);
+      console.log(organizations);
+      setSelectedOrg(organizations[0]);
 
       const orgSearchParams: string[][] = organizations.map((organization) => {
         return ["organization", organization];
       });
       getUsersWithQuery(orgSearchParams).then((data) => {
         setUsers(data);
+
+        console.log(data, selectedOrg);
+
+        const newSelectedUsers = data.filter((user: User) =>
+          user.organizations.includes(selectedOrg)
+        );
+        console.log(newSelectedUsers);
+        setSelectedUsers(newSelectedUsers);
       });
     });
   }, []);
@@ -44,7 +56,7 @@ const Organizations = () => {
           return (
             <div
               key={index}
-              className="bg-white w-fit py-1 px-3 mb-1 mr-1 rounded-xl"
+              className={`bg-white w-fit py-1 px-3 mb-1 mr-1 rounded-xl`}
             >
               <button
                 onClick={() => setSelectedOrg(organization)}
@@ -57,8 +69,8 @@ const Organizations = () => {
         })}
       </div>
 
-      <div className="bg-white rounded-xl p-6">
-        {users.map((user: User, index) => {
+      <div className="bg-white rounded-xl p-5">
+        {selectedUsers.map((user: User, index) => {
           return (
             <div key={index} className="flex justify-between">
               <p>
