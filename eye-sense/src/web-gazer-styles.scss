@@ -1,0 +1,75 @@
+.web-gazer-container {
+  margin: 0;
+  overflow: hidden;
+  font-family: sans-serif;
+  width: 800px;
+  height: 600px;
+  position: relative;
+}
+
+.calibration-dot {
+  width: 30px;
+  height: 30px;
+  background: red;
+  border-radius: 50%;
+  position: absolute;
+  cursor: pointer;
+}
+
+#instructions {
+  color: black;
+  font-size: 20px;
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  z-index: 1001;
+}
+
+#gazeDot {
+  position: absolute;
+  background: lime;
+  border-radius: 50%;
+  width: 15px;
+  height: 15px;
+  pointer-events: none;
+  z-index: 1001;
+  display: none;
+}
+
+#imagePhase {
+  max-width: 100%;
+  position: relative;
+}
+
+#trackingImage {
+  width: 100%;
+  max-height: 100vh;
+  object-fit: cover;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+#heatmapImg {
+  display: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+  max-height: 100vh;
+  z-index: 1002;
+}
+
+/* Webcam elements */
+#webgazerVideoFeed,
+#webgazerFaceOverlay,
+#webgazerFaceFeedback {
+  position: fixed;
+  right: 10px;
+  bottom: 10px;
+  z-index: 999;
+  width: 160px;
+  height: 120px;
+}

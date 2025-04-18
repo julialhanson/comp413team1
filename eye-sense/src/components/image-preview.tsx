@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { uploadImageToGCP } from "../controllers/gcp-controller";
+import React from "react";
+// import { uploadImageToGCP } from "../controllers/gcp-controller";
 
 interface ImagePreviewProps {
   onImageUploaded?: (imageUrl: string) => void;

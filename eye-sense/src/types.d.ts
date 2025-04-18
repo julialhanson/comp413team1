@@ -1,3 +1,10 @@
+declare global {
+  interface Window {
+    webgazer: any;
+  }
+}
+declare module "webgazer";
+
 export type Choice = {
   _id?: string;
   id: string;
@@ -49,4 +56,10 @@ export type TokenUser = {
   username: string;
   organization?: string;
   role?: string;
+};
+
+export type GazeDataCoordinate = {
+  x: number;
+  y: number;
+  time: number;
 };

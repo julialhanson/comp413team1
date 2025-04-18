@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Question } from "../types";
-import WebGazer from "../../eye_tracking/components/web-gazer";
+import WebGazer from "./web-gazer";
 
 type QuestionDisplayProps = {
   question: Question;
@@ -38,6 +38,14 @@ const QuestionDisplay = ({
       default:
         return "radio";
     }
+  };
+
+  const getImageUrl = () => {
+    return question.image instanceof File
+      ? URL.createObjectURL(question.image)
+      : !question.image
+      ? undefined
+      : question.image;
   };
 
   const openWebGazer = () => {
@@ -144,7 +152,7 @@ const QuestionDisplay = ({
         </div>
       </div>
 
-      {webGazerIsOpen && <WebGazer />}
+      {webGazerIsOpen && <WebGazer imageUrl={getImageUrl()} />}
     </>
   );
 };

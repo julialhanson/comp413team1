@@ -2,6 +2,7 @@ import React, { useRef, useState } from "react";
 import ImagePreview from "../components/image-preview";
 import Container from "../components/container";
 import { uploadImageToGCP } from "../controllers/gcp-controller";
+import { generateUniqueFilename } from "../utils/func-utils";
 
 const Predict = () => {
   const inputImage = useRef<HTMLInputElement | null>(null);
@@ -56,7 +57,12 @@ const Predict = () => {
           </label>
         ) : (
           <button
-            onClick={() => uploadImageToGCP(selectedImage)}
+            onClick={() =>
+              uploadImageToGCP(
+                selectedImage,
+                generateUniqueFilename(selectedImage.name)
+              )
+            }
             className="btn blue-btn self-end"
           >
             Upload
