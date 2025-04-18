@@ -6,12 +6,13 @@ import {
   modifySurveyWithId,
 } from "../controllers/survey-controller.ts";
 import { useNavigate, useParams } from "react-router-dom";
-import ImageUpload from "../components/image-upload";
+import ImagePreview from "../components/image-preview.tsx";
 import { getCurrentUser } from "../controllers/user-controller.ts";
 import ToggleButton from "../components/toggle-button.tsx";
 import { modifyQuestionWithId } from "../controllers/question-controller.ts";
 import { modifyChoiceWithId } from "../controllers/choice-controller.ts";
 import Container from "../components/container.tsx";
+import { generateUniqueFilename } from "../utils/func-utils.ts";
 
 const CreateSurvey = () => {
   const navigate = useNavigate();
@@ -42,10 +43,20 @@ const CreateSurvey = () => {
     }
   };
 
-  const setQuestionImg = (imageUrl: string | null, index: number) => {
+  const setQuestionImg = (image: File | null, index: number) => {
     const newQuestions = [...questions];
-    const newQuestion = { ...newQuestions[index], image: imageUrl };
+
+    let imageUrl;
+    if (image) imageUrl = generateUniqueFilename(image.name);
+    else imageUrl = "";
+
+    const newQuestion = {
+      ...newQuestions[index],
+      image: image,
+      imageUrl: imageUrl,
+    };
     newQuestions[index] = newQuestion;
+    console.log("newQuestions:", newQuestions);
     setQuestions(newQuestions);
   };
 
@@ -85,6 +96,7 @@ const CreateSurvey = () => {
         id: questions.length + 1,
         question: "",
         image: null,
+        imageUrl: "",
         type: "multiple choice",
         is_tracking: false,
         // selected: [],
@@ -281,11 +293,14 @@ const CreateSurvey = () => {
 
             <div className="m-2">
               {/* DISPLAY IMAGE */}
-              <ImageUpload
-                onImageUploaded={(imageUrl) => setQuestionImg(imageUrl, index)}
+              <ImagePreview
+                // onImageUploaded={(imageUrl) => setQuestionImg(imageUrl, index)}
                 resetImage={() => setQuestionImg(null, index)}
                 imgFile={
-                  question.image ? new File([question.image], "image") : null
+                  // question.imageUrl
+                  //   ? new File([question.imageUrl], "image")
+                  //   : null
+                  question.image || null
                 }
               />
             </div>
@@ -326,7 +341,8 @@ const CreateSurvey = () => {
                   className="hidden"
                   onChange={(e) => {
                     if (e.target.files) {
-                      setQuestionImg(e.target.files[0].name, index);
+                      console.log(e.target.files);
+                      setQuestionImg(e.target.files[0], index);
                     }
                   }}
                 />

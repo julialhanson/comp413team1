@@ -1,4 +1,6 @@
+import { useEffect, useState } from "react";
 import { Question } from "../types";
+import { retrieveImageFromGCP } from "../controllers/gcp-controller";
 
 type QuestionDisplayProps = {
   question: Question;
@@ -15,6 +17,16 @@ const QuestionDisplay = ({
   selectOption,
   deselectOption,
 }: QuestionDisplayProps) => {
+  const [questionImgUrl, setQuestionImgUrl] = useState<string>();
+
+  useEffect(() => {
+    if (question.imageUrl) {
+      retrieveImageFromGCP(question.imageUrl).then((data) => {
+        setQuestionImgUrl(data.signedUrl);
+      });
+    }
+  }, [question]);
+
   const isResponseDisplay = selectOption && deselectOption ? false : true;
 
   const getOptionType = (type: string) => {
@@ -39,30 +51,32 @@ const QuestionDisplay = ({
           {question.type !== "dropdown" ? (
             <>
               {question.choices.map((choice) => (
-                <label key={choice._id} className="mb-2 w-fit">
-                  <input
-                    className="mr-2"
-                    name={"question-" + index}
-                    type={getOptionType(question.type)}
-                    disabled={isResponseDisplay}
-                    checked={
-                      choice._id
-                        ? selectedOptionIds?.includes(choice._id)
-                        : false
-                    }
-                    value={choice.text}
-                    onChange={
-                      selectOption && deselectOption
-                        ? (e) => {
-                            if (e.target.checked)
-                              selectOption(index, choice._id);
-                            else deselectOption(index, choice._id);
-                          }
-                        : undefined
-                    }
-                  />
-                  {choice.text}
-                </label>
+                <div className="mb-2 w-fit">
+                  <label key={choice._id}>
+                    <input
+                      className="mr-2"
+                      name={"question-" + index}
+                      type={getOptionType(question.type)}
+                      disabled={isResponseDisplay}
+                      checked={
+                        choice._id
+                          ? selectedOptionIds?.includes(choice._id)
+                          : false
+                      }
+                      value={choice.text}
+                      onChange={
+                        selectOption && deselectOption
+                          ? (e) => {
+                              if (e.target.checked)
+                                selectOption(index, choice._id);
+                              else deselectOption(index, choice._id);
+                            }
+                          : undefined
+                      }
+                    />
+                    {choice.text}
+                  </label>
+                </div>
               ))}
             </>
           ) : (
@@ -93,13 +107,9 @@ const QuestionDisplay = ({
           )}
         </div>
 
-        {question.image && (
+        {questionImgUrl && (
           <div className="m-2">
-            <img
-              className="p-3"
-              src={URL.createObjectURL(question.image)}
-              alt=""
-            />
+            <img src={questionImgUrl} alt="" />
           </div>
         )}
       </div>

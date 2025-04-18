@@ -7,7 +7,7 @@ import questions from "./routes/question.js";
 import surveys from "./routes/survey.js";
 import choices from "./routes/choice.js";
 import responses from "./routes/response.js";
-import upload from "./routes/upload.js";
+import uploads from "./routes/upload.js";
 
 // Load environment variables
 dotenv.config();
@@ -36,7 +36,7 @@ app.use("/api/v1/questions", questions);
 app.use("/api/v1/choices", choices);
 app.use("/api/v1/surveys", surveys);
 app.use("/api/v1/responses", responses);
-app.use("/api/v1/upload", upload);
+app.use("/api/v1/uploads", uploads);
 
 app.listen(PORT, () => {
   console.log(`Server listening on port ${PORT}`);

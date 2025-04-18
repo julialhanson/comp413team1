@@ -1,6 +1,7 @@
 import React, { useRef, useState } from "react";
-import ImageUpload from "../components/image-upload";
+import ImagePreview from "../components/image-preview";
 import Container from "../components/container";
+import { uploadImageToGCP } from "../controllers/gcp-controller";
 
 const Predict = () => {
   const inputImage = useRef<HTMLInputElement | null>(null);
@@ -15,7 +16,7 @@ const Predict = () => {
 
   return (
     <Container>
-      <div className="bg-white rounded-xl p-6 flex flex-col items-center">
+      <div className="bg-white rounded-xl p-6 flex flex-col">
         <div className="mb-2 text-center">
           <h1 className="font-bold text-xl">Generate a heatmap</h1>
           <h2 className="dark-grey">
@@ -24,7 +25,7 @@ const Predict = () => {
           </h2>
         </div>
 
-        <ImageUpload
+        <ImagePreview
           // isDisplayed={selectedImage !== null}
           resetImage={() => {
             handleResetImage();
@@ -33,7 +34,7 @@ const Predict = () => {
           imgFile={selectedImage}
         />
 
-        {!selectedImage && (
+        {!selectedImage ? (
           <label className="mt-2 cursor-pointer w-full h-96 border-dashed border-3 border-gray-300 dark-grey rounded-2xl flex flex-col items-center justify-center transition duration-200 hover:border-blue-300">
             <i className="fa-solid fa-file-image mb-3 text-3xl"></i>
             <p>Drag and drop or browse to upload an image</p>
@@ -53,6 +54,13 @@ const Predict = () => {
               hidden
             />
           </label>
+        ) : (
+          <button
+            onClick={() => uploadImageToGCP(selectedImage)}
+            className="btn blue-btn self-end"
+          >
+            Upload
+          </button>
         )}
       </div>
     </Container>
