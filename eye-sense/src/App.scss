@@ -30,6 +30,10 @@ $darker-blue: #0e529b;
   background-color: $dark-blue;
 }
 
+.transparent-black-bg {
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
 .light-blue {
   color: $light-blue;
 }
@@ -44,6 +48,17 @@ $darker-blue: #0e529b;
 
 .darker-blue {
   color: $darker-blue;
+}
+
+.link {
+  width: fit-content;
+  border-bottom: 1px solid $dark-blue;
+  color: $dark-blue;
+
+  &:hover {
+    color: $darker-blue;
+    cursor: pointer;
+  }
 }
 
 .btn {
@@ -124,10 +139,6 @@ $darker-blue: #0e529b;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-}
-
-.transparent-black-bg {
-  background-color: rgba(0, 0, 0, 0.5);
 }
 
 .toggle-btn {
