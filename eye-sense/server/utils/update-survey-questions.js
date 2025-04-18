@@ -11,6 +11,9 @@ export const insertSurveyQuestionsAndChoices = async (questions) => {
 
   // Add all new questions
   for (const question of questions) {
+    // Do not include id (only used on client side)
+    delete question.id;
+
     // Add all new choices
     const choiceDocs = [];
     for (const choice of question.choices) {
@@ -34,8 +37,9 @@ export const insertSurveyQuestionsAndChoices = async (questions) => {
       .filter((choice) => choice._id !== null)
       .map((choice) => choice._id);
     if (!existingChoiceIds || !existingChoiceIds[0]) existingChoiceIds = [];
+    const { choices, ...questionWithoutChoices } = question
     const questionToInsert = {
-      ...question,
+      ...questionWithoutChoices,
       choice_ids: existingChoiceIds.concat(insertedChoiceIds),
     };
 
@@ -46,13 +50,11 @@ export const insertSurveyQuestionsAndChoices = async (questions) => {
         question.image,
         question.imageUrl
       );
-      question.imageUrl = imageUploadResult.imageUrl;
-
-      // Do not store file in the database
-      delete question.image;
     }
+    // Do not store file in the database
+    delete questionToInsert.image;
 
-    console.log("question:", question);
+    console.log("questionToInsert/Modify:", questionToInsert);
 
     // Only modify question (add choices) if id already exists, otherwise insert new question
     if (question._id) {

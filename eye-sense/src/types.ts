@@ -10,7 +10,7 @@ export type Question = {
   question: string;
   type: string | "multiple choice" | "checkboxes" | "dropdown";
   is_tracking: boolean;
-  image?: File | null; // only present on client side
+  image?: File | string | null; // only present on client side
   imageUrl: string;
   choices: Choice[];
 };

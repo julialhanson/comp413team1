@@ -17,15 +17,15 @@ const QuestionDisplay = ({
   selectOption,
   deselectOption,
 }: QuestionDisplayProps) => {
-  const [questionImgUrl, setQuestionImgUrl] = useState<string>();
+  // const [questionImgUrl, setQuestionImgUrl] = useState<string>();
 
-  useEffect(() => {
-    if (question.imageUrl) {
-      retrieveImageFromGCP(question.imageUrl).then((data) => {
-        setQuestionImgUrl(data.signedUrl);
-      });
-    }
-  }, [question]);
+  // useEffect(() => {
+  //   if (question.imageUrl) {
+  //     retrieveImageFromGCP(question.imageUrl).then((data) => {
+  //       setQuestionImgUrl(data.signedUrl);
+  //     });
+  //   }
+  // }, [question]);
 
   const isResponseDisplay = selectOption && deselectOption ? false : true;
 
@@ -107,9 +107,16 @@ const QuestionDisplay = ({
           )}
         </div>
 
-        {questionImgUrl && (
+        {question.image && (
           <div className="m-2">
-            <img src={questionImgUrl} alt="" />
+            <img
+              src={
+                question.image instanceof File
+                  ? URL.createObjectURL(question.image)
+                  : question.image
+              }
+              alt=""
+            />
           </div>
         )}
       </div>

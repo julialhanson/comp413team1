@@ -13,6 +13,7 @@ import { modifyQuestionWithId } from "../controllers/question-controller.ts";
 import { modifyChoiceWithId } from "../controllers/choice-controller.ts";
 import Container from "../components/container.tsx";
 import { generateUniqueFilename } from "../utils/func-utils.ts";
+import { uploadImageToGCP } from "../controllers/gcp-controller.ts";
 
 const CreateSurvey = () => {
   const navigate = useNavigate();
@@ -27,6 +28,7 @@ const CreateSurvey = () => {
         if (user.username === username) {
           setSurveyName(data.name);
           setQuestions(data.questions);
+          console.log("data.questions in create-survey:", data.questions);
         }
       });
     });
@@ -121,6 +123,11 @@ const CreateSurvey = () => {
   const saveSurvey = (wantToPublish: boolean) => {
     getCurrentUser()
       .then((user) => {
+        // Upload all images to GCP
+        questions.forEach((question) => {
+          uploadImageToGCP(question.image, question.imageUrl);
+        });
+
         // If we want to publish/save a new survey
         if (!surveyId) {
           const survey: Survey = {
@@ -151,7 +158,7 @@ const CreateSurvey = () => {
             questions: questions,
           };
 
-          console.log(survey);
+          console.log("saving survey:", survey);
 
           for (const question of questions) {
             if (question._id) {
@@ -164,6 +171,7 @@ const CreateSurvey = () => {
                 }
               }
 
+              console.log("newQuestion:", newQuestion);
               modifyQuestionWithId(_id, newQuestion);
             }
           }

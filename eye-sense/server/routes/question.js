@@ -66,6 +66,7 @@ router.get("/:id/choices", async (req, res) => {
 router.put("/:id", async (req, res) => {
   try {
     const query = { _id: new ObjectId(req.params.id) };
+    console.log("modifying question to", req.body)
     const updatedDocument = {
       $set: {
         question: req.body.question,
@@ -75,6 +76,7 @@ router.put("/:id", async (req, res) => {
         time_created: req.body.time_created,
         last_edited: req.body.last_edited,
         image: req.body.image,
+        imageUrl: req.body.imageUrl,
         choices: req.body.choices.map((q) => q.choice_id),
       },
     };
@@ -120,7 +122,7 @@ router.patch("/:id", async (req, res) => {
     const query = { _id: new ObjectId(req.params.id) };
     let updates = {};
     for (const key in req.body) {
-      if (req.body[key] != null) {
+      if (req.body[key] != null && key !== "image") {
         updates[key] = req.body[key];
       }
     }
