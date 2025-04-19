@@ -51,8 +51,8 @@ const QuestionDisplay = ({
           <div>
             {question.type !== "dropdown" ? (
               <>
-                {question.choices.map((choice, index) => (
-                  <div key={index} className="mb-2 w-fit">
+                {question.choices.map((choice, choiceIdx) => (
+                  <div key={choiceIdx} className="mb-2 w-fit">
                     <label key={choice._id}>
                       <input
                         className="mr-2"
