@@ -55,31 +55,34 @@ const TestWebGazer = ({ imageUrl }: { imageUrl: string | undefined }) => {
 
     if (dotsVisible.every((dot) => dot === true)) {
       setIsCalibrationComplete(true);
-      setTimeout(startTrackingPhase, 1000);
+      setTimeout(startTrackingPhase, 10000);
     }
   };
 
   function startTrackingPhase() {
+    console.log("starting tracking");
     setIsTracking(true);
 
     window.webgazer.clearGazeListener();
     window.webgazer
       .setRegression("weightedRidge")
-      .setGazeListener((data: GazeDataCoordinate, timestamp: number) => {
+      .setGazeListener((data, timestamp: number) => {
+        console.log(data);
         if (data) {
-          gazeDot.current.style.left = `${data.x - 7.5}px`;
-          gazeDot.current.style.top = `${data.y - 7.5}px`;
+          gazeDot.current.style.left = `${data.x}px`;
+          gazeDot.current.style.top = `${data.y}px`;
           gazeData.push({ x: data.x, y: data.y, time: timestamp });
         }
       });
-    window.webgazer.showVideo(false).showPredictionPoints(false);
+    // window.webgazer.showVideo(false).showPredictionPoints(false);
+
     setTimeout(() => {
-      console.log("stopping tracking");
       stopTrackingPhase();
-    }, 100); //10000);
+    }, 10000);
   }
 
   async function stopTrackingPhase() {
+    console.log("stopping tracking");
     setIsTracking(false);
 
     window.webgazer.clearGazeListener();
@@ -89,7 +92,10 @@ const TestWebGazer = ({ imageUrl }: { imageUrl: string | undefined }) => {
       const width = trackingImage.current.clientWidth;
       const height = trackingImage.current.clientHeight;
 
+      console.log("imageUrl:", imageUrl);
+
       const imageBase64 = await loadImageAsBase64(imageUrl);
+      console.log("imageBase64:", imageBase64);
 
       const response = await getHeatmapFromGazeData({
         gazeData,
@@ -112,6 +118,14 @@ const TestWebGazer = ({ imageUrl }: { imageUrl: string | undefined }) => {
     // Start WebGazer so that the webcam is active (HTTPS/localhost required)
     webgazer.begin();
     webgazer.showVideo(true).showPredictionPoints(true);
+
+    startTrackingPhase();
+
+    // return () => {
+    //   window.webgazer.clearGazeListener();
+    //   window.webgazer.pause();
+    //   window.webgazer.stopVideo();
+    // };
   }, []);
 
   return (

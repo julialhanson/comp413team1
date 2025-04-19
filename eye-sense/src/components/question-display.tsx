@@ -17,16 +17,6 @@ const QuestionDisplay = ({
   selectOption,
   deselectOption,
 }: QuestionDisplayProps) => {
-  // const [questionImgUrl, setQuestionImgUrl] = useState<string>();
-
-  // useEffect(() => {
-  //   if (question.imageUrl) {
-  //     retrieveImageFromGCP(question.imageUrl).then((data) => {
-  //       setQuestionImgUrl(data.signedUrl);
-  //     });
-  //   }
-  // }, [question]);
-
   const isResponseDisplay = selectOption && deselectOption ? false : true;
 
   const [webGazerIsOpen, setWebGazerIsOpen] = useState<boolean>(false);
@@ -48,10 +38,6 @@ const QuestionDisplay = ({
       : question.image;
   };
 
-  const openWebGazer = () => {
-    setWebGazerIsOpen(true);
-  };
-
   return (
     <>
       <div className="bg-white rounded-xl mb-3 p-4" key={index}>
@@ -65,8 +51,8 @@ const QuestionDisplay = ({
           <div>
             {question.type !== "dropdown" ? (
               <>
-                {question.choices.map((choice) => (
-                  <div className="mb-2 w-fit">
+                {question.choices.map((choice, index) => (
+                  <div key={index} className="mb-2 w-fit">
                     <label key={choice._id}>
                       <input
                         className="mr-2"
@@ -140,7 +126,7 @@ const QuestionDisplay = ({
                   <div className="size-full transparent-black-bg center-screen"></div>
 
                   <p
-                    onClick={() => openWebGazer()}
+                    onClick={() => setWebGazerIsOpen(true)}
                     className="center-screen italic grey-btn btn w-max"
                   >
                     Start eye tracking
@@ -152,7 +138,12 @@ const QuestionDisplay = ({
         </div>
       </div>
 
-      {webGazerIsOpen && <WebGazer imageUrl={getImageUrl()} />}
+      {webGazerIsOpen && (
+        <WebGazer
+          imageUrl={getImageUrl()}
+          closeModal={() => setWebGazerIsOpen(false)}
+        />
+      )}
     </>
   );
 };

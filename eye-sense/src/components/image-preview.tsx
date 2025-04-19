@@ -1,9 +1,10 @@
 import React from "react";
+import XButton from "./x-button";
 // import { uploadImageToGCP } from "../controllers/gcp-controller";
 
 interface ImagePreviewProps {
   onImageUploaded?: (imageUrl: string) => void;
-  resetImage?: () => void;
+  resetImage: () => void;
   imgFile?: File | string | null;
 }
 
@@ -49,12 +50,7 @@ const ImagePreview: React.FC<ImagePreviewProps> = ({
             className="p-3"
           />
 
-          <button
-            onClick={resetImage}
-            className="circle-btn size-9 grey-btn absolute right-0 top-0"
-          >
-            <i className="fa-solid fa-xmark"></i>
-          </button>
+          <XButton resetFn={resetImage} />
         </div>
       ) : (
         // <div className="w-full">

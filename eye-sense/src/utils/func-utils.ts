@@ -17,9 +17,14 @@ export const generateUniqueFilename = (fileOgName: string) => {
 
 // Utility: Load an image as Base64 (without the data prefix)
 export const loadImageAsBase64 = async (url: string): Promise<string> => {
-  const res = await fetch(url);
-  const blob = await res.blob();
-  return await new Promise((resolve, reject) => {
+  // const res = await fetch(url);
+  // console.log(res)
+  // const blob = await res.blob();
+  const proxyUrl = `/api/image-proxy?url=${encodeURIComponent(url)}`;
+  const response = await fetch(proxyUrl);
+  const blob = await response.blob();
+
+  return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onloadend = () => {
       if (reader.result && typeof reader.result === "string") {

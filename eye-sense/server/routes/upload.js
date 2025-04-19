@@ -43,4 +43,14 @@ router.post("/", upload.single("image"), async (req, res) => {
   }
 });
 
+router.get('/image-proxy', async (req, res) => {
+  const imageUrl = req.query.url;
+
+  const response = await fetch(imageUrl);
+  const buffer = await response.arrayBuffer();
+
+  res.setHeader('Content-Type', response.headers.get('content-type'));
+  res.send(Buffer.from(buffer));
+});
+
 export default router;
