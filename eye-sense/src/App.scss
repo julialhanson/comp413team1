@@ -176,6 +176,10 @@ $darker-blue: #0e529b;
   }
 }
 
+.rotate-right {
+  animation: rotate-right 0.4s forwards;
+}
+
 // ANIMATIONS
 @keyframes fade-in {
   from {
@@ -192,5 +196,14 @@ $darker-blue: #0e529b;
   }
   to {
     opacity: 0;
+  }
+}
+
+@keyframes rotate-right {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
   }
 }
