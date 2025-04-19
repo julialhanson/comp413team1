@@ -36,12 +36,17 @@ export const getSignedUrlFromGCP = async (filename) => {
   return url;
 };
 
-export const uploadImageToGCP = (file, filename) => {
-  return new Promise((resolve, reject) => {
-    const bucket = storage.bucket(bucketName);
-    const blob = bucket.file(filename);
+export const uploadImageToGCP = async (file, filename) => {
+  const bucket = storage.bucket(bucketName);
+  const image = bucket.file(filename);
 
-    const blobStream = blob.createWriteStream({
+  const [imageExists] = await image.exists();
+  if (imageExists) {
+    return null;
+  }
+
+  return new Promise((resolve, reject) => {
+    const blobStream = image.createWriteStream({
       resumable: false,
       metadata: {
         contentType: file.mimetype,
