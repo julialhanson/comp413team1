@@ -25,6 +25,8 @@ const ViewSurvey = () => {
 
   useEffect(() => {
     getCurrentUser().then((user) => {
+      if (!user) return;
+
       getQuestionsFromSurvey(id).then((data) => {
         setSurveyName(data.name);
         setQuestions(data.questions);
