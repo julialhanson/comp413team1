@@ -80,7 +80,7 @@ const Organizations = () => {
         })}
       </div>
 
-      <div className="bg-white rounded-xl p-3">
+      <div className="bg-white rounded-xl py-1 px-3">
         {selectedUsers.map((user: User, index) => {
           return (
             <div
