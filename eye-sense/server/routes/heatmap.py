@@ -1,19 +1,23 @@
-from flask import Blueprint, request, send_file, make_response, jsonify, Response
+import sys
+from flask import Blueprint, app, request, send_file, make_response, jsonify, Response
 import json
 
 api_heatmap = Blueprint("heatmap", __name__)
 
 @api_heatmap.before_request
 def basic_authentication():
+    print("basic authenticating")
     headers = {'Access-Control-Allow-Origin': '*',
                'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
                'Access-Control-Allow-Headers': 'Content-Type',
                'Access-Control-Allow-Credentials': 'true'}
     if request.method.lower() == 'options':
+        print("method is OPTIONS")
         return jsonify(headers), 200
 
 @api_heatmap.route("/", methods=["GET"])
 def get_data():
+    print("receiving GET request")
     return jsonify({"message": "received"})
 
 @api_heatmap.route("/", methods=["POST"])
@@ -30,6 +34,7 @@ def generate_heatmap():
     Returns:
         file: image with heatmap overlay
     """
+    # app.logger.error("trying to generate heatmap", file=sys.stderr)
     try:
         import numpy as np
         from PIL import Image

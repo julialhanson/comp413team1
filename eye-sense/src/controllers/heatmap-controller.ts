@@ -1,7 +1,7 @@
 import { GazeDataCoordinate } from "../types";
-import api from "../utils/axios";
+import axios from "axios";
 
-const API_URL = "http://localhost:5000/api/v1/heatmaps";
+const API_URL = "http://127.0.0.1:5000/api/v1/heatmaps";
 
 export const getHeatmapFromGazeData = async ({
   gazeData,
@@ -14,14 +14,14 @@ export const getHeatmapFromGazeData = async ({
   height: number;
   imageBase64: string;
 }) => {
-  console.log("gazeData:", gazeData)
-  console.log("width:", width)
-  console.log("height:", height)
+  console.log("gazeData:", gazeData);
+  console.log("width:", width);
+  console.log("height:", height);
   try {
     const gazeDataStr: string = JSON.stringify(gazeData);
     console.log("gazeDataStr:", gazeDataStr);
 
-    const response = await api.post(API_URL, {
+    const response = await axios.post(API_URL + "/", {
       gazeDataStr,
       width,
       height,
