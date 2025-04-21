@@ -91,7 +91,7 @@ def create_mask_from_contour(shape, contour):
     cv2.drawContours(mask, [contour], -1, 255, -1)
     return mask
 
-def visualize_heatmap(image, border_points, internal_points):
+def visualize_heatmap(image, border_points, internal_points, blob_name="test.jpg"):
     img_height, img_width, _ = image.shape
 
     # --- Create heatmap matrix ---
@@ -124,7 +124,7 @@ def visualize_heatmap(image, border_points, internal_points):
     buf.seek(0)
     plt.close()
 
-    print(upload_buf("eye-sense-heatmap-data", "test.jpg", buf))
+    return upload_buf("eye-sense-heatmap-data", blob_name, buf)
     
 
 def simulate_derm_gaze(blobpath, num_border_points=20, num_internal_points=10):
@@ -141,6 +141,44 @@ def simulate_derm_gaze(blobpath, num_border_points=20, num_internal_points=10):
     visualize_heatmap(image, border_points, internal_points)
     plt.show()
 
-simulate_derm_gaze("ISIC-images/ISIC_0000003.jpg")
+# simulate_derm_gaze("ISIC-images/ISIC_0000003.jpg")
+
+# use to iterate through bucket
+def processImages(bucket_name: str, folder = ""):
+    client = storage.Client.from_service_account_json('gcp_cred.json')
+
+    bucket = client.get_bucket(bucket_name)
+    blobs = bucket.list_blobs(max_results = 4, prefix = folder)
+    
+    for blob in blobs:
+        for i in range(3): # used to do different levels of experience
+            match i:
+                case 0:
+                    experience_level = "novice"
+                    num_border_points = 100
+                    num_internal_points = 200
+                case 1:
+                    experience_level = "med_student"
+                    num_border_points = 150
+                    num_internal_points = 150
+                case _:
+                    experience_level = "dermatologist"
+                    num_border_points = 250
+                    num_internal_points = 50
+            
+            
+            img = Image.open(BytesIO(blob.download_as_bytes()))
+            image, gray = load_image(img)
+            contour = segment_lesion(gray)
+            mask = create_mask_from_contour(gray.shape, contour)
+
+            border_points = sample_border_points(contour, num_border_points)
+            internal_points = sample_internal_points(mask, num_internal_points)
+            print(visualize_heatmap(image, border_points, internal_points, blob.name[:-4] + "_"     + experience_level + ".jpg"))
+
+processImages('eye-sense-image-data', folder = 'ISIC-images/')
+
+
+
 # download_image("lesion.jpg")
 # print(upload_image('eye-sense-image-data', "lesion.jpg", "ml/lesion.jpg"))
