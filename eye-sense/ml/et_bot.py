@@ -7,19 +7,70 @@ import os
 
 def load_image(filepath):
     """Load an image and convert it to grayscale."""
-    
     image = cv2.imread(filepath)
+    if image is None:
+        raise ValueError(f"Could not load image at {filepath}")
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     return image, gray
 
-def segment_lesion(gray_image, threshold_value=100):
-    """Segment the lesion by thresholding and finding the largest contour."""
-    _, binary = cv2.threshold(gray_image, threshold_value, 255, cv2.THRESH_BINARY_INV)
-    contours, _ = cv2.findContours(binary, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-    if not contours:
-        raise ValueError("No contours found!")
-    largest_contour = max(contours, key=cv2.contourArea)
-    return largest_contour
+def preprocess_image(gray):
+    """Preprocess the image to enhance lesion visibility."""
+    # Apply CLAHE (Contrast Limited Adaptive Histogram Equalization)
+    clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8,8))
+    enhanced = clahe.apply(gray)
+    
+    # Apply bilateral filter to reduce noise while preserving edges
+    filtered = cv2.bilateralFilter(enhanced, 9, 75, 75)
+    
+    return filtered
+
+def segment_lesion(gray, min_contour_area=1000):
+    """Segment the lesion using adaptive thresholding and contour detection."""
+    # Preprocess the image
+    processed = preprocess_image(gray)
+    
+    # Try different thresholding methods
+    methods = [
+        lambda img: cv2.adaptiveThreshold(img, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, 
+                                        cv2.THRESH_BINARY_INV, 11, 2),
+        lambda img: cv2.adaptiveThreshold(img, 255, cv2.ADAPTIVE_THRESH_MEAN_C, 
+                                        cv2.THRESH_BINARY_INV, 11, 2),
+        lambda img: cv2.threshold(img, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)[1]
+    ]
+    
+    for method in methods:
+        try:
+            binary = method(processed)
+            
+            # Find contours
+            contours, _ = cv2.findContours(binary, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+            
+            if contours:
+                # Filter contours by area
+                valid_contours = [cnt for cnt in contours if cv2.contourArea(cnt) > min_contour_area]
+                
+                if valid_contours:
+                    # Return the largest valid contour
+                    return max(valid_contours, key=cv2.contourArea)
+        except:
+            continue
+    
+    # If all methods fail, try a simple threshold
+    try:
+        _, binary = cv2.threshold(processed, 127, 255, cv2.THRESH_BINARY_INV)
+        contours, _ = cv2.findContours(binary, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        if contours:
+            return max(contours, key=cv2.contourArea)
+    except:
+        pass
+    
+    # If still no contour found, create a default contour (center of image)
+    height, width = gray.shape
+    center_x, center_y = width // 2, height // 2
+    radius = min(width, height) // 4
+    return np.array([[[center_x + radius * np.cos(theta), 
+                      center_y + radius * np.sin(theta)]] 
+                    for theta in np.linspace(0, 2*np.pi, 100)], dtype=np.int32)
 
 def sample_border_points(contour, num_points):
     """Sample random points along the contour (border)."""
@@ -102,9 +153,8 @@ def simulate_derm_gaze(filepath, num_border_points=20, num_internal_points=10):
     border_points = sample_border_points(contour, num_border_points)
     internal_points = sample_internal_points(mask, num_internal_points)
 
-    visualize_points(image, contour, border_points, internal_points)
+    # visualize_points(image, contour, border_points, internal_points)
     visualize_heatmap(image, border_points, internal_points)
     plt.show()
 
-# figure out params for 
-simulate_derm_gaze('ml/lesion.jpg', num_border_points=150, num_internal_points=150)
+
