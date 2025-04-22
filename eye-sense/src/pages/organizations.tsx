@@ -67,14 +67,20 @@ const Organizations = () => {
     setSelectedUsers(newSelectedUsers);
   };
 
+  const changeUserRole = (index: number, role: string) => {
+    const newSelectedUsers = [...selectedUsers];
+    newSelectedUsers[index].role = role;
+    setSelectedUsers(newSelectedUsers);
+  };
+
   return (
     <div className="max-w-2xl ml-auto mr-auto p-5">
       <div className="flex justify-between">
         <div className="flex">
-          {organizations.map((organization, index) => {
+          {organizations.map((organization, orgIdx) => {
             return (
               <div
-                key={index}
+                key={orgIdx}
                 className={`bg-white w-fit py-1 px-3 mb-2 mr-1 rounded-xl`}
               >
                 <button
@@ -100,7 +106,7 @@ const Organizations = () => {
 
           {currentUser?.role === "doctor" && (
             <button
-              onClick={() => setIsEditing(true)}
+              onClick={() => setIsEditing(!isEditing)}
               className="blue-btn w-fit py-1 px-3 mb-2 mr-1 rounded-xl cursor-pointer"
             >
               {isEditing ? "Save" : "Edit"}
@@ -110,10 +116,10 @@ const Organizations = () => {
       </div>
 
       <div className="bg-white rounded-xl py-1 px-3">
-        {selectedUsers.map((user: User, index) => {
+        {selectedUsers.map((user: User, userIdx) => {
           return (
             <div
-              key={index}
+              key={userIdx}
               className="flex justify-between p-3 inner-line-divider"
             >
               <p
@@ -128,7 +134,10 @@ const Organizations = () => {
               {isEditing &&
               currentUser?.role === "doctor" &&
               user.role !== "doctor" ? (
-                <select className="text-right px-2">
+                <select
+                  className="text-right px-2"
+                  onChange={(e) => changeUserRole(userIdx, e.target.value)}
+                >
                   {Object.entries(getDisplayRoleToRole()).map(
                     ([role, displayRole], roleIdx) => (
                       <option
