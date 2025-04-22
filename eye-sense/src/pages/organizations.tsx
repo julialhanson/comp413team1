@@ -98,12 +98,14 @@ const Organizations = () => {
             </button>
           )}
 
-          <button
-            onClick={() => setIsEditing(true)}
-            className="blue-btn w-fit py-1 px-3 mb-2 mr-1 rounded-xl cursor-pointer"
-          >
-            {isEditing ? "Save" : "Edit"}
-          </button>
+          {currentUser?.role === "doctor" && (
+            <button
+              onClick={() => setIsEditing(true)}
+              className="blue-btn w-fit py-1 px-3 mb-2 mr-1 rounded-xl cursor-pointer"
+            >
+              {isEditing ? "Save" : "Edit"}
+            </button>
+          )}
         </div>
       </div>
 
@@ -114,7 +116,11 @@ const Organizations = () => {
               key={index}
               className="flex justify-between p-3 inner-line-divider"
             >
-              <p>
+              <p
+                className={
+                  currentUser?.username === user.username ? "font-bold" : ""
+                }
+              >
                 {user.display_name} (
                 <span className="italic">{user.username}</span>)
               </p>
