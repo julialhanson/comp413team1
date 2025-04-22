@@ -2,9 +2,11 @@
   margin: 0;
   overflow: hidden;
   font-family: sans-serif;
-  width: 800px;
-  height: 600px;
-  position: relative;
+  width: 100vw;
+  height: calc(100vh - 48px);
+  position: absolute;
+  top: 48px;
+  left: 0;
 }
 
 .calibration-dot {
@@ -33,33 +35,18 @@
   height: 15px;
   pointer-events: none;
   z-index: 1001;
-  display: none;
-}
-
-#imagePhase {
-  max-width: 100%;
-  position: relative;
+  display: block;
 }
 
 #trackingImage {
-  width: 100%;
+  width: calc(100% - 320px);
   max-height: 100vh;
-  object-fit: cover;
+  // object-fit: contain;
+  // object-position: center;
   position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-}
-
-#heatmapImg {
-  display: none;
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 100%;
-  max-height: 100vh;
-  z-index: 1002;
+  // top: 50%;
+  left: 320px; // no overlap with the webcam
+  // transform: translate(-50%, -50%);
 }
 
 /* Webcam elements */

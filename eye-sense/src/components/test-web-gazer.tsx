@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import { getHeatmapFromGazeData } from "../controllers/heatmap-controller";
-import "../web-gazer-styles.scss";
+import "../web-gazer.scss";
+import "../App.scss";
 import { GazeDataCoordinate } from "../types";
-import { loadImageAsBase64 } from "../utils/func-utils";
 
 import webgazer from "webgazer";
+import { getFilenameFromSignedUrl } from "../utils/func-utils";
 window.webgazer = webgazer;
 
 const TestWebGazer = ({ imageUrl }: { imageUrl: string | undefined }) => {
@@ -59,10 +60,17 @@ const TestWebGazer = ({ imageUrl }: { imageUrl: string | undefined }) => {
     }
   };
 
-  function startTrackingPhase() {
-    console.log("starting tracking");
-    setIsTracking(true);
+  const checkWebGazerIsReady = () => {
+    if (window.webgazer.isReady()) {
+      startTrackingPhase(); // Start tracking once ready
+    } else {
+      console.log("waiting");
+      setTimeout(checkWebGazerIsReady, 100); // Retry every 100ms if not ready
+    }
+  };
 
+  function startTrackingPhase() {
+    // Start WebGazer so that the webcam is active (HTTPS/localhost required)
     window.webgazer.clearGazeListener();
     window.webgazer
       .setRegression("weightedRidge")
@@ -73,8 +81,14 @@ const TestWebGazer = ({ imageUrl }: { imageUrl: string | undefined }) => {
           gazeDot.current.style.top = `${data.y}px`;
           gazeData.push({ x: data.x, y: data.y, time: timestamp });
         }
-      });
-    // window.webgazer.showVideo(false).showPredictionPoints(false);
+      })
+      .showVideo(true)
+      .showPredictionPoints(true)
+      .begin();
+
+    console.log("starting tracking");
+    console.log(window.webgazer);
+    setIsTracking(true);
 
     setTimeout(() => {
       stopTrackingPhase();
@@ -86,6 +100,8 @@ const TestWebGazer = ({ imageUrl }: { imageUrl: string | undefined }) => {
     setIsTracking(false);
 
     window.webgazer.clearGazeListener();
+    window.webgazer.showVideo(false).showPredictionPoints(false);
+
     document.getElementById("instructions").innerText = "Processing heatmap...";
 
     try {
@@ -93,15 +109,13 @@ const TestWebGazer = ({ imageUrl }: { imageUrl: string | undefined }) => {
       const height = trackingImage.current.clientHeight;
 
       console.log("imageUrl:", imageUrl);
-
-      const imageBase64 = await loadImageAsBase64(imageUrl);
-      console.log("imageBase64:", imageBase64);
+      const filename = getFilenameFromSignedUrl(imageUrl);
 
       const response = await getHeatmapFromGazeData({
         gazeData,
         width,
         height,
-        imageBase64,
+        filename,
       });
 
       setHeatmapUrl(response.heatmapUrl);
@@ -115,11 +129,14 @@ const TestWebGazer = ({ imageUrl }: { imageUrl: string | undefined }) => {
   }
 
   useEffect(() => {
-    // Start WebGazer so that the webcam is active (HTTPS/localhost required)
-    webgazer.begin();
-    webgazer.showVideo(true).showPredictionPoints(true);
-
+    // while (!window.webgazer.isReady()) {
+    //   setTimeout(() => {
+    //     console.log("waiting");
+    //   }, 1000);
+    // }
+    console.log("webgazer is ready");
     startTrackingPhase();
+    // checkWebGazerIsReady();
 
     // return () => {
     //   window.webgazer.clearGazeListener();
@@ -129,47 +146,45 @@ const TestWebGazer = ({ imageUrl }: { imageUrl: string | undefined }) => {
   }, []);
 
   return (
-    <div className="web-gazer-container">
-      <div id="instructions">
-        <p>
-          {isCalibrationComplete
-            ? "Calibration complete. Starting tracking..."
-            : "Click all 9 dots to calibrate..."}
-        </p>
-      </div>
+    <>
+      <div className="w-screen h-screen absolute top-0 left-0 transparent-black-bg"></div>
 
-      {!isCalibrationComplete &&
-        calibrationPoints.map(([xPercent, yPercent], i) => {
-          return (
-            <div
-              className={`calibration-dot` + (dotsVisible[i] ? "" : " hidden")}
-              style={{
-                left: `calc(${xPercent}% - 15px)`,
-                top: `calc(${yPercent}% - 15px)`,
-              }}
-              data-id={i}
-              onClick={() => clickDot(i, xPercent, yPercent)}
-            ></div>
-          );
-        })}
+      <div className="web-gazer-container">
+        <div id="instructions">
+          <p>
+            {isCalibrationComplete
+              ? "Calibration complete. Starting tracking..."
+              : "Click all 9 dots to calibrate..."}
+          </p>
+        </div>
 
-      <div
-        ref={gazeDot}
-        id="gazeDot"
-        className={isTracking ? "block" : "hidden"}
-      ></div>
+        {!isCalibrationComplete &&
+          calibrationPoints.map(([xPercent, yPercent], i) => {
+            return (
+              <div
+                className={
+                  `calibration-dot` + (dotsVisible[i] ? "" : " hidden")
+                }
+                style={{
+                  left: `calc(${xPercent}% - 15px)`,
+                  top: `calc(${yPercent}% - 15px)`,
+                }}
+                data-id={i}
+                onClick={() => clickDot(i, xPercent, yPercent)}
+              ></div>
+            );
+          })}
 
-      {!heatmapUrl ? (
+        {isTracking && <div ref={gazeDot} id="gazeDot"></div>}
+
         <img
           ref={trackingImage}
           id="trackingImage"
-          src={imageUrl}
+          src={!heatmapUrl ? imageUrl : heatmapUrl}
           alt="Tracking Image"
         />
-      ) : (
-        <img id="heatmapImg" alt="Heatmap" src={heatmapUrl} />
-      )}
-    </div>
+      </div>
+    </>
   );
 };
 

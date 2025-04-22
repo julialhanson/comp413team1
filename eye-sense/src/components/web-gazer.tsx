@@ -14,18 +14,19 @@ const WebGazer = ({
     //   <div className="m-5 rounded-2xl bg-white p-5">
     // </div>
     // </div>
-    <Modal>
-      {/* <iframe
-        src="/web-gazer.html"
-        title="WebGazer Heatmap"
-        width="900px"
-        height="700px"
-        style={{ border: "none" }}
-      /> */}
-      <TestWebGazer imageUrl={imageUrl} />
+    // <Modal>
+    //   {/* <iframe
+    //     src="/web-gazer.html"
+    //     title="WebGazer Heatmap"
+    //     width="900px"
+    //     height="700px"
+    //     style={{ border: "none" }}
+    //   /> */}
+    //   <TestWebGazer imageUrl={imageUrl} />
 
-      {/* <XButton resetFn={closeModal} /> */}
-    </Modal>
+    //   {/* <XButton resetFn={closeModal} /> */}
+    // </Modal>
+    <TestWebGazer imageUrl={imageUrl} />
   );
 };
 
