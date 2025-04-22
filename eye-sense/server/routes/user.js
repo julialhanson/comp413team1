@@ -26,7 +26,14 @@ router.get("/", async (req, res) => {
   console.log(req.query);
 
   if (req.query.organization) {
-    query.organizations = { $in: req.query.organization };
+    let orgs = [];
+    if (typeof req.query.organization === "string") {
+      orgs.push(req.query.organization);
+    } else {
+      orgs = req.query.organization;
+    }
+    console.log("orgs:", orgs);
+    query.organizations = { $in: orgs };
   }
   if (req.query.username) {
     query.username = req.query.username;
@@ -197,7 +204,7 @@ router.post("/logout", async (req, res) => {
 });
 
 // Modify information for a user
-router.patch("/:id", async (req, res) => {
+router.patch("/:id", authenticateToken, async (req, res) => {
   try {
     // Check for duplicate usernames and emails
     let collection = await db.collection("Users");
@@ -206,6 +213,10 @@ router.patch("/:id", async (req, res) => {
     console.log("userID is ", userID);
     if (!ObjectId.isValid(userID)) {
       return res.status(400).send("ERROR: Invalid User ID format");
+    }
+
+    if (req.user.role !== "Doctor") {
+      return;
     }
 
     const query = { _id: new ObjectId(req.params.id) };
