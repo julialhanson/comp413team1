@@ -42,7 +42,7 @@ export type User = {
   email: string;
   display_name: string;
   organizations: string[];
-  role?: string;
+  role: string;
 };
 
 export type TokenUser = {

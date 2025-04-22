@@ -13,6 +13,7 @@ import { getCurrentUser } from "./controllers/user-controller";
 import ResponseHistory from "./pages/profile/response-history";
 import ViewResponse from "./pages/view-response";
 import Organizations from "./pages/organizations";
+import Profile from "./pages/profile/profile";
 
 function App() {
   const location = useLocation();
@@ -44,6 +45,7 @@ function App() {
         <Route path="/predict" element={<Predict />} />
 
         {/* profile routes */}
+        <Route path="/profile/:username" element={<Profile />} />
         <Route
           path="/profile/:username/drafts/:id"
           element={<CreateSurvey />}

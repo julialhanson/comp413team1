@@ -29,7 +29,7 @@ const ProfileMenu = ({ isMenuOpen, setIsMenuOpen }: ProfileMenuProps) => {
         <Link
           onClick={() => setIsMenuOpen(!isMenuOpen)}
           className="hover-darken"
-          to="/profile"
+          to={`/profile/${username}`}
         >
           <i className="fa-solid fa-user mr-2"></i> Profile
         </Link>

@@ -4,3 +4,13 @@ export const createQueryString = (
   const queryStr = new URLSearchParams(params).toString();
   return queryStr;
 };
+
+export const getDisplayRoleToRole = () => {
+  return {
+    "layman": "Layman",
+    "student": "Medical student",
+    "resident": "Resident",
+    "nurse": "Nurse",
+    "doctor": "Doctor"
+  };
+}
