@@ -43,7 +43,6 @@ function App() {
         {/* header routes */}
         <Route path="/create-survey" element={<CreateSurvey />} />
         <Route path="/predict" element={<Predict />} />
-        <Route path="/web-gazer" element={<WebGazer />} />
 
         {/* profile routes */}
         <Route

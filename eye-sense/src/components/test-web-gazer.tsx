@@ -8,7 +8,13 @@ import webgazer from "webgazer";
 import { getFilenameFromSignedUrl } from "../utils/func-utils";
 window.webgazer = webgazer;
 
-const TestWebGazer = ({ imageUrl }: { imageUrl: string | undefined }) => {
+const TestWebGazer = ({
+  imageUrl,
+  closeWebGazer,
+}: {
+  imageUrl: string | undefined;
+  closeWebGazer: () => void;
+}) => {
   const calibrationPoints = [
     [10, 10],
     [50, 10],
@@ -29,9 +35,11 @@ const TestWebGazer = ({ imageUrl }: { imageUrl: string | undefined }) => {
   const [dotsVisible, setDotsVisible] = useState<boolean[]>(
     Array(9).fill(true)
   );
+  const [instructionsText, setInstructionsText] = useState<string>();
   const [isCalibrationComplete, setIsCalibrationComplete] =
     useState<boolean>(true);
   const [isTracking, setIsTracking] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [heatmapUrl, setHeatmapUrl] = useState<string | null>(null);
 
   const gazeDot = useRef<HTMLDivElement>(null);
@@ -60,49 +68,54 @@ const TestWebGazer = ({ imageUrl }: { imageUrl: string | undefined }) => {
     }
   };
 
-  const checkWebGazerIsReady = () => {
-    if (window.webgazer.isReady()) {
-      startTrackingPhase(); // Start tracking once ready
-    } else {
-      console.log("waiting");
-      setTimeout(checkWebGazerIsReady, 100); // Retry every 100ms if not ready
-    }
+  const loadWebGazer = () => {
+    setInstructionsText("Please wait while the eye tracker loads...");
+    setIsLoading(true);
+
+    window.webgazer
+      .showVideoPreview(true)
+      .showPredictionPoints(true)
+      .setRegression("weightedRidge")
+      .begin();
+
+    setTimeout(() => {
+      startTrackingPhase();
+    }, 5000);
   };
 
   function startTrackingPhase() {
+    setIsLoading(false);
+    setInstructionsText("Starting tracking...");
+    setIsTracking(true);
+
     // Start WebGazer so that the webcam is active (HTTPS/localhost required)
     window.webgazer.clearGazeListener();
-    window.webgazer
-      .setRegression("weightedRidge")
-      .setGazeListener((data, timestamp: number) => {
-        console.log(data);
-        if (data) {
-          gazeDot.current.style.left = `${data.x}px`;
-          gazeDot.current.style.top = `${data.y}px`;
-          gazeData.push({ x: data.x, y: data.y, time: timestamp });
-        }
-      })
-      .showVideo(true)
-      .showPredictionPoints(true)
-      .begin();
+    window.webgazer.setGazeListener((data, timestamp: number) => {
+      console.log(data);
+      if (data) {
+        gazeDot.current.style.left = `${data.x}px`;
+        gazeDot.current.style.top = `${data.y}px`;
+        gazeData.push({ x: data.x - 310, y: data.y - 48, time: timestamp });
+        // -310 to account for webcam space on the left of image
+        // -48 to account for header margin
+      }
+    });
 
-    console.log("starting tracking");
     console.log(window.webgazer);
-    setIsTracking(true);
 
     setTimeout(() => {
       stopTrackingPhase();
-    }, 10000);
+    }, 10000); // Track for 10 seconds
   }
 
   async function stopTrackingPhase() {
     console.log("stopping tracking");
     setIsTracking(false);
+    setInstructionsText("Finished tracking. Processing heatmap...");
 
     window.webgazer.clearGazeListener();
-    window.webgazer.showVideo(false).showPredictionPoints(false);
-
-    document.getElementById("instructions").innerText = "Processing heatmap...";
+    window.webgazer.end();
+    // window.webgazer.pause().showVideo(false).showPredictionPoints(false);
 
     try {
       const width = trackingImage.current.clientWidth;
@@ -120,23 +133,19 @@ const TestWebGazer = ({ imageUrl }: { imageUrl: string | undefined }) => {
 
       setHeatmapUrl(response.heatmapUrl);
 
-      document.getElementById("instructions").innerText = "Heatmap generated!";
+      setInstructionsText("Heatmap generated!");
     } catch (err) {
       console.error("Error generating heatmap:", err);
-      document.getElementById("instructions").innerText =
-        "Error generating heatmap.";
+      setInstructionsText("Error generating heatmap.");
     }
   }
 
   useEffect(() => {
-    // while (!window.webgazer.isReady()) {
-    //   setTimeout(() => {
-    //     console.log("waiting");
-    //   }, 1000);
-    // }
-    console.log("webgazer is ready");
-    startTrackingPhase();
-    // checkWebGazerIsReady();
+    // startTrackingPhase();
+    loadWebGazer();
+
+    // console.log("webgazer is ready");
+    // startTrackingPhase();
 
     // return () => {
     //   window.webgazer.clearGazeListener();
@@ -152,7 +161,9 @@ const TestWebGazer = ({ imageUrl }: { imageUrl: string | undefined }) => {
       <div className="web-gazer-container">
         <div id="instructions">
           <p>
-            {isCalibrationComplete
+            {instructionsText
+              ? instructionsText
+              : isCalibrationComplete
               ? "Calibration complete. Starting tracking..."
               : "Click all 9 dots to calibrate..."}
           </p>
@@ -175,14 +186,24 @@ const TestWebGazer = ({ imageUrl }: { imageUrl: string | undefined }) => {
             );
           })}
 
-        {isTracking && <div ref={gazeDot} id="gazeDot"></div>}
+        {isTracking && <div ref={gazeDot} id="gaze-dot"></div>}
 
-        <img
-          ref={trackingImage}
-          id="trackingImage"
-          src={!heatmapUrl ? imageUrl : heatmapUrl}
-          alt="Tracking Image"
-        />
+        {!isLoading && (
+          <img
+            ref={trackingImage}
+            id="tracking-image"
+            src={!heatmapUrl ? imageUrl : heatmapUrl}
+            alt="Tracking Image"
+          />
+        )}
+
+        <div id="activity-buttons">
+          {heatmapUrl && (
+            <button onClick={closeWebGazer} className="btn grey-btn">
+              Close Eye Tracker
+            </button>
+          )}
+        </div>
       </div>
     </>
   );

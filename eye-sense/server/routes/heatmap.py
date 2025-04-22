@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 from flask import Blueprint, app, request, send_file, make_response, jsonify, Response
 import json
 
-load_dotenv(dotenv_path=r'C:\Users\mycol\Downloads\school\2024-2025\COMP 413\comp413team1\eye-sense\server\config.env')
+load_dotenv(dotenv_path=r'./config.env')
 GOOGLE_APPLICATION_CREDENTIALS = os.getenv('GOOGLE_APPLICATION_CREDENTIALS', 'not found')
 BUCKET_NAME = os.getenv('BUCKET_NAME', 'bucket not found')
 

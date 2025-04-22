@@ -4,10 +4,10 @@ import XButton from "./x-button";
 
 const WebGazer = ({
   imageUrl,
-  closeModal,
+  closeWebGazer,
 }: {
   imageUrl: string | undefined;
-  closeModal: () => void;
+  closeWebGazer: () => void;
 }) => {
   return (
     // <div className="max-w-4xl ml-auto mr-auto p-5">
@@ -26,7 +26,7 @@ const WebGazer = ({
 
     //   {/* <XButton resetFn={closeModal} /> */}
     // </Modal>
-    <TestWebGazer imageUrl={imageUrl} />
+    <TestWebGazer imageUrl={imageUrl} closeWebGazer={closeWebGazer} />
   );
 };
 

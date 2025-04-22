@@ -141,7 +141,7 @@ const QuestionDisplay = ({
       {webGazerIsOpen && (
         <WebGazer
           imageUrl={getImageUrl()}
-          closeModal={() => setWebGazerIsOpen(false)}
+          closeWebGazer={() => setWebGazerIsOpen(false)}
         />
       )}
     </>
