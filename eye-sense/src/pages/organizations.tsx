@@ -89,12 +89,14 @@ const Organizations = () => {
         </div>
 
         <div className="flex">
-          <button
-            onClick={() => setIsEditing(false)}
-            className="darker-grey-btn w-fit py-1 px-3 mb-2 mr-1 rounded-xl cursor-pointer"
-          >
-            Cancel
-          </button>
+          {isEditing && (
+            <button
+              onClick={() => setIsEditing(false)}
+              className="darker-grey-btn w-fit py-1 px-3 mb-2 mr-1 rounded-xl cursor-pointer"
+            >
+              Cancel
+            </button>
+          )}
 
           <button
             onClick={() => setIsEditing(true)}
