@@ -98,4 +98,31 @@ def generate_heatmap():
     except Exception as e:
         # Only return an error if send_file() hasn't started streaming
         print("Error during image processing:", e)
-        return {"error": str(e)}, 500
+
+
+@api_heatmap.route("/", methods=["POST"])
+def simulate_dermgaze():
+    """Predicts a heatmap for a skin lesion image, 
+    width and height of the image, and the image in base 64.
+    """
+    
+    # Load and zoom
+    raw_image, _ = load_image(filepath)
+    image = zoom_image(raw_image)
+    
+    # Hair removal
+    cleaned = remove_hair(image)
+
+    # Grayscale after cleanup
+    gray = cv2.cvtColor(cleaned, cv2.COLOR_BGR2GRAY)
+
+    # Segmentation
+    contour = segment_lesion(gray)
+    mask = create_mask_from_contour(gray.shape, contour)
+
+    # Sampling
+    border_points = sample_border_points(contour, num_border_points)
+    internal_points = sample_internal_points(mask, num_internal_points)
+
+    # Heatmap
+    visualize_heatmap(image, border_points, internal_points, original_filename=os.path.basename(filepath), visualize=visualize)
