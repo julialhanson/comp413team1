@@ -3,6 +3,7 @@ import { User } from "../types";
 import {
   getCurrentUser,
   getUsersWithQuery,
+  updateUserRole,
 } from "../controllers/user-controller";
 import { useSearchParams } from "react-router-dom";
 import { getDisplayRoleToRole } from "../utils/func-utils";
@@ -10,11 +11,14 @@ import { getDisplayRoleToRole } from "../utils/func-utils";
 const Organizations = () => {
   const [searchParams, setSearchParams] = useSearchParams();
 
+  const displayRoleToRole = getDisplayRoleToRole();
+
   const [organizations, setOrganizations] = useState<string[]>([]);
   const [selectedOrg, setSelectedOrg] = useState<string>("");
   const [currentUser, setCurrentUser] = useState<User>();
   const [users, setUsers] = useState<User[]>([]);
   const [selectedUsers, setSelectedUsers] = useState<User[]>([]);
+  const [changedUsers, setChangedUsers] = useState<User[]>([]);
 
   const [isEditing, setIsEditing] = useState<boolean>(false);
 
@@ -54,6 +58,7 @@ const Organizations = () => {
         );
         console.log("newSelectedUsers:", newSelectedUsers);
         setSelectedUsers(newSelectedUsers);
+        setChangedUsers(structuredClone(newSelectedUsers));
       });
     });
   }, [searchParams]);
@@ -67,10 +72,21 @@ const Organizations = () => {
     setSelectedUsers(newSelectedUsers);
   };
 
-  const changeUserRole = (index: number, role: string) => {
-    const newSelectedUsers = [...selectedUsers];
-    newSelectedUsers[index].role = role;
-    setSelectedUsers(newSelectedUsers);
+  const changeUserRole = (index: number, newRole: string) => {
+    const newChangedUsers = [...changedUsers];
+    newChangedUsers[index].role = newRole;
+    setChangedUsers(newChangedUsers);
+
+    console.log("selectedUsers:", selectedUsers);
+    console.log("changedUsers:", newChangedUsers);
+  };
+
+  const saveChangesToRoles = () => {
+    changedUsers.map((changedUser: User) => {
+      updateUserRole(changedUser.username, changedUser.role);
+    });
+
+    setSelectedUsers(structuredClone(changedUsers));
   };
 
   return (
@@ -85,7 +101,9 @@ const Organizations = () => {
               >
                 <button
                   onClick={() => changeSelectedOrg(organization)}
-                  className={organization === selectedOrg ? "font-bold" : ""}
+                  className={`cursor-pointer ${
+                    organization === selectedOrg ? "font-bold" : ""
+                  }`}
                 >
                   {organization}
                 </button>
@@ -97,7 +115,10 @@ const Organizations = () => {
         <div className="flex">
           {isEditing && (
             <button
-              onClick={() => setIsEditing(false)}
+              onClick={() => {
+                setIsEditing(false);
+                setChangedUsers(structuredClone(selectedUsers));
+              }}
               className="darker-grey-btn w-fit py-1 px-3 mb-2 mr-1 rounded-xl cursor-pointer"
             >
               Cancel
@@ -106,7 +127,13 @@ const Organizations = () => {
 
           {currentUser?.role === "doctor" && (
             <button
-              onClick={() => setIsEditing(!isEditing)}
+              onClick={() => {
+                if (isEditing) {
+                  saveChangesToRoles();
+                }
+
+                setIsEditing(!isEditing);
+              }}
               className="blue-btn w-fit py-1 px-3 mb-2 mr-1 rounded-xl cursor-pointer"
             >
               {isEditing ? "Save" : "Edit"}
@@ -116,48 +143,47 @@ const Organizations = () => {
       </div>
 
       <div className="bg-white rounded-xl py-1 px-3">
-        {selectedUsers.map((user: User, userIdx) => {
-          return (
-            <div
-              key={userIdx}
-              className="flex justify-between p-3 inner-line-divider"
-            >
-              <p
-                className={
-                  currentUser?.username === user.username ? "font-bold" : ""
-                }
+        {(isEditing ? changedUsers : selectedUsers).map(
+          (user: User, userIdx) => {
+            return (
+              <div
+                key={userIdx}
+                className="flex justify-between p-3 inner-line-divider"
               >
-                {user.display_name} (
-                <span className="italic">{user.username}</span>)
-              </p>
-
-              {isEditing &&
-              currentUser?.role === "doctor" &&
-              user.role !== "doctor" ? (
-                <select
-                  className="text-right px-2"
-                  onChange={(e) => changeUserRole(userIdx, e.target.value)}
+                <p
+                  className={
+                    currentUser?.username === user.username ? "font-bold" : ""
+                  }
                 >
-                  {Object.entries(getDisplayRoleToRole()).map(
-                    ([role, displayRole], roleIdx) => (
-                      <option
-                        key={user.username + roleIdx}
-                        selected={role === user.role}
-                        value={role}
-                      >
-                        {displayRole}
-                      </option>
-                    )
-                  )}
-                </select>
-              ) : (
-                <p className="capitalize font-bold">
-                  {getDisplayRoleToRole()[user.role]}
+                  {user.display_name} (
+                  <span className="italic">{user.username}</span>)
                 </p>
-              )}
-            </div>
-          );
-        })}
+
+                {isEditing &&
+                currentUser?.role === "doctor" &&
+                currentUser.username !== user.username ? (
+                  <select
+                    className="text-right px-2"
+                    onChange={(e) => changeUserRole(userIdx, e.target.value)}
+                    value={user.role}
+                  >
+                    {Object.entries(displayRoleToRole).map(
+                      ([role, displayRole], roleIdx) => (
+                        <option key={user.username + roleIdx} value={role}>
+                          {displayRole}
+                        </option>
+                      )
+                    )}
+                  </select>
+                ) : (
+                  <p className="capitalize font-bold">
+                    {displayRoleToRole[user.role]}
+                  </p>
+                )}
+              </div>
+            );
+          }
+        )}
       </div>
     </div>
   );

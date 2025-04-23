@@ -5,7 +5,7 @@ export const createQueryString = (
   return queryStr;
 };
 
-export const getDisplayRoleToRole = () => {
+export const getDisplayRoleToRole = (): {[index: string]: string} => {
   return {
     "layman": "Layman",
     "student": "Medical student",

@@ -91,16 +91,15 @@ export const createUser = async (username: string) => {
   }
 };
 
-// export const updateUserWithUsername = async (userInfo: User) => {
-//   try {
-//     const response = await api.put(API_URL, userInfo);
-//     console.log(response.data);
-//     return response.data;
-//   } catch (error) {
-//     console.error(`Error creating user with username ${userInfo.username}:`, error);
-//     return null;
-//   }
-// };
+export const updateUserRole = async (username: string, role: string) => {
+  try {
+    const response = await api.patch(API_URL + `/${username}`, { role });
+    return response.data;
+  } catch (error) {
+    console.error(`Error updating user with username ${username}:`, error);
+    return null;
+  }
+};
 
 export const getUsersWithQuery = async (
   queries: string[][] | Record<string, string> | string | URLSearchParams

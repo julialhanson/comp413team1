@@ -164,12 +164,14 @@ router.post("/login", async (req, res) => {
     const curr_user = await collection.findOne({ username: username });
     // const curr_email = await collection.findOne({ email: req.body.email });
     if (curr_user && (await bcrypt.compare(password, curr_user.password))) {
+      const payload = {
+        username: username,
+        role: curr_user.role,
+        organizations: curr_user.organizations,
+      }
+      console.log("payload:", payload)
       const token = jwt.sign(
-        {
-          username: username,
-          role: req.body.role,
-          organizations: req.body.organizations,
-        },
+        payload,
         process.env.JWT_SECRET,
         {
           expiresIn: "1h",
@@ -204,22 +206,26 @@ router.post("/logout", async (req, res) => {
 });
 
 // Modify information for a user
-router.patch("/:id", authenticateToken, async (req, res) => {
+router.patch("/:username", authenticateToken, async (req, res) => {
   try {
     // Check for duplicate usernames and emails
     let collection = await db.collection("Users");
-    const userID = req.params.id;
+    // const userId = req.params._id;
 
-    console.log("userID is ", userID);
-    if (!ObjectId.isValid(userID)) {
-      return res.status(400).send("ERROR: Invalid User ID format");
+    // console.log("userId is ", userId);
+    // if (!ObjectId.isValid(userId)) {
+    //   return res.status(400).send("ERROR: Invalid User ID format");
+    // }
+
+    console.log(req.user)
+
+    if (req.user.role !== "doctor") {
+      return res.status(403).send("ERROR: Updating a user is forbidden");
     }
 
-    if (req.user.role !== "Doctor") {
-      return;
-    }
+    const username = req.params.username
+    const query = { username: username }
 
-    const query = { _id: new ObjectId(req.params.id) };
     const updates = {};
     for (const key in req.body) {
       if (req.body[key] != null) {
@@ -262,8 +268,8 @@ router.patch("/:id", authenticateToken, async (req, res) => {
 
     const updatedDocument = { $set: updates };
 
-    let result = await collection.updateOne(query, updatedDocument);
-    return res.send(result).status(200);
+    let updateResult = await collection.updateOne(query, updatedDocument);
+    return res.send(updateResult).status(200);
   } catch (e) {
     console.error(e);
     return res.status(500).send("Error updating user");
@@ -271,7 +277,7 @@ router.patch("/:id", authenticateToken, async (req, res) => {
 });
 
 // Delete a user
-router.delete("/:id", async (req, res) => {
+router.delete("/:username", async (req, res) => {
   try {
     const query = { _id: new ObjectId(req.params.id) };
     const collection = db.collection("Users");
