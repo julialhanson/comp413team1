@@ -48,8 +48,8 @@ export type User = {
   password: string;
   email: string;
   display_name: string;
-  organization: string;
-  role?: string;
+  organizations: string[];
+  role: string;
 };
 
 export type TokenUser = {

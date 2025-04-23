@@ -47,3 +47,13 @@ export const getFilenameFromSignedUrl = (signedUrl: string | undefined) => {
   console.log("found filename", filename);
   return filename;
 };
+
+export const getDisplayRoleToRole = (): { [index: string]: string } => {
+  return {
+    layman: "Layman",
+    student: "Medical student",
+    resident: "Resident",
+    nurse: "Nurse",
+    doctor: "Doctor",
+  };
+};

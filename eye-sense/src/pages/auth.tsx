@@ -13,7 +13,7 @@ const Auth = () => {
     password: "",
     email: "",
     display_name: "",
-    organization: "",
+    organizations: [],
     role: "",
   });
   const [userToLogin, setUserToLogin] = useState({
@@ -151,8 +151,9 @@ const Auth = () => {
                 newUser.role = e.target.value;
                 setUserToRegister(newUser);
               }}
+              defaultValue={"DEFAULT"}
             >
-              <option value="" selected disabled hidden>
+              <option value="DEFAULT" disabled hidden>
                 Select a role...
               </option>
               <option value="layman">Layman</option>

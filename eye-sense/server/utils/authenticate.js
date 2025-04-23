@@ -13,6 +13,7 @@ export const authenticateToken = (req, res, next) => {
     }
 
     req.user = decoded; // Store the decoded user info in the request object
+    console.log("req.user:", req.user)
     next();
   });
 };

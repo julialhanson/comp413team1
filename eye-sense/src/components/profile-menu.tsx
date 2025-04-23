@@ -26,19 +26,19 @@ const ProfileMenu = ({ isMenuOpen, setIsMenuOpen }: ProfileMenuProps) => {
         id="profile-menu"
         className="z-50 absolute top-12 right-2 mt-2 w-50 bg-white rounded-xl shadow-lg p-2 flex flex-col"
       >
-        <Link
+        {/* <Link
           onClick={() => setIsMenuOpen(!isMenuOpen)}
           className="hover-darken"
-          to="/profile"
+          to={`/profile/${username}`}
         >
           <i className="fa-solid fa-user mr-2"></i> Profile
-        </Link>
+        </Link> */}
         <Link
           onClick={() => setIsMenuOpen(!isMenuOpen)}
           className="hover-darken"
           to="/organizations"
         >
-          <i className="fa-solid fa-users mr-2"></i> Organizations
+          <i className="fa-solid fa-users mr-2"></i>My Organizations
         </Link>
         <Link
           onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -54,13 +54,13 @@ const ProfileMenu = ({ isMenuOpen, setIsMenuOpen }: ProfileMenuProps) => {
         >
           <i className="fa-solid fa-list-check mr-2"></i> Response History
         </Link>
-        <Link
+        {/* <Link
           onClick={() => setIsMenuOpen(!isMenuOpen)}
           className="hover-darken"
           to="/settings"
         >
           <i className="fa-solid fa-gear mr-2"></i> Settings
-        </Link>
+        </Link> */}
 
         <Link
           onClick={() => {

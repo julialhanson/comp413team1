@@ -23,8 +23,17 @@ router.get("/", async (req, res) => {
   let collection = await db.collection("Users");
   let query = {};
 
+  console.log(req.query);
+
   if (req.query.organization) {
-    query.organization = req.query.organization;
+    let orgs = [];
+    if (typeof req.query.organization === "string") {
+      orgs.push(req.query.organization);
+    } else {
+      orgs = req.query.organization;
+    }
+    console.log("orgs:", orgs);
+    query.organizations = { $in: orgs };
   }
   if (req.query.username) {
     query.username = req.query.username;
@@ -35,10 +44,10 @@ router.get("/", async (req, res) => {
   if (req.query.role) {
     query.role = req.query.role;
   }
-  if (req.query.organization_permissions) {
-    query.organization = req.query.organization_permissions;
-  }
-  console.log("query length is ", Object.keys(query).length);
+  // if (req.query.organization_permissions) {
+  //   query.organization = req.query.organization_permissions;
+  // }
+  console.log("query is ", query);
 
   if (Object.keys(query).length == 0) {
     let results = await collection.find({}).toArray();
@@ -92,7 +101,7 @@ router.put("/:id", async (req, res) => {
         display_name: req.body.display_name,
         password: hashedPassword,
         email: req.body.email,
-        organization: req.body.organization,
+        organizations: req.body.organizations,
         role: req.body.role,
         organization_permissions: req.body.organization_permissions,
       },
@@ -135,7 +144,7 @@ router.post("/", async (req, res) => {
       display_name: req.body.display_name,
       password: hashedPassword,
       email: req.body.email,
-      organization: req.body.organization,
+      organizations: req.body.organizations,
       role: req.body.role,
       organization_permissions: req.body.organization_permissions,
     };
@@ -155,12 +164,14 @@ router.post("/login", async (req, res) => {
     const curr_user = await collection.findOne({ username: username });
     // const curr_email = await collection.findOne({ email: req.body.email });
     if (curr_user && (await bcrypt.compare(password, curr_user.password))) {
+      const payload = {
+        username: username,
+        role: curr_user.role,
+        organizations: curr_user.organizations,
+      }
+      console.log("payload:", payload)
       const token = jwt.sign(
-        {
-          username: username,
-          role: req.body.role,
-          organization: req.body.organization,
-        },
+        payload,
         process.env.JWT_SECRET,
         {
           expiresIn: "1h",
@@ -195,18 +206,26 @@ router.post("/logout", async (req, res) => {
 });
 
 // Modify information for a user
-router.patch("/:id", async (req, res) => {
+router.patch("/:username", authenticateToken, async (req, res) => {
   try {
     // Check for duplicate usernames and emails
     let collection = await db.collection("Users");
-    const userID = req.params.id;
+    // const userId = req.params._id;
 
-    console.log("userID is ", userID);
-    if (!ObjectId.isValid(userID)) {
-      return res.status(400).send("ERROR: Invalid User ID format");
+    // console.log("userId is ", userId);
+    // if (!ObjectId.isValid(userId)) {
+    //   return res.status(400).send("ERROR: Invalid User ID format");
+    // }
+
+    console.log(req.user)
+
+    if (req.user.role !== "doctor") {
+      return res.status(403).send("ERROR: Updating a user is forbidden");
     }
 
-    const query = { _id: new ObjectId(req.params.id) };
+    const username = req.params.username
+    const query = { username: username }
+
     const updates = {};
     for (const key in req.body) {
       if (req.body[key] != null) {
@@ -249,8 +268,8 @@ router.patch("/:id", async (req, res) => {
 
     const updatedDocument = { $set: updates };
 
-    let result = await collection.updateOne(query, updatedDocument);
-    return res.send(result).status(200);
+    let updateResult = await collection.updateOne(query, updatedDocument);
+    return res.send(updateResult).status(200);
   } catch (e) {
     console.error(e);
     return res.status(500).send("Error updating user");
@@ -258,7 +277,7 @@ router.patch("/:id", async (req, res) => {
 });
 
 // Delete a user
-router.delete("/:id", async (req, res) => {
+router.delete("/:username", async (req, res) => {
   try {
     const query = { _id: new ObjectId(req.params.id) };
     const collection = db.collection("Users");
