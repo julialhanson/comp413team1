@@ -2,7 +2,7 @@ import express from "express";
 import multer from "multer";
 import { authenticateToken } from "../utils/authenticate.js";
 import {
-  getSignedUrlFromGCP,
+  getSignedUrlForImage,
   uploadHeatmapToGCP,
   uploadImageToGCP,
 } from "../utils/gcp.js";
@@ -24,7 +24,7 @@ router.get("/:filename", authenticateToken, async (req, res) => {
     const { filename } = req.params;
     console.log("filename:", filename);
 
-    const url = getSignedUrlFromGCP(filename);
+    const url = getSignedUrlForImage(filename);
 
     res.status(200).json({ signedUrl: url });
   } catch (error) {

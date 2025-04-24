@@ -52,7 +52,7 @@ const uploadToGCP = async (bucketName, file, filename) => {
   });
 };
 
-export const getSignedUrlFromGCP = async (filename) => {
+const getSignedUrlFromGCP = async (filename, bucketName) => {
   if (!filename) {
     return null;
   }
@@ -64,11 +64,19 @@ export const getSignedUrlFromGCP = async (filename) => {
   };
 
   const [url] = await storage
-    .bucket(BUCKET_NAME)
+    .bucket(bucketName)
     .file(filename)
     .getSignedUrl(options);
 
   return url;
+}
+
+export const getSignedUrlForImage = async (filename) => {
+  return await getSignedUrlFromGCP(filename, BUCKET_NAME)
+};
+
+export const getSignedUrlForHeatmap = async (filename) => {
+  return await getSignedUrlFromGCP(filename, HEATMAP_BUCKET_NAME)
 };
 
 export const uploadImageToGCP = async (file, filename) => {

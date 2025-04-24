@@ -5,7 +5,7 @@ import db from "../connection.js";
 import { ObjectId } from "mongodb";
 import { authenticateToken } from "../utils/authenticate.js";
 import { insertSurveyQuestionsAndChoices } from "../utils/update-survey-questions.js";
-import { getSignedUrlFromGCP } from "../utils/gcp.js";
+import { getSignedUrlForImage } from "../utils/gcp.js";
 
 const router = express.Router();
 
@@ -94,7 +94,7 @@ router.get("/:id/questions", async (req, res) => {
         .find({ _id: { $in: choiceIds } })
         .toArray();
 
-      const image = await getSignedUrlFromGCP(question.imageUrl);
+      const image = await getSignedUrlForImage(question.imageUrl);
       console.log("image:", image);
 
       const { choice_ids, ...restOfQuestion } = question;
@@ -340,7 +340,7 @@ router.post("/:id/responses", async (req, res) => {
       survey_id: req.params.id,
       time_taken: req.body.time_taken,
       selected: req.body.selected,
-      heatmaps: req.body.heatmaps,
+      heatmap_urls: req.body.heatmap_urls,
     };
     let collection = await db.collection("Responses");
     let result = await collection.insertOne(newDocument);

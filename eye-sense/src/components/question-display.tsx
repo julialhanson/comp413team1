@@ -7,7 +7,7 @@ type QuestionDisplayProps = {
   question: Question;
   index: number;
   selectedOptionIds?: string[] | undefined;
-  heatmapUrl?: string | undefined;
+  heatmapUrl?: string;
   selectOption?: (questionIdx: number, optionId: string | undefined) => void;
   deselectOption?: (questionIdx: number, optionId: string | undefined) => void;
   assignHeatmapUrlToQuestion?: (
@@ -28,6 +28,7 @@ const QuestionDisplay = ({
   const isResponseDisplay =
     selectOption && deselectOption && assignHeatmapUrlToQuestion ? false : true;
 
+  const [localHeatmapUrl, setLocalHeatmapUrl] = useState<string>();
   const [webGazerIsOpen, setWebGazerIsOpen] = useState<boolean>(false);
 
   const getOptionType = (type: string) => {
@@ -123,8 +124,10 @@ const QuestionDisplay = ({
             <div className="relative m-2">
               <img
                 src={
-                  heatmapUrl
+                  isResponseDisplay
                     ? heatmapUrl
+                    : localHeatmapUrl
+                    ? localHeatmapUrl
                     : question.image instanceof File
                     ? URL.createObjectURL(question.image)
                     : question.image
@@ -134,13 +137,17 @@ const QuestionDisplay = ({
 
               {!isResponseDisplay && question.is_tracking && (
                 <>
-                  <div className="size-full transparent-black-bg center-screen"></div>
+                  <div
+                    className={`size-full transparent-black-bg center-screen`}
+                  ></div>
 
                   <p
                     onClick={() => setWebGazerIsOpen(true)}
                     className="center-screen italic grey-btn btn w-max"
                   >
-                    Start eye tracking
+                    {localHeatmapUrl
+                      ? "Redo eye tracking"
+                      : "Start eye tracking"}
                   </p>
                 </>
               )}
@@ -153,10 +160,15 @@ const QuestionDisplay = ({
         <TestWebGazer
           imageUrl={getImageUrl()}
           closeWebGazer={() => setWebGazerIsOpen(false)}
-          assignHeatmapToCurrentQuestion={(heatmapUrl: string) => {
+          assignHeatmapUrlToCurrentQuestion={(
+            heatmapUrl: string,
+            localHeatmapUrl: string
+          ) => {
             if (assignHeatmapUrlToQuestion) {
               assignHeatmapUrlToQuestion(index, heatmapUrl);
             }
+            console.log("localHeatmapUrl:", localHeatmapUrl);
+            setLocalHeatmapUrl(localHeatmapUrl);
           }}
         />
       )}

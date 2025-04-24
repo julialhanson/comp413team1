@@ -15,11 +15,14 @@ window.webgazer = webgazer;
 const TestWebGazer = ({
   imageUrl,
   closeWebGazer,
-  assignHeatmapToCurrentQuestion: assignHeatmapToQuestion,
+  assignHeatmapUrlToCurrentQuestion,
 }: {
   imageUrl: string | undefined;
   closeWebGazer: () => void;
-  assignHeatmapToCurrentQuestion: (heatmapUrl: string) => void;
+  assignHeatmapUrlToCurrentQuestion: (
+    heatmapUrl: string,
+    localHeatmapUrl: string
+  ) => void;
 }) => {
   const calibrationPoints = [
     [10, 10],
@@ -46,6 +49,7 @@ const TestWebGazer = ({
     useState<boolean>(true);
   const [isTracking, setIsTracking] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isCompleted, setIsCompleted] = useState<boolean>(false);
   const [heatmapUrl, setHeatmapUrl] = useState<string | null>(null);
 
   const gazeDot = useRef<HTMLDivElement>(null);
@@ -103,8 +107,7 @@ const TestWebGazer = ({
       if (data) {
         gazeDot.current.style.left = `${data.x}px`;
         gazeDot.current.style.top = `${data.y}px`;
-        gazeData.push({ x: data.x, y: data.y - 48 - 230, time: timestamp });
-        // -48 to account for header margin
+        gazeData.push({ x: data.x, y: data.y - 230, time: timestamp });
         // -230 to account for webcam height
       }
     });
@@ -153,11 +156,15 @@ const TestWebGazer = ({
       });
       uploadMediaToGCP(heatmapFile, uniqueHeatmapFilename, true);
 
+      assignHeatmapUrlToCurrentQuestion(uniqueHeatmapFilename, heatmapUrl);
+
       setInstructionsText("Heatmap generated!");
     } catch (err) {
       console.error("Error generating heatmap:", err);
       setInstructionsText("Error generating heatmap.");
     }
+
+    setIsCompleted(true);
   }
 
   const stopCamera = () => {
@@ -219,7 +226,7 @@ const TestWebGazer = ({
           </div>
 
           <div id="activity-buttons">
-            {heatmapUrl && (
+            {isCompleted && (
               <button
                 onClick={() => {
                   stopCamera();

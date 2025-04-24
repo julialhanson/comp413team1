@@ -20,7 +20,7 @@ const ViewSurvey = () => {
     survey_id: id,
     time_taken: new Date(),
     selected: [],
-    heatmapUrls: [],
+    heatmap_urls: [],
   });
 
   useEffect(() => {
@@ -40,7 +40,7 @@ const ViewSurvey = () => {
           ...prevResponse,
           username: user.username,
           selected: initSelected,
-          heatmapUrls: initHeatmaps,
+          heatmap_urls: initHeatmaps,
         }));
       });
     });
@@ -95,11 +95,11 @@ const ViewSurvey = () => {
     // heatmap: File,
     heatmapUrl: string
   ) => {
-    const newHeatmapUrls = [...response.heatmapUrls];
+    const newHeatmapUrls = [...response.heatmap_urls];
     newHeatmapUrls[questionIdx] = heatmapUrl;
     setResponse((prevResponse) => ({
       ...prevResponse,
-      heatmapUrls: newHeatmapUrls,
+      heatmap_urls: newHeatmapUrls,
     }));
   };
 
@@ -113,6 +113,7 @@ const ViewSurvey = () => {
           key={questionIdx}
           question={question}
           index={questionIdx}
+          heatmapUrl={response.heatmap_urls[questionIdx]}
           selectOption={selectOption}
           deselectOption={deselectOption}
           assignHeatmapUrlToQuestion={assignHeatmapUrlToQuestion}
