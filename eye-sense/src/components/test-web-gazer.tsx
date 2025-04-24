@@ -174,21 +174,21 @@ const TestWebGazer = ({
 
     // Check if the video element has a srcObject (MediaStream)
     if (videoContainer) {
-      // const videoFeed: HTMLVideoElement | null =
-      //   document.getElementById("webgazerVideoFeed");
-      // console.log("videoFeed:", videoFeed);
+      const videoFeed: HTMLVideoElement | null =
+        document.getElementById("webgazerVideoFeed");
+      console.log("videoFeed:", videoFeed);
 
-      // if (videoFeed && videoFeed.srcObject) {
-      //   const stream = videoFeed.srcObject;
+      if (videoFeed && videoFeed.srcObject) {
+        const stream = videoFeed.srcObject;
 
-      //   console.log("stream:", stream);
+        console.log("stream:", stream);
 
-      //   // Loop through all tracks and stop them
-      //   stream.getTracks().forEach((track) => track.stop());
+        // Loop through all tracks and stop them
+        stream.getTracks().forEach((track) => track.stop());
 
-      //   // Optionally, you can also clear the srcObject to ensure the camera is fully stopped
-      //   videoFeed.srcObject = null;
-      // }
+        // Optionally, you can also clear the srcObject to ensure the camera is fully stopped
+        videoFeed.srcObject = null;
+      }
 
       videoContainer.remove();
     }
