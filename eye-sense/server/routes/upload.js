@@ -1,7 +1,11 @@
 import express from "express";
 import multer from "multer";
 import { authenticateToken } from "../utils/authenticate.js";
-import { getSignedUrlFromGCP, uploadImageToGCP } from "../utils/gcp.js";
+import {
+  getSignedUrlFromGCP,
+  uploadImageToGCP,
+  getGoogleCloudAccess,
+} from "../utils/gcp.js";
 
 const router = express.Router();
 
@@ -11,6 +15,17 @@ const upload = multer({
   limits: {
     fileSize: 5 * 1024 * 1024, // 5MB limit
   },
+});
+
+router.get("/access", async (req, res) => {
+  try {
+    const googleCloudAccess = await getGoogleCloudAccess();
+
+    res.status(200).send(googleCloudAccess);
+  } catch (error) {
+    console.error("Error getting access token:", error);
+    res.status(500).send("Server error getting access token");
+  }
 });
 
 // Get image from GCP storage with a signed url
@@ -43,13 +58,13 @@ router.post("/", upload.single("image"), async (req, res) => {
   }
 });
 
-router.get('/image-proxy', async (req, res) => {
+router.get("/image-proxy", async (req, res) => {
   const imageUrl = req.query.url;
 
   const response = await fetch(imageUrl);
   const buffer = await response.arrayBuffer();
 
-  res.setHeader('Content-Type', response.headers.get('content-type'));
+  res.setHeader("Content-Type", response.headers.get("content-type"));
   res.send(Buffer.from(buffer));
 });
 
