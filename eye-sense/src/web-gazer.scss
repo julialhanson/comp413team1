@@ -56,8 +56,6 @@ $webcam-height: 230px;
   //   }
   // }
   #activity-buttons {
-
-
     button {
       width: fit-content;
     }
@@ -82,16 +80,21 @@ $webcam-height: 230px;
   top: $webcam-height;
   left: 50%;
   transform: translateX(-50%);
-  // display: flex;
-  // justify-content: center;
-  // align-items: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 
   #tracking-image {
-    width: 100%;
+    object-fit: contain;
+    // width: 100%;
+    // height: 100%;
+    // width: auto;
+    // height: auto;
+    max-width: 100%;
     max-height: 100%;
+
     // max-width: 100%;//calc(100% - $webcam-width);
     // height: calc(100vh - $webcam-height);//calc(100vh - 48px);
-    object-fit: contain;
     // object-position: center;
     // position: fixed;
     // top: $webcam-height;//0;//50%;
