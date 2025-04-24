@@ -1,24 +1,34 @@
 import { useState } from "react";
 import { Question } from "../types";
-import WebGazer from "./web-gazer";
+// import WebGazer from "./web-gazer";
+import TestWebGazer from "./test-web-gazer";
 
 type QuestionDisplayProps = {
   question: Question;
   index: number;
   selectedOptionIds?: string[] | undefined;
+  heatmapUrl?: string;
   selectOption?: (questionIdx: number, optionId: string | undefined) => void;
   deselectOption?: (questionIdx: number, optionId: string | undefined) => void;
+  assignHeatmapUrlToQuestion?: (
+    questionIdx: number,
+    heatmapUrl: string
+  ) => void;
 };
 
 const QuestionDisplay = ({
   question,
   index,
   selectedOptionIds,
+  heatmapUrl,
   selectOption,
   deselectOption,
+  assignHeatmapUrlToQuestion,
 }: QuestionDisplayProps) => {
-  const isResponseDisplay = selectOption && deselectOption ? false : true;
+  const isResponseDisplay =
+    selectOption && deselectOption && assignHeatmapUrlToQuestion ? false : true;
 
+  const [localHeatmapUrl, setLocalHeatmapUrl] = useState<string>();
   const [webGazerIsOpen, setWebGazerIsOpen] = useState<boolean>(false);
 
   const getOptionType = (type: string) => {
@@ -114,22 +124,30 @@ const QuestionDisplay = ({
             <div className="relative m-2">
               <img
                 src={
-                  question.image instanceof File
+                  isResponseDisplay
+                    ? heatmapUrl
+                    : localHeatmapUrl
+                    ? localHeatmapUrl
+                    : question.image instanceof File
                     ? URL.createObjectURL(question.image)
                     : question.image
                 }
                 alt=""
               />
 
-              {question.is_tracking && (
+              {!isResponseDisplay && question.is_tracking && (
                 <>
-                  <div className="size-full transparent-black-bg center-screen"></div>
+                  <div
+                    className={`size-full transparent-black-bg center-screen`}
+                  ></div>
 
                   <p
                     onClick={() => setWebGazerIsOpen(true)}
                     className="center-screen italic grey-btn btn w-max"
                   >
-                    Start eye tracking
+                    {localHeatmapUrl
+                      ? "Redo eye tracking"
+                      : "Start eye tracking"}
                   </p>
                 </>
               )}
@@ -139,9 +157,19 @@ const QuestionDisplay = ({
       </div>
 
       {webGazerIsOpen && (
-        <WebGazer
+        <TestWebGazer
           imageUrl={getImageUrl()}
           closeWebGazer={() => setWebGazerIsOpen(false)}
+          assignHeatmapUrlToCurrentQuestion={(
+            heatmapUrl: string,
+            localHeatmapUrl: string
+          ) => {
+            if (assignHeatmapUrlToQuestion) {
+              assignHeatmapUrlToQuestion(index, heatmapUrl);
+            }
+            console.log("localHeatmapUrl:", localHeatmapUrl);
+            setLocalHeatmapUrl(localHeatmapUrl);
+          }}
         />
       )}
     </>

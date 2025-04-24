@@ -30,9 +30,12 @@ export const getHeatmapFromGazeData = async ({
       }
     );
 
-    const heatmapUrl = URL.createObjectURL(response.data);
+    // const heatmapUrl = URL.createObjectURL(response.data);
 
-    return { heatmapUrl }; // should return { heatmapUrl: 'data:image/png;base64,...' }
+    // return { heatmapUrl }; // should return { heatmapUrl: 'data:image/png;base64,...' }
+
+    const heatmapBlob = response.data;
+    return { heatmapBlob };
   } catch (error) {
     console.log("Error generating heatmap:", error);
     return null;

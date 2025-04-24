@@ -101,7 +101,7 @@ export const deleteSurveysWithQuery = async (
   }
 };
 
-export const submitResponse = async (
+export const postResponse = async (
   id: string | undefined,
   surveyResponse: SurveyResponse
 ) => {

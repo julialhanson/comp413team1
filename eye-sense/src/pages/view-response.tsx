@@ -51,6 +51,11 @@ const ViewResponse = () => {
             <QuestionDisplay
               key={questionIdx}
               question={question}
+              heatmapUrl={
+                surveyResponse?.heatmaps
+                  ? surveyResponse?.heatmaps[questionIdx]
+                  : ""
+              }
               selectedOptionIds={surveyResponse?.selected[questionIdx]}
               index={questionIdx}
             />

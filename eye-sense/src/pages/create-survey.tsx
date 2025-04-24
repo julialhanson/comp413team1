@@ -13,7 +13,7 @@ import { modifyQuestionWithId } from "../controllers/question-controller.ts";
 import { modifyChoiceWithId } from "../controllers/choice-controller.ts";
 import Container from "../components/container.tsx";
 import { generateUniqueFilename } from "../utils/func-utils.ts";
-import { uploadImageToGCP } from "../controllers/gcp-controller.ts";
+import { uploadMediaToGCP } from "../controllers/gcp-controller.ts";
 
 const CreateSurvey = () => {
   const navigate = useNavigate();
@@ -125,7 +125,7 @@ const CreateSurvey = () => {
       .then((user) => {
         // Upload all images to GCP
         questions.forEach((question) => {
-          uploadImageToGCP(question.image, question.imageUrl);
+          uploadMediaToGCP(question.image, question.imageUrl);
         });
 
         // If we want to publish/save a new survey

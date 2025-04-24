@@ -40,7 +40,8 @@ export type SurveyResponse = {
   survey?: Survey;
   time_taken: Date;
   selected: string[][];
-  heatmaps: Map<number, string>;
+  heatmaps?: string[];
+  heatmap_urls: string[];
 };
 
 export type User = {

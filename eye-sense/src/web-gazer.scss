@@ -21,13 +21,45 @@ $webcam-height: 230px;
   cursor: pointer;
 }
 
-#instructions {
-  color: black;
-  font-size: 20px;
+#activities {
   position: fixed;
-  top: 20px;
-  left: 20px;
-  z-index: 1001;
+  display: flex;
+  align-items: end;
+  left: calc($webcam-width + 12px);
+  top: $webcam-height;
+  transform: translateY(calc(-100% - 12px));
+
+  #instructions {
+    // color: black;
+    background-color: white;
+    padding: 0.75rem;
+    border-radius: 12px;
+    margin-right: 12px;
+    // font-size: 20px;
+    // position: fixed;
+    // top: 20px;
+    // left: 20px;
+    // z-index: 1001;
+  }
+  
+  // #activity-buttons {
+  //   position: fixed;
+  //   top: calc($webcam-height);
+  //   width: $webcam-width;
+  //   display: flex;
+  //   flex-direction: column;
+  //   align-items: center;
+
+  //   button {
+  //     width: fit-content;
+  //     margin-top: 10px;
+  //   }
+  // }
+  #activity-buttons {
+    button {
+      width: fit-content;
+    }
+  }
 }
 
 #gaze-dot {
@@ -41,31 +73,38 @@ $webcam-height: 230px;
   display: block;
 }
 
-#tracking-image {
+#tracking-image-container {
+  position: fixed;
   width: 100%;
-  max-width: calc(100% - $webcam-width);
-  max-height: calc(100vh - 48px);
-  object-fit: contain;
-  // object-position: center;
-  position: fixed;
-  top: 0;//50%;
-  left: $webcam-width; // no overlap with the webcam
-  // transform: translateY(-50%);
-}
-
-#activity-buttons {
-  position: fixed;
-  top: calc($webcam-height);
-  width: $webcam-width;
+  height: calc(100vh - $webcam-height);
+  top: $webcam-height;
+  left: 50%;
+  transform: translateX(-50%);
   display: flex;
-  flex-direction: column;
+  justify-content: center;
   align-items: center;
 
-  button {
-    width: fit-content;
-    margin-top: 10px;
+  #tracking-image {
+    object-fit: contain;
+    // width: 100%;
+    // height: 100%;
+    // width: auto;
+    // height: auto;
+    max-width: 100%;
+    max-height: 100%;
+
+    // max-width: 100%;//calc(100% - $webcam-width);
+    // height: calc(100vh - $webcam-height);//calc(100vh - 48px);
+    // object-position: center;
+    // position: fixed;
+    // top: $webcam-height;//0;//50%;
+    // left: 50%;//$webcam-width; // no overlap with the webcam
+    // transform: translateX(-50%);
+    top: 0;
+    left: 0;
   }
 }
+
 
 /* Webcam elements */
 #webgazerVideoFeed,

@@ -16,30 +16,12 @@ const storage = new Storage({
 console.log("Project ID:", process.env.GOOGLE_CLOUD_PROJECT_ID);
 
 const BUCKET_NAME = process.env.BUCKET_NAME;
+const HEATMAP_BUCKET_NAME = process.env.HEATMAP_BUCKET_NAME;
 const PROJECT_ID = process.env.PROJECT_ID;
 const ENDPOINT_ID = process.env.ENDPOINT_ID;
 
-export const getSignedUrlFromGCP = async (filename) => {
-  if (!filename) {
-    return null;
-  }
-
-  const options = {
-    version: "v4",
-    action: "read",
-    expires: Date.now() + 15 * 60 * 1000, // 15 minutes
-  };
-
-  const [url] = await storage
-    .bucket(BUCKET_NAME)
-    .file(filename)
-    .getSignedUrl(options);
-
-  return url;
-};
-
-export const uploadImageToGCP = async (file, filename) => {
-  const bucket = storage.bucket(BUCKET_NAME);
+const uploadToGCP = async (bucketName, file, filename) => {
+  const bucket = storage.bucket(bucketName);
   const image = bucket.file(filename);
 
   const [imageExists] = await image.exists();
@@ -86,4 +68,39 @@ export const getGoogleCloudAccess = async () => {
     projectId: PROJECT_ID,
     endpointId: ENDPOINT_ID,
   };
+};
+
+const getSignedUrlFromGCP = async (filename, bucketName) => {
+  if (!filename) {
+    return null;
+  }
+
+  const options = {
+    version: "v4",
+    action: "read",
+    expires: Date.now() + 15 * 60 * 1000, // 15 minutes
+  };
+
+  const [url] = await storage
+    .bucket(bucketName)
+    .file(filename)
+    .getSignedUrl(options);
+
+  return url;
+};
+
+export const getSignedUrlForImage = async (filename) => {
+  return await getSignedUrlFromGCP(filename, BUCKET_NAME);
+};
+
+export const getSignedUrlForHeatmap = async (filename) => {
+  return await getSignedUrlFromGCP(filename, HEATMAP_BUCKET_NAME);
+};
+
+export const uploadImageToGCP = async (file, filename) => {
+  return await uploadToGCP(BUCKET_NAME, file, filename);
+};
+
+export const uploadHeatmapToGCP = async (file, filename) => {
+  return await uploadToGCP(HEATMAP_BUCKET_NAME, file, filename);
 };

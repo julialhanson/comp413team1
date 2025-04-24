@@ -38,6 +38,10 @@ $darker-blue: #0e529b;
   background-color: $light-grey;
 }
 
+.transparent-green-bg {
+  background-color: rgba($color: green, $alpha: 0.4);
+}
+
 .light-blue {
   color: $light-blue;
 }
@@ -197,6 +201,10 @@ $darker-blue: #0e529b;
 .rotate-right {
   animation: rotate-right 0.4s forwards;
 }
+
+// html body div#webgazerVideoContainer {
+//   display: none !important;
+// }
 
 // ANIMATIONS
 @keyframes fade-in {

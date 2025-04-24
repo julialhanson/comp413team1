@@ -2,9 +2,10 @@ import express from "express";
 import multer from "multer";
 import { authenticateToken } from "../utils/authenticate.js";
 import {
-  getSignedUrlFromGCP,
-  uploadImageToGCP,
   getGoogleCloudAccess,
+  getSignedUrlForImage,
+  uploadHeatmapToGCP,
+  uploadImageToGCP,
 } from "../utils/gcp.js";
 
 const router = express.Router();
@@ -35,7 +36,7 @@ router.get("/:filename", authenticateToken, async (req, res) => {
     const { filename } = req.params;
     console.log("filename:", filename);
 
-    const url = getSignedUrlFromGCP(filename);
+    const url = getSignedUrlForImage(filename);
 
     res.status(200).json({ signedUrl: url });
   } catch (error) {
@@ -51,6 +52,21 @@ router.post("/", upload.single("image"), async (req, res) => {
     }
 
     const result = await uploadImageToGCP(req.file, req.body.filename);
+    res.status(200).json(result);
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).send("Server error during upload");
+  }
+});
+
+// Upload heatmap endpoint
+router.post("/heatmap", upload.single("image"), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).send("No file uploaded.");
+    }
+
+    const result = await uploadHeatmapToGCP(req.file, req.body.filename);
     res.status(200).json(result);
   } catch (error) {
     console.error("Error:", error);

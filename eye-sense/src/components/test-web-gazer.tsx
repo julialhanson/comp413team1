@@ -5,15 +5,24 @@ import "../App.scss";
 import { GazeDataCoordinate } from "../types";
 
 import webgazer from "webgazer";
-import { getFilenameFromSignedUrl } from "../utils/func-utils";
+import {
+  generateUniqueFilename,
+  getFilenameFromSignedUrl,
+} from "../utils/func-utils";
+import { uploadMediaToGCP } from "../controllers/gcp-controller";
 window.webgazer = webgazer;
 
 const TestWebGazer = ({
   imageUrl,
   closeWebGazer,
+  assignHeatmapUrlToCurrentQuestion,
 }: {
   imageUrl: string | undefined;
   closeWebGazer: () => void;
+  assignHeatmapUrlToCurrentQuestion: (
+    heatmapUrl: string,
+    localHeatmapUrl: string
+  ) => void;
 }) => {
   const calibrationPoints = [
     [10, 10],
@@ -40,6 +49,7 @@ const TestWebGazer = ({
     useState<boolean>(true);
   const [isTracking, setIsTracking] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isCompleted, setIsCompleted] = useState<boolean>(false);
   const [heatmapUrl, setHeatmapUrl] = useState<string | null>(null);
 
   const gazeDot = useRef<HTMLDivElement>(null);
@@ -69,12 +79,14 @@ const TestWebGazer = ({
   };
 
   const loadWebGazer = () => {
-    setInstructionsText("Please wait while the eye tracker loads...");
+    setInstructionsText(
+      "You will get 10 seconds to view the image. Please wait while the eye tracker loads..."
+    );
     setIsLoading(true);
 
     window.webgazer
       .showVideoPreview(true)
-      .showPredictionPoints(true)
+      .showPredictionPoints(false) // do not show gaze dot
       .setRegression("weightedRidge")
       .begin();
 
@@ -95,9 +107,8 @@ const TestWebGazer = ({
       if (data) {
         gazeDot.current.style.left = `${data.x}px`;
         gazeDot.current.style.top = `${data.y}px`;
-        gazeData.push({ x: data.x - 310, y: data.y - 48, time: timestamp });
-        // -310 to account for webcam space on the left of image
-        // -48 to account for header margin
+        gazeData.push({ x: data.x, y: data.y - 230, time: timestamp });
+        // -230 to account for webcam height
       }
     });
 
@@ -118,8 +129,8 @@ const TestWebGazer = ({
     // window.webgazer.pause().showVideo(false).showPredictionPoints(false);
 
     try {
-      const width = trackingImage.current.clientWidth;
-      const height = trackingImage.current.clientHeight;
+      const width = trackingImage.current.scrollWidth;
+      const height = trackingImage.current.scrollHeight;
 
       console.log("imageUrl:", imageUrl);
       const filename = getFilenameFromSignedUrl(imageUrl);
@@ -131,14 +142,57 @@ const TestWebGazer = ({
         filename,
       });
 
-      setHeatmapUrl(response.heatmapUrl);
+      const heatmapBlob = response.heatmapBlob;
+
+      const heatmapUrl = URL.createObjectURL(heatmapBlob);
+      setHeatmapUrl(heatmapUrl);
+      console.log("heatmapUrl:", heatmapUrl);
+      // assignHeatmapToQuestion(response.heatmapUrl);
+
+      const heatmapFilename = `heatmap-${filename}`;
+      const uniqueHeatmapFilename = generateUniqueFilename(heatmapFilename);
+      const heatmapFile = new File([heatmapBlob], uniqueHeatmapFilename, {
+        type: "image/png",
+      });
+      uploadMediaToGCP(heatmapFile, uniqueHeatmapFilename, true);
+
+      assignHeatmapUrlToCurrentQuestion(uniqueHeatmapFilename, heatmapUrl);
 
       setInstructionsText("Heatmap generated!");
     } catch (err) {
       console.error("Error generating heatmap:", err);
       setInstructionsText("Error generating heatmap.");
     }
+
+    setIsCompleted(true);
   }
+
+  const stopCamera = () => {
+    const videoContainer: HTMLDivElement = document.getElementById(
+      "webgazerVideoContainer"
+    );
+
+    // Check if the video element has a srcObject (MediaStream)
+    if (videoContainer) {
+      const videoFeed: HTMLVideoElement | null =
+        document.getElementById("webgazerVideoFeed");
+      console.log("videoFeed:", videoFeed);
+
+      if (videoFeed && videoFeed.srcObject) {
+        const stream = videoFeed.srcObject;
+
+        console.log("stream:", stream);
+
+        // Loop through all tracks and stop them
+        stream.getTracks().forEach((track) => track.stop());
+
+        // Optionally, you can also clear the srcObject to ensure the camera is fully stopped
+        videoFeed.srcObject = null;
+      }
+
+      videoContainer.remove();
+    }
+  };
 
   useEffect(() => {
     // startTrackingPhase();
@@ -159,14 +213,31 @@ const TestWebGazer = ({
       <div className="w-screen h-screen absolute top-0 left-0 transparent-black-bg"></div>
 
       <div className="web-gazer-container">
-        <div id="instructions">
-          <p>
-            {instructionsText
-              ? instructionsText
-              : isCalibrationComplete
-              ? "Calibration complete. Starting tracking..."
-              : "Click all 9 dots to calibrate..."}
-          </p>
+        <div id="activities">
+          <div id="instructions">
+            <p>
+              <span className="font-bold">Note:</span>{" "}
+              {instructionsText
+                ? instructionsText
+                : isCalibrationComplete
+                ? "Calibration complete. Starting tracking..."
+                : "Click all 9 dots to calibrate..."}
+            </p>
+          </div>
+
+          <div id="activity-buttons">
+            {isCompleted && (
+              <button
+                onClick={() => {
+                  stopCamera();
+                  closeWebGazer();
+                }}
+                className="btn grey-btn"
+              >
+                Close Eye Tracker
+              </button>
+            )}
+          </div>
         </div>
 
         {!isCalibrationComplete &&
@@ -188,20 +259,14 @@ const TestWebGazer = ({
 
         {isTracking && <div ref={gazeDot} id="gaze-dot"></div>}
 
-        {!isLoading && (
-          <img
-            ref={trackingImage}
-            id="tracking-image"
-            src={!heatmapUrl ? imageUrl : heatmapUrl}
-            alt="Tracking Image"
-          />
-        )}
-
-        <div id="activity-buttons">
-          {heatmapUrl && (
-            <button onClick={closeWebGazer} className="btn grey-btn">
-              Close Eye Tracker
-            </button>
+        <div id="tracking-image-container">
+          {!isLoading && (
+            <img
+              ref={trackingImage}
+              id="tracking-image"
+              src={!heatmapUrl ? imageUrl : heatmapUrl}
+              alt="Tracking Image"
+            />
           )}
         </div>
       </div>
