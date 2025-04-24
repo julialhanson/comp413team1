@@ -1,23 +1,32 @@
 import { useState } from "react";
 import { Question } from "../types";
-import WebGazer from "./web-gazer";
+// import WebGazer from "./web-gazer";
+import TestWebGazer from "./test-web-gazer";
 
 type QuestionDisplayProps = {
   question: Question;
   index: number;
   selectedOptionIds?: string[] | undefined;
+  heatmapUrl?: string | undefined;
   selectOption?: (questionIdx: number, optionId: string | undefined) => void;
   deselectOption?: (questionIdx: number, optionId: string | undefined) => void;
+  assignHeatmapUrlToQuestion?: (
+    questionIdx: number,
+    heatmapUrl: string
+  ) => void;
 };
 
 const QuestionDisplay = ({
   question,
   index,
   selectedOptionIds,
+  heatmapUrl,
   selectOption,
   deselectOption,
+  assignHeatmapUrlToQuestion,
 }: QuestionDisplayProps) => {
-  const isResponseDisplay = selectOption && deselectOption ? false : true;
+  const isResponseDisplay =
+    selectOption && deselectOption && assignHeatmapUrlToQuestion ? false : true;
 
   const [webGazerIsOpen, setWebGazerIsOpen] = useState<boolean>(false);
 
@@ -114,14 +123,16 @@ const QuestionDisplay = ({
             <div className="relative m-2">
               <img
                 src={
-                  question.image instanceof File
+                  heatmapUrl
+                    ? heatmapUrl
+                    : question.image instanceof File
                     ? URL.createObjectURL(question.image)
                     : question.image
                 }
                 alt=""
               />
 
-              {question.is_tracking && (
+              {!isResponseDisplay && question.is_tracking && (
                 <>
                   <div className="size-full transparent-black-bg center-screen"></div>
 
@@ -139,9 +150,14 @@ const QuestionDisplay = ({
       </div>
 
       {webGazerIsOpen && (
-        <WebGazer
+        <TestWebGazer
           imageUrl={getImageUrl()}
           closeWebGazer={() => setWebGazerIsOpen(false)}
+          assignHeatmapToCurrentQuestion={(heatmapUrl: string) => {
+            if (assignHeatmapUrlToQuestion) {
+              assignHeatmapUrlToQuestion(index, heatmapUrl);
+            }
+          }}
         />
       )}
     </>

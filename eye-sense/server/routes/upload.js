@@ -1,7 +1,11 @@
 import express from "express";
 import multer from "multer";
 import { authenticateToken } from "../utils/authenticate.js";
-import { getSignedUrlFromGCP, uploadImageToGCP } from "../utils/gcp.js";
+import {
+  getSignedUrlFromGCP,
+  uploadHeatmapToGCP,
+  uploadImageToGCP,
+} from "../utils/gcp.js";
 
 const router = express.Router();
 
@@ -43,13 +47,28 @@ router.post("/", upload.single("image"), async (req, res) => {
   }
 });
 
-router.get('/image-proxy', async (req, res) => {
+// Upload heatmap endpoint
+router.post("/heatmap", upload.single("image"), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).send("No file uploaded.");
+    }
+
+    const result = await uploadHeatmapToGCP(req.file, req.body.filename);
+    res.status(200).json(result);
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).send("Server error during upload");
+  }
+});
+
+router.get("/image-proxy", async (req, res) => {
   const imageUrl = req.query.url;
 
   const response = await fetch(imageUrl);
   const buffer = await response.arrayBuffer();
 
-  res.setHeader('Content-Type', response.headers.get('content-type'));
+  res.setHeader("Content-Type", response.headers.get("content-type"));
   res.send(Buffer.from(buffer));
 });
 

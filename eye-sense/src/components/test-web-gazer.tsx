@@ -11,9 +11,11 @@ window.webgazer = webgazer;
 const TestWebGazer = ({
   imageUrl,
   closeWebGazer,
+  assignHeatmapToCurrentQuestion: assignHeatmapToQuestion,
 }: {
   imageUrl: string | undefined;
   closeWebGazer: () => void;
+  assignHeatmapToCurrentQuestion: (heatmapUrl: string) => void;
 }) => {
   const calibrationPoints = [
     [10, 10],
@@ -132,6 +134,8 @@ const TestWebGazer = ({
       });
 
       setHeatmapUrl(response.heatmapUrl);
+      console.log("heatmapUrl:", response.heatmapUrl);
+      // assignHeatmapToQuestion(response.heatmapUrl);
 
       setInstructionsText("Heatmap generated!");
     } catch (err) {

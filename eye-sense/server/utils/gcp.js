@@ -15,7 +15,8 @@ const storage = new Storage({
 
 console.log("Project ID:", process.env.GOOGLE_CLOUD_PROJECT_ID);
 
-const bucketName = process.env.BUCKET_NAME;
+const BUCKET_NAME = process.env.BUCKET_NAME;
+const HEATMAP_BUCKET_NAME = process.env.HEATMAP_BUCKET_NAME;
 
 export const getSignedUrlFromGCP = async (filename) => {
   if (!filename) {
@@ -29,7 +30,7 @@ export const getSignedUrlFromGCP = async (filename) => {
   };
 
   const [url] = await storage
-    .bucket(bucketName)
+    .bucket(BUCKET_NAME)
     .file(filename)
     .getSignedUrl(options);
 
@@ -37,6 +38,14 @@ export const getSignedUrlFromGCP = async (filename) => {
 };
 
 export const uploadImageToGCP = async (file, filename) => {
+  return await uploadToGCP(BUCKET_NAME, file, filename);
+};
+
+export const uploadHeatmapToGCP = async (file, filename) => {
+  return await uploadToGCP(HEATMAP_BUCKET_NAME, file, filename);
+};
+
+const uploadToGCP = async (bucketName, file, filename) => {
   const bucket = storage.bucket(bucketName);
   const image = bucket.file(filename);
 
