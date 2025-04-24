@@ -2,7 +2,7 @@ import api from "../utils/axios";
 
 const API_URL = "/uploads"; // Adjust for production
 
-export const uploadImageToGCP = async (
+export const uploadMediaToGCP = async (
   selectedFile: File | string | null | undefined,
   filename: string,
   isHeatmap: boolean = false
@@ -16,7 +16,8 @@ export const uploadImageToGCP = async (
 
     console.log("formData:", formData);
 
-    const response = await api.post(API_URL, formData, {
+    const endpoint = isHeatmap ? "/heatmap" : "";
+    const response = await api.post(API_URL + endpoint, formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },

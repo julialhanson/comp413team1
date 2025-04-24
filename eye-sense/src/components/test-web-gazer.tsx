@@ -5,7 +5,11 @@ import "../App.scss";
 import { GazeDataCoordinate } from "../types";
 
 import webgazer from "webgazer";
-import { getFilenameFromSignedUrl } from "../utils/func-utils";
+import {
+  generateUniqueFilename,
+  getFilenameFromSignedUrl,
+} from "../utils/func-utils";
+import { uploadMediaToGCP } from "../controllers/gcp-controller";
 window.webgazer = webgazer;
 
 const TestWebGazer = ({
@@ -135,9 +139,19 @@ const TestWebGazer = ({
         filename,
       });
 
-      setHeatmapUrl(response.heatmapUrl);
-      console.log("heatmapUrl:", response.heatmapUrl);
+      const heatmapBlob = response.heatmapBlob;
+
+      const heatmapUrl = URL.createObjectURL(heatmapBlob);
+      setHeatmapUrl(heatmapUrl);
+      console.log("heatmapUrl:", heatmapUrl);
       // assignHeatmapToQuestion(response.heatmapUrl);
+
+      const heatmapFilename = `heatmap-${filename}`;
+      const uniqueHeatmapFilename = generateUniqueFilename(heatmapFilename);
+      const heatmapFile = new File([heatmapBlob], uniqueHeatmapFilename, {
+        type: "image/png",
+      });
+      uploadMediaToGCP(heatmapFile, uniqueHeatmapFilename, true);
 
       setInstructionsText("Heatmap generated!");
     } catch (err) {
