@@ -1,3 +1,4 @@
+from io import BytesIO
 import cv2
 import numpy as np
 import matplotlib.pyplot as plt
@@ -87,11 +88,16 @@ def visualize_heatmap(image, border_points, internal_points, output_dir='dataset
 
     os.makedirs(output_dir, exist_ok=True)
     
-    if original_filename:
-        base_name = os.path.splitext(original_filename)[0]
-        filename = f'{output_dir}/{base_name}_heatmap.png'
-    else:
-        filename = f'{output_dir}/heatmap_{datetime.datetime.now().strftime("%Y%m%d_%H%M%S_%f")}.jpg'
+    # if original_filename:
+    #     base_name = os.path.splitext(original_filename)[0]
+    #     filename = f'{output_dir}/{base_name}_heatmap.png'
+    # else:
+    #     filename = f'{output_dir}/heatmap_{datetime.datetime.now().strftime("%Y%m%d_%H%M%S_%f")}.jpg'
     
-    plt.savefig(filename, bbox_inches='tight', pad_inches=0)
+    # plt.savefig(filename, bbox_inches='tight', pad_inches=0)
+    buf = BytesIO()
+    plt.savefig(buf, bbox_inches='tight', pad_inches=0)
     plt.close()
+    buf.seek(0)
+    
+    return buf
