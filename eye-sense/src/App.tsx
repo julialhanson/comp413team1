@@ -6,6 +6,7 @@ import CreateSurvey from "./pages/create-survey";
 import Predict from "./pages/predict";
 import ViewSurvey from "./pages/view-survey";
 import Auth from "./pages/auth";
+import WebGazer from "./components/web-gazer";
 import Surveys from "./pages/profile/surveys";
 import TimeoutModal from "./components/timeout-modal";
 import { useEffect, useState } from "react";

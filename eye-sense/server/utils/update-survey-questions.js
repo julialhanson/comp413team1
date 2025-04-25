@@ -1,5 +1,6 @@
 import db from "../connection.js";
 import { ObjectId } from "mongodb";
+import { uploadImageToGCP } from "./gcp.js";
 
 export const insertSurveyQuestionsAndChoices = async (questions) => {
   const questionCollection = db.collection("Questions");
@@ -10,6 +11,9 @@ export const insertSurveyQuestionsAndChoices = async (questions) => {
 
   // Add all new questions
   for (const question of questions) {
+    // Do not include id (only used on client side)
+    delete question.id;
+
     // Add all new choices
     const choiceDocs = [];
     for (const choice of question.choices) {
@@ -23,19 +27,34 @@ export const insertSurveyQuestionsAndChoices = async (questions) => {
     var insertedChoiceIds = [];
     if (choiceDocs.length) {
       const choiceInsertResult = await choiceCollection.insertMany(choiceDocs);
-      insertedChoiceIds = Object.values(choiceInsertResult.insertedIds)
-        .map(choiceObjectId => choiceObjectId.toString());
+      insertedChoiceIds = Object.values(choiceInsertResult.insertedIds).map(
+        (choiceObjectId) => choiceObjectId.toString()
+      );
     }
 
     // Add new choice ids to existing choices
     var existingChoiceIds = question.choices
-      .filter(choice => choice._id !== null)
-      .map(choice => choice._id);
+      .filter((choice) => choice._id !== null)
+      .map((choice) => choice._id);
     if (!existingChoiceIds || !existingChoiceIds[0]) existingChoiceIds = [];
+    const { choices, ...questionWithoutChoices } = question
     const questionToInsert = {
-      ...question,
+      ...questionWithoutChoices,
       choice_ids: existingChoiceIds.concat(insertedChoiceIds),
     };
+
+    // Upload image to GCP
+    if (question.image) {
+      console.log("question.image:", question.image);
+      const imageUploadResult = await uploadImageToGCP(
+        question.image,
+        question.imageUrl
+      );
+    }
+    // Do not store file in the database
+    delete questionToInsert.image;
+
+    console.log("questionToInsert/Modify:", questionToInsert);
 
     // Only modify question (add choices) if id already exists, otherwise insert new question
     if (question._id) {
@@ -68,8 +87,9 @@ export const insertSurveyQuestionsAndChoices = async (questions) => {
       questionsToInsert
     );
 
-    newQuestionIds = Object.values(questionInsertResult.insertedIds)
-      .map((questionObjectId) => questionObjectId.toString());
+    newQuestionIds = Object.values(questionInsertResult.insertedIds).map(
+      (questionObjectId) => questionObjectId.toString()
+    );
   }
   return newQuestionIds;
 };

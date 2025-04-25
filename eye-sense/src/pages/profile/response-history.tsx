@@ -14,7 +14,7 @@ const ResponseHistory = () => {
 
   useEffect(() => {
     if (username !== undefined) {
-      // Get all responses made by current user
+      // Get all responses made by user in parameters
       getResponsesAndSurveys().then((surveyResponses) => {
         const numResponses = surveyResponses.length;
 

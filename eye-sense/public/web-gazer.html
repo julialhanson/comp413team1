@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>WebGazer Calibration + 10s Tracking with Heatmap</title>
+    <style>
+      body {
+        margin: 0;
+        overflow: hidden;
+        font-family: sans-serif;
+      }
+
+      .calibration-dot {
+        width: 30px;
+        height: 30px;
+        background: red;
+        border-radius: 50%;
+        position: absolute;
+        z-index: 1000;
+        cursor: pointer;
+      }
+
+      #instructions {
+        color: black;
+        font-size: 20px;
+        position: fixed;
+        top: 20px;
+        left: 20px;
+        z-index: 1001;
+      }
+
+      #gazeDot {
+        position: absolute;
+        background: lime;
+        border-radius: 50%;
+        width: 15px;
+        height: 15px;
+        pointer-events: none;
+        z-index: 1001;
+        display: none;
+      }
+
+      #imagePhase {
+        display: none;
+        width: 100vw;
+        height: 100vh;
+        position: relative;
+      }
+
+      #trackingImage {
+        width: 100%;
+        max-height: 100vh;
+        object-fit: cover;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+      }
+
+      #heatmapImg {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 100%;
+        max-height: 100vh;
+        z-index: 1002;
+      }
+
+      /* Webcam elements */
+      #webgazerVideoFeed,
+      #webgazerFaceOverlay,
+      #webgazerFaceFeedback {
+        position: fixed;
+        right: 10px;
+        bottom: 10px;
+        z-index: 999;
+        width: 160px;
+        height: 120px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="instructions">Click all 9 dots to calibrate...</div>
+    <div id="gazeDot"></div>
+    <div id="imagePhase">
+      <img id="trackingImage" src="mountains.jpg" alt="Tracking Image" />
+    </div>
+    <img id="heatmapImg" alt="Heatmap" />
+
+    <!-- Load WebGazer Library -->
+    <script src="https://webgazer.cs.brown.edu/webgazer.js"></script>
+    <!-- Load Pyodide Library -->
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.21.3/full/pyodide.js"></script>
+
+    <script>
+      // Global variables
+      let gazeData = [];
+      let backgroundImageBase64 = "";
+      let pyodide,
+        pyodideReady = false;
+
+      // Utility: Load an image as Base64 (without the data prefix)
+      function loadImageAsBase64(url) {
+        return fetch(url)
+          .then((res) => res.blob())
+          .then(
+            (blob) =>
+              new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                  const base64data = reader.result.split(",")[1];
+                  resolve(base64data);
+                };
+                reader.onerror = reject;
+                reader.readAsDataURL(blob);
+              })
+          );
+      }
+
+      // Load Pyodide and required packages
+      async function loadPyodideAndPackages() {
+        pyodide = await loadPyodide();
+        await pyodide.loadPackage(["numpy", "matplotlib", "pillow", "scipy"]);
+        pyodideReady = true;
+        console.log("Pyodide loaded!");
+      }
+      loadPyodideAndPackages();
+
+      // Create calibration dots (unchanged calibration phase)
+      function createCalibrationDots() {
+        const calibrationPoints = [
+          [10, 10],
+          [50, 10],
+          [90, 10],
+          [10, 50],
+          [50, 50],
+          [90, 50],
+          [10, 90],
+          [50, 90],
+          [90, 90],
+        ];
+        const clicksRequired = 1;
+        let currentClicks = {};
+        let completedPoints = 0;
+        const instructions = document.getElementById("instructions");
+        calibrationPoints.forEach(([xPercent, yPercent], i) => {
+          const dot = document.createElement("div");
+          dot.className = "calibration-dot";
+          dot.style.left = `calc(${xPercent}vw - 15px)`;
+          dot.style.top = `calc(${yPercent}vh - 15px)`;
+          dot.dataset.id = i;
+          document.body.appendChild(dot);
+          currentClicks[i] = 0;
+          dot.addEventListener("click", () => {
+            const x = window.innerWidth * (xPercent / 100);
+            const y = window.innerHeight * (yPercent / 100);
+            webgazer.recordScreenPosition(x, y, "click");
+            currentClicks[i]++;
+            if (currentClicks[i] >= clicksRequired) {
+              dot.style.display = "none";
+              completedPoints++;
+            }
+            if (completedPoints === calibrationPoints.length) {
+              instructions.innerText =
+                "Calibration complete. Starting tracking...";
+              setTimeout(startTrackingPhase, 1000);
+            }
+          });
+        });
+      }
+
+      // Start tracking phase: remove calibration dots, show background image, record gaze data for 10 seconds.
+      function startTrackingPhase() {
+        document
+          .querySelectorAll(".calibration-dot")
+          .forEach((dot) => dot.remove());
+        document.getElementById("instructions").style.display = "none";
+        document.getElementById("imagePhase").style.display = "block";
+
+        const gazeDot = document.getElementById("gazeDot");
+        gazeDot.style.display = "block";
+        webgazer.clearGazeListener();
+        webgazer
+          .setRegression("weightedRidge")
+          .setGazeListener((data, timestamp) => {
+            if (data) {
+              gazeDot.style.left = `${data.x - 7.5}px`;
+              gazeDot.style.top = `${data.y - 7.5}px`;
+              gazeData.push({ x: data.x, y: data.y, time: timestamp });
+            }
+          });
+        webgazer.showVideo(false).showPredictionPoints(false);
+        setTimeout(stopTrackingPhase, 10000);
+      }
+
+      // Stop tracking, run the Python code via Pyodide, and display the composite heatmap image.
+      async function stopTrackingPhase() {
+        webgazer.clearGazeListener();
+        document.getElementById("gazeDot").style.display = "none";
+        document.getElementById("instructions").innerText =
+          "Processing heatmap...";
+
+          if (!pyodideReady) {
+          alert("Pyodide is not loaded yet.");
+          return;
+        }
+
+        // Set image base64 + display dimensions
+        const trackingImg = document.getElementById("trackingImage");
+        const width = trackingImg.clientWidth;
+        const height = trackingImg.clientHeight;
+
+        pyodide.globals.set("gaze_data_str", JSON.stringify(gazeData));
+        pyodide.globals.set("image_base64", backgroundImageBase64);
+        pyodide.globals.set("display_width", width);
+        pyodide.globals.set("display_height", height);
+
+        console.log("Running Python script...");
+        try {
+          let heatmapData = await pyodide.runPythonAsync(`
+    import json
+    import numpy as np
+    from PIL import Image
+    import matplotlib.pyplot as plt
+    from scipy.ndimage import gaussian_filter
+    from io import BytesIO
+    import base64
+
+    # Load and resize background image
+    img = Image.open(BytesIO(base64.b64decode(image_base64)))
+    img = img.resize((display_width, display_height), Image.BILINEAR)
+    img_width, img_height = img.size
+
+    # Load and filter gaze data
+    gaze_data = json.loads(gaze_data_str)
+    points = [(int(d['x']), int(d['y'])) for d in gaze_data if 0 <= d['x'] < img_width and 0 <= d['y'] < img_height]
+
+    # Create heatmap
+    heatmap = np.zeros((img_height, img_width))
+    for x, y in points:
+        heatmap[y, x] += 1
+
+    heatmap_blurred = gaussian_filter(heatmap, sigma=30)
+    heatmap_normalized = heatmap_blurred / np.max(heatmap_blurred) if np.max(heatmap_blurred) != 0 else heatmap_blurred
+
+    # Plot image + heatmap as full-size with black outside
+    plt.figure(figsize=(img_width / 100, img_height / 100), dpi=100)
+    plt.imshow(img)
+    plt.imshow(heatmap_normalized, cmap='jet', alpha=0.4)
+    plt.axis('off')
+
+    buf = BytesIO()
+    plt.savefig(buf, format='png', bbox_inches='tight', pad_inches=0, facecolor='black')
+    plt.close()
+    buf.seek(0)
+    "data:image/png;base64," + base64.b64encode(buf.read()).decode('utf-8')
+        `);
+
+          // Set result as full-screen background
+          /* document.body.style.setProperty(
+            "background-image",
+            `url(${heatmapData})`,
+            "important"
+          );
+          document.body.style.setProperty(
+            "background-size",
+            "cover",
+            "important"
+          );
+          document.body.style.setProperty(
+            "background-position",
+            "center",
+            "important"
+          );
+          document.body.style.setProperty(
+            "background-repeat",
+            "no-repeat",
+            "important"
+          );
+          document.body.style.setProperty(
+            "background-color",
+            "black",
+            "important"
+          ); */
+          const heatmapImg = document.getElementById("heatmapImg");
+          heatmapImg.src = heatmapData;
+          heatmapImg.style.display = "block";
+
+          // Optionally hide all other image elements
+          document.getElementById("imagePhase").style.display = "none";
+          document.getElementById("instructions").innerText =
+            "Heatmap generated!";
+        } catch (err) {
+          console.error("Error generating heatmap:", err);
+          document.getElementById("instructions").innerText =
+            "Error generating heatmap.";
+        }
+      }
+
+      // Use a single async load event for initialization
+      window.addEventListener("load", async () => {
+        try {
+          backgroundImageBase64 = await loadImageAsBase64("mountains.jpg");
+          console.log(
+            "Background image Base64 length:",
+            backgroundImageBase64.length
+          );
+        } catch (err) {
+          console.error("Error loading background image:", err);
+        }
+        createCalibrationDots();
+        // Start WebGazer so that the webcam is active (HTTPS/localhost required)
+        webgazer.begin();
+        webgazer.showVideo(true).showPredictionPoints(true);
+      });
+    </script>
+  </body>
+</html>

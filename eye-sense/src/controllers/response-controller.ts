@@ -27,3 +27,14 @@ export const getResponsesWithQuery = async (
     return null;
   }
 };
+
+export const deleteResponseWithId = async (id: string | undefined) => {
+  if (id === undefined) return null;
+  try {
+    const response = await api.delete(API_URL + `/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error(`Error deleting response with id ${id}:`, error);
+    return null;
+  }
+};

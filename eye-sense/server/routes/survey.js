@@ -5,6 +5,7 @@ import db from "../connection.js";
 import { ObjectId } from "mongodb";
 import { authenticateToken } from "../utils/authenticate.js";
 import { insertSurveyQuestionsAndChoices } from "../utils/update-survey-questions.js";
+import { getSignedUrlForImage } from "../utils/gcp.js";
 
 const router = express.Router();
 
@@ -63,7 +64,7 @@ router.get("/:id/questions", async (req, res) => {
   let query = { _id: new ObjectId(req.params.id) };
   let result = await surveyCollection.findOne(query);
 
-  console.log("survey GET result:", result)
+  console.log("survey GET result:", result);
 
   if (!result) {
     console.error(`Error getting survey with id ${req.params.id}`);
@@ -93,8 +94,11 @@ router.get("/:id/questions", async (req, res) => {
         .find({ _id: { $in: choiceIds } })
         .toArray();
 
+      const image = await getSignedUrlForImage(question.imageUrl);
+      console.log("image:", image);
+
       const { choice_ids, ...restOfQuestion } = question;
-      return { ...restOfQuestion, choices };
+      return { ...restOfQuestion, choices, image: image };
     })
   );
 
@@ -165,7 +169,7 @@ router.patch("/:id", authenticateToken, async (req, res) => {
     let surveyCollection = db.collection("Surveys");
 
     const surveyToModify = await surveyCollection.findOne(query);
-    
+
     // Check authorization
     if (surveyToModify.user_created !== req.user.username) {
       return res.send("Unauthorized").status(401);
@@ -207,16 +211,16 @@ router.patch("/:id", authenticateToken, async (req, res) => {
     // Add all new questions
     if (updates["questions"]) {
       const questions = updates["questions"];
-      
-      console.log("questions in survey.js:", questions)
+
+      console.log("questions in survey.js:", questions);
 
       const newQuestionIds = await insertSurveyQuestionsAndChoices(questions); //Object.values(questionInsertResult.insertedIds);
       const existingQuestionIds = questions
         .filter((question) => question._id !== null)
         .map((question) => question._id);
 
-      console.log("existingQuestionIds:", existingQuestionIds)
-      console.log("newQuestionIds:", newQuestionIds)
+      console.log("existingQuestionIds:", existingQuestionIds);
+      console.log("newQuestionIds:", newQuestionIds);
 
       updates["question_ids"] = existingQuestionIds.concat(newQuestionIds);
     }
@@ -225,7 +229,7 @@ router.patch("/:id", authenticateToken, async (req, res) => {
 
     const updatedDocument = { $set: actualUpdates };
     let result = await surveyCollection.updateOne(query, updatedDocument);
-    return res.send(result)
+    return res.send(result);
     // return res.send(result).status(200);
   } catch (e) {
     console.error(e);
@@ -252,18 +256,24 @@ router.delete("/:id", authenticateToken, async (req, res) => {
     const questionIds = surveyToDelete.question_ids.map((question_id) => {
       return new ObjectId(question_id);
     });
-    let questionsToDelete = await questionCollection.find({ _id: { $in: questionIds } }).toArray();
+    let questionsToDelete = await questionCollection
+      .find({ _id: { $in: questionIds } })
+      .toArray();
 
     // First, delete all choices associated with the questions in the survey
     for (const question of questionsToDelete) {
       const choiceIds = question.choice_ids.map((choice_id) => {
         return new ObjectId(choice_id);
       });
-      const deleteChoicesResult = await choiceCollection.deleteMany({ _id: { $in: choiceIds } });
+      const deleteChoicesResult = await choiceCollection.deleteMany({
+        _id: { $in: choiceIds },
+      });
     }
 
     // After all choices deleted, delete all questions
-    let deleteQuestionsResult = await questionCollection.deleteMany({ _id: { $in: questionIds } })
+    let deleteQuestionsResult = await questionCollection.deleteMany({
+      _id: { $in: questionIds },
+    });
 
     // Lastly, delete survey
     let deleteSurveyResult = await surveyCollection.deleteOne(query);
@@ -330,7 +340,7 @@ router.post("/:id/responses", async (req, res) => {
       survey_id: req.params.id,
       time_taken: req.body.time_taken,
       selected: req.body.selected,
-      heatmaps: req.body.heatmaps,
+      heatmap_urls: req.body.heatmap_urls,
     };
     let collection = await db.collection("Responses");
     let result = await collection.insertOne(newDocument);

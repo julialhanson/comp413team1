@@ -10,7 +10,6 @@ const ToggleButton = ({
   return (
     <>
       <button
-        title="Toggle eye tracking"
         className={`toggle-btn${isToggled ? " toggled" : ""}`}
         onClick={toggleFunction}
       >

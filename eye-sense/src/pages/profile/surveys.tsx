@@ -3,6 +3,7 @@ import { Survey } from "../../types";
 import { getSurveysWithQuery } from "../../controllers/survey-controller.ts";
 import SurveyListItem from "../../components/survey-list-item";
 import { useParams } from "react-router-dom";
+import RefreshButton from "../../components/refresh-button.tsx";
 
 const Surveys = () => {
   const { username } = useParams();
@@ -10,7 +11,8 @@ const Surveys = () => {
   const [publishedSurveys, setPublishedSurveys] = useState<Survey[] | null>([]);
   const [draftSurveys, setDraftSurveys] = useState<Survey[] | null>([]);
 
-  useEffect(() => {
+  const retrievePublishedAndDrafts = () => {
+    console.log("retrieving");
     if (username !== undefined) {
       getSurveysWithQuery({ user_created: username }).then((data: Survey[]) => {
         const published = data.filter(
@@ -24,6 +26,10 @@ const Surveys = () => {
         setDraftSurveys(drafts);
       });
     }
+  };
+
+  useEffect(() => {
+    retrievePublishedAndDrafts();
   }, [username]);
 
   const handleDeleteSurvey = (surveyId: string | undefined) => {
@@ -44,7 +50,12 @@ const Surveys = () => {
     <>
       <div className="max-w-2xl ml-auto mr-auto p-5">
         <div className="mb-10">
-          <h1 className="font-bold tracking-wide text-xl mb-2">Published</h1>
+          <div className="flex justify-between items-center">
+            <h1 className="font-bold tracking-wide text-xl mb-2">Published</h1>
+
+            <RefreshButton refreshFn={retrievePublishedAndDrafts} />
+          </div>
+
           {publishedSurveys && publishedSurveys.length > 0 ? (
             publishedSurveys
               .sort((a, b) => {

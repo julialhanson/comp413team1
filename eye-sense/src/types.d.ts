@@ -1,3 +1,10 @@
+declare global {
+  interface Window {
+    webgazer: any;
+  }
+}
+declare module "webgazer";
+
 export type Choice = {
   _id?: string;
   id: string;
@@ -9,9 +16,9 @@ export type Question = {
   id: number;
   question: string;
   type: string | "multiple choice" | "checkboxes" | "dropdown";
-  image: File | null;
   is_tracking: boolean;
-  // selected: number[]; // list of choice ids ("multiple choice" / "dropdown" -> list of length 1)
+  image?: File | string | null; // only present on client side
+  imageUrl: string;
   choices: Choice[];
 };
 
@@ -33,7 +40,8 @@ export type SurveyResponse = {
   survey?: Survey;
   time_taken: Date;
   selected: string[][];
-  heatmaps: Map<number, string>;
+  heatmaps?: string[];
+  heatmap_urls: string[];
 };
 
 export type User = {
@@ -49,4 +57,10 @@ export type TokenUser = {
   username: string;
   organization?: string;
   role?: string;
+};
+
+export type GazeDataCoordinate = {
+  x: number;
+  y: number;
+  time: number;
 };

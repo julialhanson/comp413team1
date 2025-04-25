@@ -34,6 +34,14 @@ $darker-blue: #0e529b;
   background-color: $light-grey;
 }
 
+.transparent-black-bg {
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+.transparent-green-bg {
+  background-color: rgba($color: green, $alpha: 0.4);
+}
+
 .light-blue {
   color: $light-blue;
 }
@@ -48,6 +56,17 @@ $darker-blue: #0e529b;
 
 .darker-blue {
   color: $darker-blue;
+}
+
+.link {
+  width: fit-content;
+  border-bottom: 1px solid $dark-blue;
+  color: $dark-blue;
+
+  &:hover {
+    color: $darker-blue;
+    cursor: pointer;
+  }
 }
 
 .btn {
@@ -144,10 +163,6 @@ $darker-blue: #0e529b;
   transform: translate(-50%, -50%);
 }
 
-.transparent-black-bg {
-  background-color: rgba(0, 0, 0, 0.5);
-}
-
 .toggle-btn {
   position: relative;
   border-radius: calc(infinity * 1px);
@@ -183,6 +198,14 @@ $darker-blue: #0e529b;
   }
 }
 
+.rotate-right {
+  animation: rotate-right 0.4s forwards;
+}
+
+// html body div#webgazerVideoContainer {
+//   display: none !important;
+// }
+
 // ANIMATIONS
 @keyframes fade-in {
   from {
@@ -199,5 +222,14 @@ $darker-blue: #0e529b;
   }
   to {
     opacity: 0;
+  }
+}
+
+@keyframes rotate-right {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
   }
 }

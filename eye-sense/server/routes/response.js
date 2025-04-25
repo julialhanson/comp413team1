@@ -4,6 +4,7 @@ import db from "../connection.js";
 
 import { ObjectId } from "mongodb";
 import { authenticateToken } from "../utils/authenticate.js";
+import { getSignedUrlForHeatmap, getSignedUrlForImage } from "../utils/gcp.js";
 
 const router = express.Router();
 
@@ -43,6 +44,29 @@ router.get("/:id", async (req, res) => {
   let collection = await db.collection("Responses");
   let query = { _id: new ObjectId(req.params.id) };
   let result = await collection.findOne(query);
+
+  const heatmaps = await Promise.all(result.heatmap_urls.map(async (heatmap_url) => heatmap_url ? await getSignedUrlForHeatmap(heatmap_url) : null))
+
+  console.log("heatmaps signedUrl array:", heatmaps)
+  
+  result['heatmaps'] = heatmaps
+
+  if (!result) res.send("Not found").status(404);
+  else res.send(result).status(200);
+});
+
+// Delete a specific response in the databse
+router.delete("/:id", authenticateToken, async (req, res) => {
+  let collection = db.collection("Responses");
+  let query = { _id: new ObjectId(req.params.id) };
+  let responseToDelete = await collection.findOne(query);
+  
+    // Check authorization
+    if (responseToDelete.username !== req.user.username) {
+      return res.send("Unauthorized").status(401);
+    }
+    
+  let result = await collection.deleteOne(query);
 
   if (!result) res.send("Not found").status(404);
   else res.send(result).status(200);
