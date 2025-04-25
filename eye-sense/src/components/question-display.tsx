@@ -48,6 +48,21 @@ const QuestionDisplay = ({
       : question.image;
   };
 
+  const getImgSrc = () => {
+    // question.image === File || localHeatmapUrl -> local
+    // question.image === string || heatmapUrl -> pulled from GCP (isResponseDisplay)
+
+    if (isResponseDisplay) {
+      if (heatmapUrl) return heatmapUrl;
+    } else {
+      if (localHeatmapUrl) return localHeatmapUrl;
+      else if (question.image instanceof File)
+        return URL.createObjectURL(question.image);
+    }
+    if (typeof question.image === "string") return question.image;
+    else return undefined;
+  };
+
   return (
     <>
       <div className="bg-white rounded-xl mb-3 p-4" key={index}>
@@ -122,18 +137,7 @@ const QuestionDisplay = ({
 
           {question.image && (
             <div className="relative m-2">
-              <img
-                src={
-                  isResponseDisplay
-                    ? heatmapUrl
-                    : localHeatmapUrl
-                    ? localHeatmapUrl
-                    : question.image instanceof File
-                    ? URL.createObjectURL(question.image)
-                    : question.image
-                }
-                alt=""
-              />
+              <img src={getImgSrc()} alt="" />
 
               {!isResponseDisplay && question.is_tracking && (
                 <>
