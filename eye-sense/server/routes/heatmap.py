@@ -1,8 +1,10 @@
 import os
+from PIL import Image
 from google.cloud import storage
 from dotenv import load_dotenv
 from flask import Blueprint, app, request, send_file, make_response, jsonify, Response
 import json
+from .et_bot_utils import *
 
 load_dotenv(dotenv_path=r'./config.env')
 GOOGLE_APPLICATION_CREDENTIALS = os.getenv('GOOGLE_APPLICATION_CREDENTIALS', 'not found')
@@ -31,7 +33,6 @@ def generate_heatmap():
     """
     try:
         import numpy as np
-        from PIL import Image
         import matplotlib as mpl
         mpl.use('agg')
         import matplotlib.pyplot as plt
@@ -98,4 +99,54 @@ def generate_heatmap():
     except Exception as e:
         # Only return an error if send_file() hasn't started streaming
         print("Error during image processing:", e)
+
+
+@api_heatmap.route("/bot/", methods=["POST"])
+def simulate_dermgaze():
+    """Predicts a heatmap for a skin lesion image, 
+    width and height of the image, and the image in base 64.
+    """
+    # --- Get uploaded file
+    if 'image' not in request.files:
+        return {"error": "No image file provided"}, 400
+
+    file = request.files['image']
+
+    if file.filename == '':
+        return {"error": "Empty filename"}, 400
+    
+    try:
+        raw_image = Image.open(file.stream)
+        np_image = np.array(raw_image)
+
+        # data = request.json
+        # filepath = data['filepath']
+        num_border_points = 3000#data['num_border_points']
+        num_internal_points = 2000#data['num_internal_points']
+        
+        # Load and zoom
+        # raw_image, _ = load_image(filepath)
+        image = zoom_image(np_image)
+        
+        # Hair removal
+        cleaned = remove_hair(image)
+
+        # Grayscale after cleanup
+        gray = cv2.cvtColor(cleaned, cv2.COLOR_BGR2GRAY)
+
+        # Segmentation
+        contour = segment_lesion(gray)
+        mask = create_mask_from_contour(gray.shape, contour)
+
+        # Sampling
+        border_points = sample_border_points(contour, num_border_points)
+        internal_points = sample_internal_points(mask, num_internal_points)
+
+        # Heatmap
+        buf = visualize_heatmap(image, border_points, internal_points)#, original_filename=os.path.basename(filepath))
+        response = send_file(buf, mimetype='image/png')
+        response.headers["Content-Disposition"] = "inline; filename=bot-heatmap.png"
+        return response
+    
+    except Exception as e:
         return {"error": str(e)}, 500

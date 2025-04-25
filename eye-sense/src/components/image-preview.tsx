@@ -4,7 +4,7 @@ import XButton from "./x-button";
 
 interface ImagePreviewProps {
   onImageUploaded?: (imageUrl: string) => void;
-  resetImage: () => void;
+  resetImage?: () => void;
   imgFile?: File | string | null;
 }
 
@@ -50,7 +50,7 @@ const ImagePreview: React.FC<ImagePreviewProps> = ({
             className="p-3"
           />
 
-          <XButton resetFn={resetImage} />
+          {resetImage && <XButton resetFn={resetImage} />}
         </div>
       ) : (
         // <div className="w-full">

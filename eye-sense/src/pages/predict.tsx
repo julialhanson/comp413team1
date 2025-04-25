@@ -3,16 +3,30 @@ import ImagePreview from "../components/image-preview";
 import Container from "../components/container";
 import { uploadMediaToGCP } from "../controllers/gcp-controller";
 import { generateUniqueFilename } from "../utils/func-utils";
+import { generateExpertHeatmap } from "../controllers/heatmap-controller";
 
 const Predict = () => {
   const inputImage = useRef<HTMLInputElement | null>(null);
   // Define a state variable to store the selected image
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [predictedHeatmap, setPredictedHeatmap] = useState<string>();
+  const [isProcessing, setIsProcessing] = useState<boolean>(false);
 
   const handleResetImage = () => {
     if (inputImage.current) {
       inputImage.current.value = "";
     }
+    setSelectedImage(null);
+    setPredictedHeatmap("");
+  };
+
+  const handlePredict = async (image: File) => {
+    setIsProcessing(true);
+    const newPredictedHeatmap = await generateExpertHeatmap(image);
+    const heatmapUrl = newPredictedHeatmap?.heatmapUrl;
+    console.log(heatmapUrl);
+    setPredictedHeatmap(heatmapUrl);
+    setIsProcessing(false);
   };
 
   return (
@@ -28,17 +42,14 @@ const Predict = () => {
 
         <ImagePreview
           // isDisplayed={selectedImage !== null}
-          resetImage={() => {
-            handleResetImage();
-            setSelectedImage(null);
-          }}
-          imgFile={selectedImage}
+          resetImage={predictedHeatmap ? undefined : handleResetImage}
+          imgFile={predictedHeatmap ? predictedHeatmap : selectedImage}
         />
 
         {!selectedImage ? (
           <label className="mt-2 cursor-pointer w-full h-96 border-dashed border-3 border-gray-300 dark-grey rounded-2xl flex flex-col items-center justify-center transition duration-200 hover:border-blue-300">
             <i className="fa-solid fa-file-image mb-3 text-3xl"></i>
-            <p>Drag and drop or browse to upload an image</p>
+            <p>Browse files to upload an image</p>
             {/* Input element to select an image file */}
             <input
               type="file"
@@ -56,17 +67,43 @@ const Predict = () => {
             />
           </label>
         ) : (
-          <button
-            onClick={() =>
-              uploadMediaToGCP(
-                selectedImage,
-                generateUniqueFilename(selectedImage.name)
-              )
-            }
-            className="btn blue-btn self-end"
-          >
-            Upload
-          </button>
+          <div className="flex justify-between items-center">
+            <p
+              className={`px-3 py-1 rounded-lg text-white
+                ${
+                  isProcessing
+                    ? "bg-orange-400"
+                    : predictedHeatmap
+                    ? "bg-emerald-600"
+                    : ""
+                }`}
+            >
+              {isProcessing
+                ? "PROCESSING"
+                : predictedHeatmap
+                ? "GENERATED"
+                : ""}
+            </p>
+
+            <button
+              onClick={() =>
+                // uploadImageToGCP(
+                //   selectedImage,
+                //   generateUniqueFilename(selectedImage.name)
+                // )
+                {
+                  if (predictedHeatmap) {
+                    handleResetImage();
+                  } else {
+                    handlePredict(selectedImage);
+                  }
+                }
+              }
+              className="btn blue-btn"
+            >
+              {predictedHeatmap ? "Predict again" : "Predict"}
+            </button>
+          </div>
         )}
       </div>
     </Container>
