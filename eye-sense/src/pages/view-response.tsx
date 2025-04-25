@@ -77,16 +77,19 @@ const ViewResponse = () => {
 
         console.log("heatmapClassifications:", heatmapClassifications);
         const nonZeroClassifiations = heatmapClassifications.filter(
-          (item) => item > 0
+          (item) => item !== 0
         ); // do not count 0s
 
         if (nonZeroClassifiations.length === 0) return;
 
-        const finalClassification =
+        let finalClassification =
           nonZeroClassifiations.reduce((a, b) => a + b) /
           nonZeroClassifiations.length;
 
         console.log("finalClassification:", finalClassification);
+        if (finalClassification < 0) {
+          finalClassification = 1;
+        }
 
         setResponseClassification(predictionToDisplay[finalClassification]);
       }
