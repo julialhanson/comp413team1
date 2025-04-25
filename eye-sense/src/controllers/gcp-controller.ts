@@ -1,3 +1,4 @@
+import axios from "axios";
 import api from "../utils/axios";
 
 const API_URL = "/uploads"; // Adjust for production
@@ -37,6 +38,65 @@ export const retrieveImageFromGCP = async (filename: string) => {
     return response.data;
   } catch (error) {
     console.error(`Error retrieving image ${filename} from GCP:`, error);
+    return null;
+  }
+};
+
+export const getImageAsBase64FromGCP = async (filename: string) => {
+  try {
+    const response = await api.get(API_URL + `/images/${filename}/base64`);
+    return response.data;
+  } catch (error) {
+    console.error(`Error retrieving image ${filename} as base 64:`, error);
+    return null;
+  }
+};
+
+export const getHeatmapAsBase64FromGCP = async (filename: string) => {
+  try {
+    const response = await api.get(API_URL + `/heatmaps/${filename}/base64`);
+    return response.data;
+  } catch (error) {
+    console.error(`Error retrieving heatmap ${filename} as base 64:`, error);
+    return null;
+  }
+};
+
+export const getClassificationFromHeatmap = async (
+  imageBase64: string,
+  confidenceThreshold = 0.5,
+  maxPredictions = 5
+) => {
+  try {
+    const accessResponse = await api.get(API_URL + `/access`);
+    const { accessToken, projectId, endpointId } = accessResponse.data;
+
+    console.log("accessData:", accessResponse.data);
+
+    const body = {
+      instances: [
+        {
+          content: imageBase64,
+        },
+      ],
+      parameters: {
+        confidenceThreshold,
+        maxPredictions,
+      },
+    };
+
+    const response = await axios.post(
+      `https://us-central1-aiplatform.googleapis.com/v1/projects/${projectId}/locations/us-central1/endpoints/${endpointId}:predict`,
+      body,
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error generating classification from heatmap:", error);
     return null;
   }
 };

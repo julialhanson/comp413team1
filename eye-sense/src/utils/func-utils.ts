@@ -54,7 +54,7 @@ export const getFilenameFromSignedUrl = (signedUrl: string | undefined) => {
   const baseUrlWithFilename = signedUrl.substring(0, questionMarkIdx);
   const lastSlashIdx = baseUrlWithFilename.lastIndexOf("/");
   const filename = baseUrlWithFilename.substring(lastSlashIdx + 1);
-  const decodedFilename = decodeURIComponent(filename)
+  const decodedFilename = decodeURIComponent(filename);
 
   console.log("found filename", decodedFilename);
   return decodedFilename;
