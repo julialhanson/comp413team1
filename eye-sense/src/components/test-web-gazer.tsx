@@ -210,9 +210,9 @@ const TestWebGazer = ({
 
   return (
     <>
-      <div className="w-screen h-screen absolute top-0 left-0 transparent-black-bg"></div>
+      <div className="w-screen h-screen fixed top-0 left-0 transparent-black-bg z-40"></div>
 
-      <div className="web-gazer-container">
+      <div className="web-gazer-container z-50">
         <div id="activities">
           <div id="instructions">
             <p>
