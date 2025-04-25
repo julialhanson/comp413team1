@@ -53,8 +53,9 @@ const Organizations = () => {
         console.log("data:", data);
         console.log("selectedOrg:", searchOrgs[0]);
 
-        const newSelectedUsers = data.filter((user: User) =>
-          user.organizations.includes(searchOrgs[0])
+        const newSelectedUsers = data.filter(
+          (user: User) =>
+            user.organizations && user.organizations.includes(searchOrgs[0])
         );
         console.log("newSelectedUsers:", newSelectedUsers);
         setSelectedUsers(newSelectedUsers);
