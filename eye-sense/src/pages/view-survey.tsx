@@ -120,9 +120,11 @@ const ViewSurvey = () => {
         />
       ))}
 
-      <button className="btn blue-btn float-right" onClick={submitResponse}>
-        Submit
-      </button>
+      <div className="flex justify-end">
+        <button className="btn blue-btn" onClick={submitResponse}>
+          Submit
+        </button>
+      </div>
     </Container>
   );
 };
