@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import loginGraphic from "../assets/Login-amico.png";
 import { User } from "../types";
 import { loginUser, registerUser } from "../controllers/user-controller.ts";

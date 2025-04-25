@@ -1,8 +1,6 @@
-import React, { useRef, useState } from "react";
+import { useRef, useState } from "react";
 import ImagePreview from "../components/image-preview";
 import Container from "../components/container";
-import { uploadMediaToGCP } from "../controllers/gcp-controller";
-import { generateUniqueFilename } from "../utils/func-utils";
 import { generateExpertHeatmap } from "../controllers/heatmap-controller";
 
 const Predict = () => {

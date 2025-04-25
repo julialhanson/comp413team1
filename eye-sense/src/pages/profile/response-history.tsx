@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Survey, SurveyResponse } from "../../types";
 import { useParams } from "react-router-dom";
 import { getResponsesWithQuery } from "../../controllers/response-controller";
