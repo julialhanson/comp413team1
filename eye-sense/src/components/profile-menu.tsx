@@ -17,14 +17,14 @@ const ProfileMenu = ({ isMenuOpen, setIsMenuOpen }: ProfileMenuProps) => {
   return (
     <>
       <div
-        className="z-40 w-screen h-screen absolute top-0 left-0 bg-transparent"
+        className="z-40 w-screen h-screen fixed top-0 left-0 bg-transparent"
         onClick={() => {
           setIsMenuOpen(!isMenuOpen);
         }}
       ></div>
       <div
         id="profile-menu"
-        className="z-50 absolute top-12 right-2 mt-2 w-50 bg-white rounded-xl shadow-lg p-2 flex flex-col"
+        className="z-50 fixed top-12 right-2 mt-2 w-50 bg-white rounded-xl shadow-lg p-2 flex flex-col"
       >
         {/* <Link
           onClick={() => setIsMenuOpen(!isMenuOpen)}
