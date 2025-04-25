@@ -105,7 +105,7 @@ const ViewResponse = () => {
       {responseClassification && (
         <div className="blue-bg rounded-xl text-center p-4 mb-5">
           <p>
-            Based on your heatmaps, we've classified your response as a{" "}
+            Based on your heatmaps, we've classified you as a{" "}
             <span className="font-bold">{responseClassification}</span>.
           </p>
         </div>
