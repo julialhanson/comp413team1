@@ -49,7 +49,7 @@ const Predict = () => {
         {!selectedImage ? (
           <label className="mt-2 cursor-pointer w-full h-96 border-dashed border-3 border-gray-300 dark-grey rounded-2xl flex flex-col items-center justify-center transition duration-200 hover:border-blue-300">
             <i className="fa-solid fa-file-image mb-3 text-3xl"></i>
-            <p>Drag and drop or browse to upload an image</p>
+            <p>Browse files to upload an image</p>
             {/* Input element to select an image file */}
             <input
               type="file"
