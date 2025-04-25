@@ -69,12 +69,12 @@ const Predict = () => {
         ) : (
           <div className="flex justify-between items-center">
             <p
-              className={`px-3 py-1 rounded-lg text-white
+              className={`px-3 py-1 rounded-xl text-white
                 ${
                   isProcessing
-                    ? "bg-orange-400"
+                    ? "bg-amber-500"
                     : predictedHeatmap
-                    ? "bg-emerald-600"
+                    ? "bg-lime-600"
                     : ""
                 }`}
             >
