@@ -92,7 +92,7 @@ const TestWebGazer = ({
 
     setTimeout(() => {
       startTrackingPhase();
-    }, 5000);
+    }, 10000);
   };
 
   function startTrackingPhase() {
@@ -107,8 +107,8 @@ const TestWebGazer = ({
       if (data) {
         gazeDot.current.style.left = `${data.x}px`;
         gazeDot.current.style.top = `${data.y}px`;
-        gazeData.push({ x: data.x, y: data.y - 230, time: timestamp });
-        // -230 to account for webcam height
+        gazeData.push({ x: data.x - 320, y: data.y - 240, time: timestamp });
+        // -320 for webcam width, -240 for webcam height
       }
     });
 
