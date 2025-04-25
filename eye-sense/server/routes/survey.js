@@ -244,6 +244,7 @@ router.delete("/:id", authenticateToken, async (req, res) => {
     const surveyCollection = db.collection("Surveys");
     const questionCollection = db.collection("Questions");
     const choiceCollection = db.collection("Choices");
+    const responseCollection = db.collection("Responses");
 
     let surveyToDelete = await surveyCollection.findOne(query);
 
@@ -274,6 +275,11 @@ router.delete("/:id", authenticateToken, async (req, res) => {
     let deleteQuestionsResult = await questionCollection.deleteMany({
       _id: { $in: questionIds },
     });
+
+    // Delete all responses that corresponded to survey
+    let deleteResponsesResult = await responseCollection.deleteMany({
+      survey_id: req.params.id
+    })
 
     // Lastly, delete survey
     let deleteSurveyResult = await surveyCollection.deleteOne(query);
