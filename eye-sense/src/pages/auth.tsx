@@ -13,7 +13,7 @@ const Auth = () => {
     password: "",
     email: "",
     display_name: "",
-    organizations: [],
+    organizations: [""],
     role: "",
   });
   const [userToLogin, setUserToLogin] = useState({
@@ -79,14 +79,18 @@ const Auth = () => {
           </button>
         </div>
 
-        <img
-          src={loginGraphic}
-          alt=""
+        <div
           className={
-            "h-full py-10 px-5 rounded-3xl blue-bg border-7 border-white absolute transition duration-500 img-transition-start-left " +
+            "flex items-center half-width h-full rounded-3xl blue-bg border-7 border-white absolute transition duration-500 img-transition-start-left " +
             (isRegistering ? "" : "img-transition-end-right")
           }
-        />
+        >
+          <img
+            src={loginGraphic}
+            alt="loginGraphic"
+            className={"w-full py-10 px-5"}
+          />
+        </div>
 
         <div className="p-10">
           <center className="font-bold text-lg">Create an account</center>
@@ -139,6 +143,17 @@ const Auth = () => {
               onChange={(e) => {
                 const newUser = { ...userToRegister };
                 newUser.password = e.target.value;
+                setUserToRegister(newUser);
+              }}
+            />
+
+            <p>Organization</p>
+            <input
+              type="text"
+              className="auth-input px-3 py-1 mt-1 mb-3"
+              onChange={(e) => {
+                const newUser = { ...userToRegister };
+                newUser.organizations[0] = e.target.value;
                 setUserToRegister(newUser);
               }}
             />
