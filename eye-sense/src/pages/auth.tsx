@@ -38,11 +38,10 @@ const Auth = () => {
           <center className="font-bold text-lg">Login</center>
 
           <form
-            onSubmit={(e) => {
+            onSubmit={async (e) => {
               e.preventDefault();
 
-              loginUser(userToLogin);
-              navigate(`/create-survey`);
+              loginUser(userToLogin).then(() => navigate(`/create-survey`));
             }}
           >
             <p>Username</p>
