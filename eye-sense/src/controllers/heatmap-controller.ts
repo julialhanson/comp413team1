@@ -38,3 +38,26 @@ export const getHeatmapFromGazeData = async ({
     return null;
   }
 };
+
+export const generateExpertHeatmap = async (image: File) => {
+  if (!image) return null;
+
+  try {
+    const formData = new FormData();
+    formData.append("image", image);
+
+    const response = await axios.post(API_URL + `/bot/`, formData, {
+      responseType: "blob",
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+
+    const expertHeatmapUrl = URL.createObjectURL(response.data);
+    return { heatmapUrl: expertHeatmapUrl }
+    // return response.data;
+  } catch (error) {
+    console.error(`Error generating expert heatmap`, error);
+    return null;
+  }
+}

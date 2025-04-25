@@ -117,15 +117,16 @@ def simulate_dermgaze():
     
     try:
         raw_image = Image.open(file.stream)
+        np_image = np.array(raw_image)
 
         # data = request.json
         # filepath = data['filepath']
-        num_border_points = data['num_border_points']
-        num_internal_points = data['num_internal_points']
+        num_border_points = 3000#data['num_border_points']
+        num_internal_points = 2000#data['num_internal_points']
         
         # Load and zoom
         # raw_image, _ = load_image(filepath)
-        image = zoom_image(raw_image)
+        image = zoom_image(np_image)
         
         # Hair removal
         cleaned = remove_hair(image)
@@ -142,7 +143,7 @@ def simulate_dermgaze():
         internal_points = sample_internal_points(mask, num_internal_points)
 
         # Heatmap
-        buf = visualize_heatmap(image, border_points, internal_points, original_filename=os.path.basename(filepath), visualize=visualize)
+        buf = visualize_heatmap(image, border_points, internal_points)#, original_filename=os.path.basename(filepath))
         response = send_file(buf, mimetype='image/png')
         response.headers["Content-Disposition"] = "inline; filename=bot-heatmap.png"
         return response
