@@ -42,6 +42,26 @@ export const retrieveImageFromGCP = async (filename: string) => {
   }
 };
 
+export const getImageAsBase64FromGCP = async (filename: string) => {
+  try {
+    const response = await api.get(API_URL + `/images/${filename}/base64`);
+    return response.data;
+  } catch (error) {
+    console.error(`Error retrieving image ${filename} as base 64:`, error);
+    return null;
+  }
+};
+
+export const getHeatmapAsBase64FromGCP = async (filename: string) => {
+  try {
+    const response = await api.get(API_URL + `/heatmaps/${filename}/base64`);
+    return response.data;
+  } catch (error) {
+    console.error(`Error retrieving heatmap ${filename} as base 64:`, error);
+    return null;
+  }
+};
+
 export const getClassificationFromHeatmap = async (
   imageBase64: string,
   confidenceThreshold = 0.5,

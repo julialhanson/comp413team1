@@ -89,6 +89,30 @@ const getSignedUrlFromGCP = async (filename, bucketName) => {
   return url;
 };
 
+const getMediaAsBase64 = async (filename, bucketName) => {
+  const bucket = storage.bucket(bucketName);
+  const file = bucket.file(filename);
+
+  const chunks = [];
+
+  return new Promise((resolve, reject) => {
+    file
+      .createReadStream()
+      .on("data", (chunk) => chunks.push(chunk))
+      .on("end", () => {
+        const buffer = Buffer.concat(chunks);
+        const base64 = buffer.toString("base64");
+        const mimeType = file.metadata?.contentType || "image/png";
+        const dataUrl = `data:${mimeType};base64,${base64}`;
+        resolve(base64);
+      })
+      .on("error", (err) => {
+        console.error("Error reading file:", err);
+        reject(err);
+      });
+  });
+};
+
 export const getSignedUrlForImage = async (filename) => {
   return await getSignedUrlFromGCP(filename, BUCKET_NAME);
 };
@@ -103,4 +127,12 @@ export const uploadImageToGCP = async (file, filename) => {
 
 export const uploadHeatmapToGCP = async (file, filename) => {
   return await uploadToGCP(HEATMAP_BUCKET_NAME, file, filename);
+};
+
+export const getImageAsBase64 = async (filename) => {
+  return await getMediaAsBase64(filename, BUCKET_NAME);
+};
+
+export const getHeatmapAsBase64 = async (filename) => {
+  return await getMediaAsBase64(filename, HEATMAP_BUCKET_NAME);
 };
