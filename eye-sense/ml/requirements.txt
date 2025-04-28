@@ -1,0 +1,11 @@
+# Required packages for the Eye-Sense ML component
+numpy==1.24.3
+tensorflow==2.12.0
+matplotlib>=3.5.0
+opencv-python>=4.5.0
+scikit-learn>=1.0.0
+scipy>=1.7.0
+google-cloud-storage>=2.0.0
+pandas>=1.3.0
+tqdm>=4.62.0
+h5py>=3.1.0 
