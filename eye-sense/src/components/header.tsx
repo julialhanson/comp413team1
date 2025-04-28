@@ -13,36 +13,39 @@ const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
-    <header className="fixed top-0 flex flex-nowrap items-center justify-between w-screen h-12 py-2 px-4 bg-white">
-      <Link className="tracking-wider font-bold text-lg" to="/auth">
-        eye-
-        <span className="dark-blue">sense</span>
-      </Link>
-      <nav>
-        <Link to="/create-survey" style={getLinkStyle("/create-survey")}>
-          create
+    <>
+      <header className="fixed top-0 flex flex-nowrap items-center justify-between w-screen h-12 py-2 px-4 bg-white z-30">
+        <Link className="tracking-wider font-bold text-lg" to="/auth">
+          eye-
+          <span className="dark-blue">sense</span>
         </Link>
-        <Link to="/predict" style={getLinkStyle("/predict")}>
-          predict
-        </Link>
-      </nav>
+        <nav>
+          <Link to="/create-survey" style={getLinkStyle("/create-survey")}>
+            create
+          </Link>
+          <Link to="/predict" style={getLinkStyle("/predict")}>
+            predict
+          </Link>
+        </nav>
 
-      <div className="h-full">
-        <button
-          className="aspect-square h-full cursor-pointer"
-          onClick={() => setIsMenuOpen(!isMenuOpen)}
-        >
-          <img
-            className="rounded-full"
-            src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"
-            alt=""
-          />
-        </button>
-        {isMenuOpen && (
-          <ProfileMenu isMenuOpen={isMenuOpen} setIsMenuOpen={setIsMenuOpen} />
-        )}
-      </div>
-    </header>
+        <div className="h-full">
+          <button
+            className="aspect-square h-full cursor-pointer"
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+          >
+            <img
+              className="rounded-full"
+              src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"
+              alt=""
+            />
+          </button>
+        </div>
+      </header>
+
+      {isMenuOpen && (
+        <ProfileMenu isMenuOpen={isMenuOpen} setIsMenuOpen={setIsMenuOpen} />
+      )}
+    </>
   );
 };
 

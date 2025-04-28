@@ -1,10 +1,10 @@
-import axios from "axios";
+import api from "../utils/axios";
 
-const API_URL = "http://localhost:5050/api/v1/auth"; // Adjust for production
+const API_URL = "/auth"; // Adjust for production
 
 export const loginUser = async (username: string, password: string) => {
   try {
-    const response = await axios.post(API_URL + `/login`, {
+    const response = await api.post(API_URL + `/login`, {
       username: username,
       password: password,
     });

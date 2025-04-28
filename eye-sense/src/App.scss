@@ -30,6 +30,18 @@ $darker-blue: #0e529b;
   background-color: $dark-blue;
 }
 
+.transparent-black-bg {
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+.light-grey-bg {
+  background-color: $light-grey;
+}
+
+.transparent-green-bg {
+  background-color: rgba($color: green, $alpha: 0.4);
+}
+
 .light-blue {
   color: $light-blue;
 }
@@ -44,6 +56,21 @@ $darker-blue: #0e529b;
 
 .darker-blue {
   color: $darker-blue;
+}
+
+.half-width {
+  width: 50%;
+}
+
+.link {
+  width: fit-content;
+  border-bottom: 1px solid $dark-blue;
+  color: $dark-blue;
+
+  &:hover {
+    color: $darker-blue;
+    cursor: pointer;
+  }
 }
 
 .btn {
@@ -73,6 +100,14 @@ $darker-blue: #0e529b;
 
   &:hover {
     background-color: $light-grey;
+  }
+}
+
+.darker-grey-btn {
+  background-color: $light-grey;
+
+  &:hover {
+    background-color: grey;
   }
 }
 
@@ -107,6 +142,74 @@ $darker-blue: #0e529b;
   }
 }
 
+.inner-line-divider {
+  // &:first-child {
+  //   padding-top: 12px;
+  // }
+
+  // &:last-child {
+  //   padding-bottom: 12px;
+  // }
+
+  &:not(:last-child) {
+    border-bottom: 1px solid $light-grey;
+  }
+}
+
+.front {
+  z-index: 1000;
+}
+
+.center-screen {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.toggle-btn {
+  position: relative;
+  border-radius: calc(infinity * 1px);
+  background-color: $light-grey;
+  height: 100%;
+  width: 35px;
+  height: 20px;
+  transition: background-color 0.2s;
+  cursor: pointer;
+
+  .thumb {
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    background-color: white;
+    border-radius: calc(infinity * 1px);
+    left: 3px;
+    top: 50%;
+    transition: left 0.1s;
+    transform: translate(0, -50%);
+  }
+
+  &:hover {
+    background-color: rgb(179, 179, 179);
+  }
+
+  &.toggled {
+    background-color: #49c0a2;
+
+    .thumb {
+      left: calc(35px - 14px - 3px);
+    }
+  }
+}
+
+.rotate-right {
+  animation: rotate-right 0.4s forwards;
+}
+
+// html body div#webgazerVideoContainer {
+//   display: none !important;
+// }
+
 // ANIMATIONS
 @keyframes fade-in {
   from {
@@ -123,5 +226,14 @@ $darker-blue: #0e529b;
   }
   to {
     opacity: 0;
+  }
+}
+
+@keyframes rotate-right {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
   }
 }

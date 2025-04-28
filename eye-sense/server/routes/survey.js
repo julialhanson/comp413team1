@@ -3,14 +3,49 @@ import express from "express";
 import db from "../connection.js";
 
 import { ObjectId } from "mongodb";
+import { authenticateToken } from "../utils/authenticate.js";
+import { insertSurveyQuestionsAndChoices } from "../utils/update-survey-questions.js";
+import { getSignedUrlForImage } from "../utils/gcp.js";
 
 const router = express.Router();
 
 // Get all surveys in the database
-router.get("/", async (req, res) => {
+router.get("/", authenticateToken, async (req, res) => {
   let collection = await db.collection("Surveys");
-  let results = await collection.find({}).toArray();
-  return res.send(results).status(200);
+  let query = {};
+
+  if (req.query.organization) {
+    query.organization = req.query.organization;
+  }
+  if (req.query.published) {
+    query.published = req.query.published;
+  }
+  if (req.query.user_created) {
+    query.user_created = req.query.user_created;
+  }
+  if (req.query.question_ids) {
+    query.question_ids = req.query.question_ids;
+  }
+  if (req.query.time_created) {
+    query.time_created = req.query.time_created;
+  }
+
+  console.log("query length is ", Object.keys(query).length);
+  console.log(req.user);
+
+  if (Object.keys(query).length == 0) {
+    let results = await collection.find({}).toArray();
+    return res.send(results).status(200);
+  } else {
+    try {
+      let surveys = await collection.find(query).toArray();
+      return res.status(200).json(surveys);
+    } catch (error) {
+      return res
+        .status(400)
+        .json({ error: "Error fetching surveys", details: error.message });
+    }
+  }
 });
 
 // Get a specific survey in the database
@@ -29,6 +64,8 @@ router.get("/:id/questions", async (req, res) => {
   let query = { _id: new ObjectId(req.params.id) };
   let result = await surveyCollection.findOne(query);
 
+  console.log("survey GET result:", result);
+
   if (!result) {
     console.error(`Error getting survey with id ${req.params.id}`);
     res.send("Not found").status(404);
@@ -36,7 +73,7 @@ router.get("/:id/questions", async (req, res) => {
   }
 
   // Extract question IDs from the survey
-  const questionIds = result.question_ids?.map((id) => new ObjectId(id)) || [];
+  const questionIds = result.question_ids.map((id) => new ObjectId(id)) || [];
 
   if (questionIds.length === 0 || questionIds === null)
     return res.status(404).send([]);
@@ -50,48 +87,23 @@ router.get("/:id/questions", async (req, res) => {
   // Fetch choices for each question
   const questionsWithChoices = await Promise.all(
     questions.map(async (question) => {
-      console.log(question);
       const choiceIds =
         question.choice_ids?.map((id) => new ObjectId(id)) || [];
       const choices = await db
         .collection("Choices")
         .find({ _id: { $in: choiceIds } })
         .toArray();
-      console.log(choices);
+
+      const image = await getSignedUrlForImage(question.imageUrl);
+      console.log("image:", image);
 
       const { choice_ids, ...restOfQuestion } = question;
-      return { ...restOfQuestion, choices };
+      return { ...restOfQuestion, choices, image: image };
     })
   );
 
   res.send({ name: result.name, questions: questionsWithChoices }).status(200);
 });
-
-// // Get surveys specified by a field value in the database
-// router.get("/items", async (req, res) => {
-//     try {
-//         let collection = await db.collection("Surveys");
-//         let query = {};
-//         if (req.query.survey_id) query.survey_id = req.query.survey_id;
-//         if (req.query.organization) query.organization = { $regex: new RegExp(`^${req.query.organization}$`, "i") };
-//         if (req.query.user_created) query.user_created = req.query.user_created;
-//         if (req.query.time_created) query.time_created = req.query.time_created;
-//         if (req.query.last_edited) query.last_edited = req.query.last_edited;
-//         if (req.query.published !== undefined) query.published = req.query.published;
-//         if (req.query.questions) query.questions = req.query.questions;
-
-//         let result = await collection.find(query).toArray();
-
-//         if (result.length === 0) {
-//             res.status(404).send("No matching surveys found");
-//         } else {
-//             res.status(200).send(results);
-//         }
-//     } catch (error) {
-//         console.error(error);
-//         res.status(500).send("Internal Server Error");
-//     }
-// });
 
 // Modify information in a given survey
 router.put("/:id", async (req, res) => {
@@ -127,43 +139,9 @@ router.post("/", async (req, res) => {
   try {
     // Insert choices into database
     const questions = req.body.questions;
-    const choiceCollection = db.collection("Choices");
     const surveyCollection = db.collection("Surveys");
-    const questionCollection = db.collection("Questions");
 
-    const questionsToInsert = [];
-
-    for (const question of questions) {
-      const choiceDocs = question.choices.map((choice) => ({
-        text: choice.text,
-      }));
-
-      // Insert choices and get their _id values
-      const choiceInsertResult = await choiceCollection.insertMany(choiceDocs);
-      console.log(choiceInsertResult.insertedIds);
-      const choiceIds = Object.values(choiceInsertResult.insertedIds);
-
-      // Replace choices with _id references
-      const questionToInsert = {
-        question: question.question,
-        type: question.type,
-        // organization: question.organization,
-        // user_created: question.user_created,
-        // time_created: question.time_created,
-        // last_edited: question.last_edited,
-        image: question.image,
-        choice_ids: choiceIds,
-      };
-
-      questionsToInsert.push(questionToInsert);
-    }
-
-    // Insert surveys
-    const questionInsertResult = await questionCollection.insertMany(
-      questionsToInsert
-    );
-
-    const questionIds = Object.values(questionInsertResult.insertedIds);
+    const questionIds = await insertSurveyQuestionsAndChoices(questions);
 
     let newDocument = {
       // survey_id: req.body.survey_id,
@@ -176,8 +154,6 @@ router.post("/", async (req, res) => {
       question_ids: questionIds, //req.body.questions//.map((q) => q.question_id),
     };
 
-    console.log(questionInsertResult);
-
     let result = await surveyCollection.insertOne(newDocument);
     return res.send(result).status(201);
   } catch (e) {
@@ -187,10 +163,19 @@ router.post("/", async (req, res) => {
 });
 
 // Modify information for a survey
-router.patch("/:id", async (req, res) => {
+router.patch("/:id", authenticateToken, async (req, res) => {
   try {
     const query = { _id: new ObjectId(req.params.id) };
-    const updates = {};
+    let surveyCollection = db.collection("Surveys");
+
+    const surveyToModify = await surveyCollection.findOne(query);
+
+    // Check authorization
+    if (surveyToModify.user_created !== req.user.username) {
+      return res.send("Unauthorized").status(401);
+    }
+
+    let updates = {};
     for (const key in req.body) {
       if (req.body[key] != null) {
         updates[key] = req.body[key];
@@ -202,24 +187,104 @@ router.patch("/:id", async (req, res) => {
       return res.status(500).send("ERROR: request body empty");
     }
 
-    const updatedDocument = { $set: updates };
-    let collection = await db.collection("Surveys");
-    let result = await collection.updateOne(query, updatedDocument);
-    return res.send(result).status(200);
+    // const questionsToInsert = [];
+
+    // if (updates["questions"]) {
+    //   const { questions, ...newUpdates } = updates;
+    //   const questionIds = [];
+
+    //   for (const question of questions) {
+    //     if (question._id) questionIds.push(question._id);
+    //     else questionsToInsert.push(question);
+    //   }
+
+    //   newUpdates["question_ids"] = questionIds;
+    //   updates = newUpdates;
+    // }
+
+    // let questionCollection = db.collection("Questions");
+    // // Insert new questions
+    // const questionInsertResult = await questionCollection.insertMany(
+    //   questionsToInsert
+    // );
+
+    // Add all new questions
+    if (updates["questions"]) {
+      const questions = updates["questions"];
+
+      console.log("questions in survey.js:", questions);
+
+      const newQuestionIds = await insertSurveyQuestionsAndChoices(questions); //Object.values(questionInsertResult.insertedIds);
+      const existingQuestionIds = questions
+        .filter((question) => question._id !== null)
+        .map((question) => question._id);
+
+      console.log("existingQuestionIds:", existingQuestionIds);
+      console.log("newQuestionIds:", newQuestionIds);
+
+      updates["question_ids"] = existingQuestionIds.concat(newQuestionIds);
+    }
+
+    const { questions, ...actualUpdates } = updates;
+
+    const updatedDocument = { $set: actualUpdates };
+    let result = await surveyCollection.updateOne(query, updatedDocument);
+    return res.send(result);
+    // return res.send(result).status(200);
   } catch (e) {
     console.error(e);
     return res.status(500).send("Error updating survey");
   }
 });
 
-// Delete a survey
-router.delete("/:id", async (req, res) => {
+// Delete a survey and all of its questions and choices
+router.delete("/:id", authenticateToken, async (req, res) => {
   try {
     const query = { _id: new ObjectId(req.params.id) };
-    const collection = db.collection("Surveys");
-    let result = await collection.deleteOne(query);
+    const surveyCollection = db.collection("Surveys");
+    const questionCollection = db.collection("Questions");
+    const choiceCollection = db.collection("Choices");
+    const responseCollection = db.collection("Responses");
 
-    return res.send(result).status(200);
+    let surveyToDelete = await surveyCollection.findOne(query);
+
+    // Check authorization
+    if (surveyToDelete.user_created !== req.user.username) {
+      return res.send("Unauthorized").status(401);
+    }
+
+    // Get all question objects in survey
+    const questionIds = surveyToDelete.question_ids.map((question_id) => {
+      return new ObjectId(question_id);
+    });
+    let questionsToDelete = await questionCollection
+      .find({ _id: { $in: questionIds } })
+      .toArray();
+
+    // First, delete all choices associated with the questions in the survey
+    for (const question of questionsToDelete) {
+      const choiceIds = question.choice_ids.map((choice_id) => {
+        return new ObjectId(choice_id);
+      });
+      const deleteChoicesResult = await choiceCollection.deleteMany({
+        _id: { $in: choiceIds },
+      });
+    }
+
+    // After all choices deleted, delete all questions
+    let deleteQuestionsResult = await questionCollection.deleteMany({
+      _id: { $in: questionIds },
+    });
+
+    // Delete all responses that corresponded to survey
+    let deleteResponsesResult = await responseCollection.deleteMany({
+      survey_id: req.params.id
+    })
+
+    // Lastly, delete survey
+    let deleteSurveyResult = await surveyCollection.deleteOne(query);
+
+    return res.send(deleteSurveyResult).status(200);
   } catch (e) {
     console.error(e);
     return res.status(500).send("Error deleting survey");
@@ -281,7 +346,7 @@ router.post("/:id/responses", async (req, res) => {
       survey_id: req.params.id,
       time_taken: req.body.time_taken,
       selected: req.body.selected,
-      heatmaps: req.body.heatmaps,
+      heatmap_urls: req.body.heatmap_urls,
     };
     let collection = await db.collection("Responses");
     let result = await collection.insertOne(newDocument);

@@ -1,14 +1,38 @@
-import { useState } from "react";
-import { Question, Survey } from "../types";
-import { createSurvey } from "../controllers/survey-controller";
-import { useNavigate } from "react-router-dom";
-import ImageUpload from "../components/image-upload";
+import { useEffect, useState } from "react";
+import { Survey, Question } from "../types";
+import {
+  createSurvey,
+  getQuestionsFromSurvey,
+  modifySurveyWithId,
+} from "../controllers/survey-controller.ts";
+import { useNavigate, useParams } from "react-router-dom";
+import ImagePreview from "../components/image-preview.tsx";
+import { getCurrentUser } from "../controllers/user-controller.ts";
+import ToggleButton from "../components/toggle-button.tsx";
+import { modifyQuestionWithId } from "../controllers/question-controller.ts";
+import { modifyChoiceWithId } from "../controllers/choice-controller.ts";
+import Container from "../components/container.tsx";
+import { generateUniqueFilename } from "../utils/func-utils.ts";
+import { uploadMediaToGCP } from "../controllers/gcp-controller.ts";
 
 const CreateSurvey = () => {
   const navigate = useNavigate();
+  const { username, id: surveyId } = useParams();
   const [surveyName, setSurveyName] = useState<string>("");
   const [questions, setQuestions] = useState<Question[]>([]);
   const [optionId, setOptionId] = useState<number>(1);
+
+  useEffect(() => {
+    getCurrentUser().then((user) => {
+      getQuestionsFromSurvey(surveyId).then((data) => {
+        if (user.username === username) {
+          setSurveyName(data.name);
+          setQuestions(data.questions);
+          console.log("data.questions in create-survey:", data.questions);
+        }
+      });
+    });
+  }, [surveyId, username]);
 
   const getOptionType = (type: string) => {
     switch (type) {
@@ -21,9 +45,30 @@ const CreateSurvey = () => {
     }
   };
 
-  const setQuestionImg = (newImg: File | null, index: number) => {
+  const setQuestionImg = (image: File | null, index: number) => {
     const newQuestions = [...questions];
-    const newQuestion = { ...newQuestions[index], image: newImg };
+
+    let imageUrl;
+    if (image) imageUrl = generateUniqueFilename(image.name);
+    else imageUrl = "";
+
+    const newQuestion = {
+      ...newQuestions[index],
+      image: image,
+      imageUrl: imageUrl,
+    };
+    newQuestions[index] = newQuestion;
+    console.log("newQuestions:", newQuestions);
+    setQuestions(newQuestions);
+  };
+
+  const toggleQuestionTracking = (index: number) => {
+    const newQuestions = [...questions];
+    const oldQuestion = newQuestions[index];
+    const newQuestion = {
+      ...oldQuestion,
+      is_tracking: !oldQuestion.is_tracking,
+    };
     newQuestions[index] = newQuestion;
     setQuestions(newQuestions);
   };
@@ -53,7 +98,9 @@ const CreateSurvey = () => {
         id: questions.length + 1,
         question: "",
         image: null,
+        imageUrl: "",
         type: "multiple choice",
+        is_tracking: false,
         // selected: [],
         // Initialize question with at least one option
         choices: [
@@ -73,24 +120,83 @@ const CreateSurvey = () => {
     );
   };
 
-  const publishSurvey = () => {
-    const survey: Survey = {
-      name: surveyName,
-      organization: "", // TODO: CHANGE WHEN WE CAN GET ORGANIZATION / USERNAME
-      user_created: "",
-      time_created: new Date(),
-      last_edited: new Date(),
-      published: true,
-      questions: questions,
-    };
-    createSurvey(survey).then((data) => {
-      const insertedSurveyId = data.insertedId;
-      navigate(`/view-survey/${insertedSurveyId}`);
-    });
+  const saveSurvey = (wantToPublish: boolean) => {
+    getCurrentUser()
+      .then((user) => {
+        // Upload all images to GCP
+        questions.forEach((question) => {
+          uploadMediaToGCP(question.image, question.imageUrl);
+        });
+
+        // If we want to publish/save a new survey
+        if (!surveyId) {
+          const survey: Survey = {
+            name: surveyName,
+            organization: user.organization,
+            user_created: user.username,
+            time_created: new Date(),
+            last_edited: new Date(),
+            published: wantToPublish,
+            questions: questions,
+          };
+
+          createSurvey(survey).then((data) => {
+            const insertedSurveyId = data.insertedId;
+
+            if (wantToPublish) navigate(`/view-survey/${insertedSurveyId}`);
+          });
+        }
+        // If we want to publish or modify an existing draft
+        else {
+          const survey = {
+            name: surveyName,
+            organization: user.organization,
+            user_created: user.username,
+            // time_created: new Date(),
+            last_edited: new Date(),
+            published: wantToPublish, // false
+            questions: questions,
+          };
+
+          console.log("saving survey:", survey);
+
+          for (const question of questions) {
+            if (question._id) {
+              const { _id, ...newQuestion } = question;
+
+              for (const choice of newQuestion.choices) {
+                if (choice._id) {
+                  const { _id, ...newChoice } = choice;
+                  modifyChoiceWithId(_id, newChoice);
+                }
+              }
+
+              console.log("newQuestion:", newQuestion);
+              modifyQuestionWithId(_id, newQuestion);
+            }
+          }
+
+          // if (wantToPublish) {
+          //   survey.time_created = new Date();
+          // }
+
+          modifySurveyWithId(surveyId, survey);
+
+          if (wantToPublish) navigate(`/view-survey/${surveyId}`);
+        }
+
+        if (!wantToPublish) {
+          // Only navigate to "My Surveys" if we have not already navigated to view survey
+          navigate(`/profile/${user.username}/surveys`);
+        }
+      })
+      .catch(() => {
+        console.error("Please log in and try again.");
+      });
   };
 
   return (
-    <div className="max-w-2xl ml-auto mr-auto p-5">
+    <Container>
       {/* NAME SURVEY */}
       <div className="flex items-center justify-between mb-3">
         <input
@@ -100,8 +206,16 @@ const CreateSurvey = () => {
           onChange={(e) => setSurveyName(e.target.value)}
           placeholder="Input survey name..."
         />
-        <button className="btn blue-btn" onClick={publishSurvey}>
+
+        <button className="btn blue-btn mr-2" onClick={() => saveSurvey(true)}>
           Publish
+        </button>
+
+        <button
+          className="btn darker-grey-btn"
+          onClick={() => saveSurvey(false)}
+        >
+          Save
         </button>
       </div>
 
@@ -158,15 +272,15 @@ const CreateSurvey = () => {
                     <i className="fa-solid fa-xmark"></i>
                   </button>
                   <label className="pb-2">
+                    {/* INDICATOR BUTTON */}
                     <input
                       className="ml-2"
                       name={"question-" + index}
                       type={getOptionType(question.type)}
                       value={option.text}
                       disabled
-                      // checked={selectedValue === option}
-                      // onChange={onChange}
                     />
+                    {/* TEXT INPUT */}
                     <input
                       className="mx-2"
                       type="text"
@@ -177,6 +291,8 @@ const CreateSurvey = () => {
                           e.target.value;
                         setQuestions(newQuestions);
                       }}
+                      // TODO: CHANGE THIS SO IT JUST SHOWS PLACEHOLDER FOR NEW OPTION
+                      value={option.text ? option.text : ""}
                     />
                   </label>
                 </div>
@@ -185,14 +301,19 @@ const CreateSurvey = () => {
 
             <div className="m-2">
               {/* DISPLAY IMAGE */}
-              <ImageUpload
-                resetImage={() => {
-                  setQuestionImg(null, index);
-                }}
-                imgFile={question.image}
+              <ImagePreview
+                // onImageUploaded={(imageUrl) => setQuestionImg(imageUrl, index)}
+                resetImage={() => setQuestionImg(null, index)}
+                imgFile={
+                  // question.imageUrl
+                  //   ? new File([question.imageUrl], "image")
+                  //   : null
+                  question.image || null
+                }
               />
             </div>
           </div>
+
           <div className="flex justify-between mt-2">
             {/* ADD OPTION BUTTON */}
             <button
@@ -202,7 +323,21 @@ const CreateSurvey = () => {
               Add option
             </button>
 
-            <div>
+            <div className="flex justify-center items-center">
+              {/* TOGGLE EYE TRACKING ONLY IF IMAGE EXISTS */}
+              {questions[index].image && (
+                <div
+                  className="flex items-center btn"
+                  title="Enable eye tracking"
+                >
+                  <i className="fa-solid fa-eye dark-grey mr-1"></i>
+                  <ToggleButton
+                    isToggled={questions[index].is_tracking}
+                    toggleFunction={() => toggleQuestionTracking(index)}
+                  />
+                </div>
+              )}
+
               {/* UPLOAD IMAGE TO QUESTION BUTTON */}
               <button className="btn dark-grey">
                 <label htmlFor={"questionImg-" + index}>
@@ -214,6 +349,7 @@ const CreateSurvey = () => {
                   className="hidden"
                   onChange={(e) => {
                     if (e.target.files) {
+                      console.log(e.target.files);
                       setQuestionImg(e.target.files[0], index);
                     }
                   }}
@@ -239,7 +375,7 @@ const CreateSurvey = () => {
       >
         <i className="fa-solid fa-plus px-1"></i> Add question
       </button>
-    </div>
+    </Container>
   );
 };
 
